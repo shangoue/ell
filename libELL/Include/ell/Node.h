@@ -16,7 +16,7 @@
 #ifndef INCLUDED_PARSER_NODE_H
 #define INCLUDED_PARSER_NODE_H
 
-#include "Utils.h"
+#include <ell/Utils.h>
 
 namespace ell
 {
@@ -126,10 +126,10 @@ namespace ell
     };
 }
 
-#include "UnaryNodes.h"
-#include "BinaryNodes.h"
-#include "Primitives.h"
-#include "Numerics.h"
+#include <ell/UnaryNodes.h>
+#include <ell/BinaryNodes.h>
+#include <ell/Primitives.h>
+#include <ell/Numerics.h>
 
 namespace ell
 {

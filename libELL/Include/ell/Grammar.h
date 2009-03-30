@@ -16,7 +16,7 @@
 #ifndef INCLUDED_PARSER_GRAMMAR_H
 #define INCLUDED_PARSER_GRAMMAR_H
 
-#include "Node.h"
+#include <ell/Node.h>
 
 namespace ell
 {

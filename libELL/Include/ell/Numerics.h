@@ -16,8 +16,8 @@
 #ifndef INCLUDED_PARSER_NUMERICS_H
 #define INCLUDED_PARSER_NUMERICS_H
 
-#include "Node.h"
-#include "Parser.h"
+#include <ell/Node.h>
+#include <ell/Parser.h>
 
 namespace ell
 {
