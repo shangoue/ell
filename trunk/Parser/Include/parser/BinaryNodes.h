@@ -19,7 +19,7 @@
 #include "BinaryNode.h"
 #include "Parser.h"
 
-namespace parser
+namespace ell
 {
 #   define D(CLASS, NAME)                                                            \
     template <typename Token, typename Left, typename Right>                         \

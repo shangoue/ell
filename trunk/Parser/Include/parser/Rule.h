@@ -18,7 +18,7 @@
 
 #include "Node.h"
 
-namespace parser
+namespace ell
 {
     /// A rule allows to introduce recursive definitions in a grammar as
     /// it breaks the expression templates chain.

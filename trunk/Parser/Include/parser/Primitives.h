@@ -19,7 +19,7 @@
 #include "Node.h"
 #include "Parser.h"
 
-namespace parser
+namespace ell
 {
     template <typename Token, typename ConcreteNode>
     struct TokenPrimitiveBase : public ConcreteNodeBase<Token, ConcreteNode>

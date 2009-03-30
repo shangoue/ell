@@ -18,7 +18,7 @@
 
 #include <cassert>
 
-namespace parser
+namespace ell
 {
     const std::string XmlNode::get_attrib(const std::string & name) const
     {
