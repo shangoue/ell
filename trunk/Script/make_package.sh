@@ -5,7 +5,8 @@ if [ ! "$*" ]; then
     exit 1
 fi
 
-pkg="Ell-`date +%Y%b%d`-r`svnversion`"
+ver=`svnversion | sed "s/^[^:]*:\([0-9M]\+\)/\1/"`
+pkg="Ell-`date +%Y%b%d`-r$ver"
 echo Generate $pkg
 mkdir $pkg
 cp --parent CommonHeaders.h COPYING.LESSER Makefile $pkg/
