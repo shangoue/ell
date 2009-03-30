@@ -15,7 +15,7 @@
 
 #include <fstream>
 
-#include "XmlParser.h"
+#include <ell/XmlParser.h>
 
 using namespace ell;
 

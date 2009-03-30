@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "XmlNode.h"
-#include "XmlParser.h"
+#include <ell/XmlNode.h>
+#include <ell/XmlParser.h>
 
 #include <cassert>
 
