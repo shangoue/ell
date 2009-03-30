@@ -149,6 +149,7 @@ namespace ell
     {
         BEGIN_PARSE
         SafeModify<> m1(parser->flags.no_step_back, false);
+        SafeModify<const Node<Token> *> m2(parser->skipper, 0);
         typename Parser<Token>::Context sav_pos = parser->save_pos();
         match = left.parse(parser);
         if (match and right.parse(parser))

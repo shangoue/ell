@@ -48,11 +48,7 @@ namespace ell
         Range<Token, (Token) '!', (Token) '~'>  visible_ascii;
         UTF8NonASCII                            utf8nonascii;
 
-        Integer<Token, signed long>             signed_decimal;
-
-        template <typename Sign, const int Radix, const int MinDigits, const int MaxDigits>
-        Integer<Token, Sign, Radix, MinDigits, MaxDigits>
-                                                integer() const { return Integer<Token, Sign, Radix, MinDigits, MaxDigits>(); }
+        Integer<Token, signed long>             integer;
 
         Integer<Token, unsigned long>           dec;
         Integer<Token, unsigned long, 16>       hex;
