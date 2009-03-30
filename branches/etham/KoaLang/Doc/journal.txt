@@ -1,0 +1,1390 @@
+Note : Les articles les plus récents sont en haut
+
+
+------
+
+for i in (format size mode)
+       print (`i ": " images.i)
+
+------
+
+#include <stdio.h>
+
+//Encore un truc qu'on peut pas faire en C++:
+
+class Base
+{
+    virtual void func() { printf("I'm not Base2\n"); }
+};
+
+class Base2
+{
+    void func()
+    {
+        printf("I'm Base2\n");
+    }
+};
+
+class Derived : public Base, public Base2
+{
+};
+
+int main()
+{
+    Derived d;
+    d.func();
+    return 0;
+}
+
+
+
+------
+
+2 notations en concurrence :
+
+
+func = (a b) -> a + b
+
+def func[a b]: a + b
+
+
+------
+Problème des closures avec des variables purement formelles
+
+size = 6
+
+def range[]
+{
+    i = 0
+
+    return () -> if i < size return i = i + 1
+}
+
+iter = range[]
+
+print[iter[]]
+print[iter[]]
+print[iter[]]
+print[iter[]]
+
+      { }      
+       |       
+      ( =            =               =              [] )
+      /   \        /   \           /   \          /    \
+   size     6   range    :      iter   []      iter    ()
+                       /   \          /   \
+                     ()   {  }     range   ()
+                           |
+                          ( =         return )
+                          /   \         |
+                         i    size      :
+                                      /   \
+                                    ()      if
+                                          /    \
+                                        <       return
+                                      /   \        |
+                                    i     size     =
+                                                 /   \
+                                               i       +
+                                                     /   \
+                                                   i       1
+   
+
+object = 
+{
+    i = 0
+
+    func = (): i = i + 1
+}
+
+          { }
+           |
+           =
+         /   \
+  object     { }
+              \
+              (  =            = )
+               /   \        /   \
+             i      0     func   :
+                               /   \
+                             ()     =
+                                  /   \
+                                i      +
+                                     /   \
+                                   i       1
+
+
+def range[begin end]:
+{
+    i = begin
+    return () : if i < end return i = i + 1
+}
+
+for i in range[1 5]
+    print[i]
+
+==> closure pas gérée...
+
+
+def class:
+{
+    toto = 1
+
+    def get_toto: return toto
+}
+
+object = class[]
+
+print object.toto
+print object.get_toto[]
+
+' Une fonction possède une value de retour :
+
+def function:
+{
+    toto = 1
+
+    return toto
+}
+
+
+
+====================
+
+
+
+
+  - créer une interface "Iterable" pour object, list et string => isIterable() et un seul code pour les opérateurs
+
+  Boaf Deux problèmes, en fait:
+
+  - d'abord, le concept de base de koalang, c'est qu'un élement seul est équivalent à une liste contenant un élément.
+  Sinon, on pert en souplesse de syntaxe. Mieux vaut donc mettre l'interface dans AbstractNode
+
+  - ensuite, l'interface actuelle (Vector) est inadaptée dans le cadre des String
+
+  Pour modifier une liste, on peut par exemple écrire : list->get(i)->assign(...)
+
+  mais string->get(i) renvoyant un pointeur AbstractNode * neut permettra pas de modifier la châine d'origine,
+  à moins d'instroduire un nouveau type. Ou de gérer les chaînes comme un tercet d'entier
+  poitant vers un morceau de chaîne d'un dictionnaire ?
+
+  Cette dernière solution est sans doute pas mal!
+// What we cannot do in C++
+
+struct Top1
+{
+    virtual int get() = 0;
+};
+
+struct Top2
+{
+    int get() { return 1; }
+};
+
+struct Bottom : public Top1, Top2
+{
+};
+
+int main()
+{
+    Bottom b;
+    return b.get();
+}
+
+====================
+
+Le problème de la fin du buffer.
+
+Jusque là, pour parser un fichier on fait un fseek(SEEK_END),
+pour calculer la taille du fichier, on alloue un gros buffer de cette taille là,
+puis on lance le parser dessus.
+
+Est-ce que çà pose problème comme méthode ?
+En effet, si les fichiers deviennent trop gros, on va commencer à fournir pas mal de travail au gestionnaire de mémoire !
+
+Donc, je pensais ajouter au parser la capacité à détecter quand il se cogne dans la fin du buffer, et générer une exception pour que son appelant puisse reremplir ce dernier.
+
+Mais çà pose des problèmes ! Explication :
+
+
+A tout moment, le parser peut revenir en arrière, parce qu'il se trouve dans une branche qui ne matche pas, mais on ne peut pas savoir de combien il peut bien avoir un jour besoin de revenir en arrière.
+
+Dans le cadre d'une grammaire LL(1), cela correspond vraisemblablement à la longeur maximale d'un lexème. Mais avec ma grammaire XML aussi bien qu'avec la grammaire de KoaLang, il n'y a aucune limitation là-dessus !
+
+Il reste une solution : détecter quand on repasse par la règle racine de la grammaire, et marquer la position avant la quelle on ne pourra pas revenir.
+
+En cas de fin de buffer, on peut alors prendre les données depuis cette position jusqu'à la fin (= position courante), et les recopier au début du buffer,
+puis ensuite compléter le buffer avec des données fraîches.
+
+Ce n'est pas la façon la plus simple de procéder, quand même !
+----
+
+Gestion de mémoire dans KoaLang.
+
+Les types du langage KoaLang dérivent tous d'une classe de base nommée
+AbstractNode.  La gestion mémoire des instances correspondantes se fait au
+moyen de smart pointers.
+
+Il s'agit d'introduire dans la class AbstractNode un compteur de référence.
+Ensuite, quand on manipule un compteur de référence à travers un smart pointer,
+celui-ci se voit incrémenté ou décrémenté à chaque création, destruction
+ouassignation d'un de ces smart pointers. Quand ce compteur tombe à zéro,
+l'instance est immédiatement détruite.
+
+Un des problèmes de cette approche c'est qu'elle ne gère pas les cycles.
+En effet, lorsqu'un ou plusieurs objets se références mutuellement, les
+compteurs de référence ne peuvent jamais zéro, et l'on perd de la mémoire.
+
+Nous allons tâcher de régler ce problème. Il s'agit de faire la chasse au cycles 
+qui ne pourront plus jamais être référencés.
+
+Tout d'abord, notons que seuls les objets KoaLang (ie du type "Language::Object")
+peuvent créer des cycles, car ce sont les seuls qui contiennent des références
+sur d'autres valeurs KoaLang.  Les autres types seront gérés à partir de smart
+pointers simples.
+
+On peut classifier les cycles KoaLang en deux catégories :
+  - les cycles parent/enfant 
+  - les autres cycles
+
+Les cycles parent/enfant sont créés systématiquement. D'une part, un enfant
+figure tout naturellement dans le dictionnaire de son parent sous la forme
+d'une assignation à une variable appartenant au parent.  D'autre part, chaque
+objet possède un pointeur 'parent' qui rend possible l'implémentation de
+l'opérateur UPSCOPE, et des objets transparents servant à instancier les
+paramètres formels dans les fonctions.
+
+Ces cycles seront les plus nombreux, mais il est en réalité assez simple de
+s'en débarrasser, nous le verrons plus loin.
+
+Les autres cycles seront plus rares, mais doivent néanmoins être pris en
+compte, car le programmeur KoaLang doit avoir le droit de faire ce qui lui
+plaît sans pour autant perdre de la mémoire !
+
+Il s'agit du cas de deux objets ne possédant pas de lien d'affiliation mais
+possédant chacun une référence sur l'autre, ou encore de n objets se
+référençant cycliquement.
+
+Commençons par un constat innocent : il n'y a pas de cycle isolé sans qu'un objet
+voit au préalable son compteur de référence décrémenté à une valeur non nulle
+(ben oui : s'il n'est pas décrémenté, il n'y a aucun raison que çà isole
+quelque chose, et si il est décrémenté à zéro, on le libère...)
+
+C'est donc un point d'entrée intéressant pour notre détection de cycles isolés.
+
+Par exemple, un objet C instancie deux objets A et B qui se référencent
+mutuellement :
+
+           _________
+          /         \
+         v           \
+
+        (A)  ----->  (B)
+
+         ^           ^
+          \         /
+           \_     _/
+              (C)
+
+
+Remarque: Si nous avions pris l'exemple de l'objet B qui instancie A en lui
+donnant une référence sur lui-même, nous revenions dans le cycle de filiation
+(qui sera traité plus tard).
+
+Suppons que C est détruit : alors les compteurs de référence de A et B passent
+tous les deux de 2 à 1, et le cycle devient isolé.
+
+
+Choisissons alors de mettre tous les objets qui sont décrémentés à une valeur
+non nulle dans une zone suspecte.  Cette zone n'est rien d'autre qu'un ensemble
+ordonné de pointeur distincts sur ces derniers (std::set, par exemple).
+
+A condition que tous les objets du cycle isolé se trouvent classés dans cette
+zone, on peut très simplement détecter les cycles à l'aide de cet algorithme
+qui consiste à appeler la fonction suivante en lui donnant en paramètre l'objet
+qui vient d'être ajouté :
+
+BurnCycles[object]:
+(
+    object.explored: 1
+
+    for child in object
+        if child in SuspectZone
+        (
+            child.ref_count: child.ref_count - 1
+            if child.explored
+                BurnCycles[child]
+        )
+
+    if object.ref_count = 0
+        delete object
+    else
+        object.explored: 0
+)
+
+En pratique, il peut s'avérer plus efficace de marquer l'appartenance à la zone
+suspecte avec un flag à l'intérieur de l'objet plutôt que d'utiliser un set.
+Ce flag pourra également être réutilisé pour la coloration, lors du parcours du 
+graphe.
+
+Bon, vous avez là le principe de fonctionnement de l'algorithme.  Mais avant de
+s'attaquer à la preuve qu'il permet bien de résoudre notre problème dans tous
+les cas, voyons comment on peut se débarrasser des cycles parent/enfant.
+
+
+Quand on supprime une référence sur un objet, le compteur de référence de se dernier
+est décrémenté. S'il est décrémenté à zéro, alors l'objet est supprimé.
+Cela n'arrive que lorsque l'objet n'a pas d'enfants, car sinon chaque enfant possède encore
+une référence sur son père.
+
+Prenons le programme KoaLang suivant :
+
+A:
+{
+    B: { }
+}
+
+C: A.B
+
+On note (A) l'objet référencé par la variable A.
+
+Ici, on a un objet (A) qui possède un enfant (B).
+Le root-scope possède une référence sur (A), mais aussi sur (B) par
+l'intermédiaire de l'assignation dans la variable C.
+
+On a donc comme compteurs de références :
+  (A) => 2 (root-scope et (B))
+  (B) => 2 (root-scope et (A))
+
+A la destruction de l'interpréteur, les deux objets (A) et (B) voient
+leur compteur de référence décrémenté à une valeur non nulle. Ils sont donc placés
+dans la zone suspecte et l'algorithme détaillé précédemment permettra simplement
+de venir à bout de ce cycle.
+
+
+A présent, examinons un programme sans court-circuit :
+
+A:
+{
+    B: { }
+}
+
+On a comme compteurs de références :
+  (A) => 2 (root-scope et (B))
+  (B) => 1 (seulement (A))
+
+A la destruction de l'interpréteur, un cycle isolé se forme tel que l'un des membres
+ne se trouve pas en zone suspecte.
+
+
+Après la décrementation, comparons la valeur du compteur de référence de (A)
+au nombre d'enfants de (A). Si ces deux valeurs sont identiques,
+alors seuls les enfants de l'objet ont encore une référence sur lui.
+
+Remarque importante : les enfants d'un objet ne sont pas tous les objets
+présents dans son dictionnaire, mais seulement ceux qui ont bien l'adresse
+de cette objet dans leur champ 'parent'.
+
+Dans ce cas, il s'agit de placer dans la zone suspecte non seulement l'objet
+(A), mais tous ses enfants, petits enfants et autres descendants (B), puis
+d'exécuter l'algorithme précédent.
+
+Sinon, il faut le faire aussi :
+en effet mettons qu'un des enfants de l'objet soit encore référencé par
+un objet extérieur. Lorsque cette référence sera détruite, l'enfant sera
+placé dans la zone suspecte, mais qu'en sera-t-il de ses frères et soeurs ?
+
+L'algorithme modifié devient alors :
+
+NEUTRAL: 0
+SUSPECT: 1
+EXPLORED: 2
+
+BurnCycles[object]:
+(
+    object.flag: EXPLORED
+
+    for child in object
+        if child.flag
+        or child.parent = objet
+        (
+            child.ref_count--
+            if child.flag \= EXPLORED
+                BurnCycles[child]
+        )
+
+    if object.ref_count = 0
+        delete[object]
+    else
+        object.flag: EXPLORED
+)
+
+----
+
+Réfléchir à tête reposée à l'implémentation des loops et des breaks :
+
+for i in pas_une_liste
+    break
+
+
+while 1
+    for i in pas_une_liste
+        break
+
+...
+
+nécessite de ne pas avoir mal au crâne...
+
+----
+
+; Table d'un jeu d'échecs, à titre d'exemple de programmation orientée objet
+
+board:
+{
+    l: 8
+    h: 8
+    content: ()
+
+    get[x y]: content[x * l + y]
+
+    check_in_board[x y]:
+    {
+        r: ..get[x y]       ; on a utilisé les accolades pour créer la variable locale r
+                            ; le scope local masque dès lors le reste de l'objet, et il est nécessaire d'utiliser
+                            ; l'opérateur .. pour accéder aux méthodes
+
+        if 0 < x < l and 0 < y < h
+            print["La case est dans la table!"]
+            return r
+        else
+            print["%d, %d: mauvaises coordonnées" % (x y)]
+            return 0
+    }
+}
+
+; Expérimentation de l'AOP
+; Ajout d'infos de débug aux méthodes de la classe board :
+
+; méthode 1: utiliser la puissance de l'opérateur for
+for name: args -> body in board
+    body:
+    ; il est nécessaire d'utiliser les accolades pour protéger l'instruction de son évaluation
+    {
+        print["Appel de la méthode " + name + "[" + args + "]"]
+    } + body
+
+; méthode 2: itérer dans toutes les variables de l'objet board, et rechercher celles du bon type
+for var in board
+    if type[var] == type[()->()]
+        body[var]:
+        ; on peut aussi utiliser une liste
+        (
+            msg: "Appel de la méthode " + name + "[" + args + "]"
+            print[msg]
+        ) +
+            body[var]
+
+
+Reste quelques décisions à prendre...
+Par exemple, comment créer plusieurs objets à partir d'une même classe ?
+
+
+Je trouve logique de manipuler les objets que par réféfences (comme en python)
+C-a-d, la ligne suivant crée un alias, et pas un nouvel objet :
+
+board2: board ; loupé=>ce n'est qu'un alias, un pointeur vers le même objet
+
+
+Pour créer une vrai classe, il faut donc appeler l'opérateur { } à chaque fois que l'on veut créer un objet :
+
+
+Board[]:
+{
+}
+
+board1: Board[]
+board2: Board[]
+
+----
+
+
+Bon, un problème.
+
+çà vient du fait que j'étais parti initialement sur un scope static des variables,
+une variable contenant sa valeur.
+
+Le problème de cette approche, c'est que çà ne crée pas du code réentrant, allez écrire
+une fonction si les variables stockent leur valeur dans l'AST ! Baaah !
+
+Il est nécessaire de stocker les valeurs des variables dans un contexte, lié à l'interpréteur.
+
+De la même façon, un bloc ne peut pas dériver d'un contexte (ou en posséder un).
+Non ! L'évaluation d'un bloc doit avoir pour effet d'empiler un contexte dans le contexte courant.
+
+Mais comment faire çà ?
+
+a: {toto: 1}
+
+Le parseur construit l'AST suivant :
+
+     toto   1
+       \   /
+         :   
+         /
+  a    BLOC
+   \   /
+     :
+
+Maintenant, on part d'un contexte de départ, c, et on veut exécuter notre AST :
+
+:->eval(c)
+
+on se rend compte qu'à gauche on a une variable (on n'évalue pas l'opérande de
+gauche vu la spécificité de l'opérateur d'assignation : on perdrait le nom de la variable)
+
+Dans le contexte courant, on ajoute alors une assignation à l'identificateur a. Mais on mets quoi comme valeur ?
+le noeud BLOC de l'AST ? Voyons la suite...
+
+on essaie d'évaluer l'opérande de droite
+Il faut trouver un endroit où stocker la valeur de toto, mais pas dans le contexte
+actuel, car toto doit être dans un sous-contexte. On ne peut pas le mettre dans le bloc de l'AST, car
+on perd la réantrance. Il faut donc créer un nouveau contexte, non lié à ce bloc, mais lié au contexte courant.
+Mais alors, où mettre ce contexte ? Et bien dans la variable a, justement.
+
+donc, il ne faut pas assigner un noeud BLOC de l'AST à une variable, mais son évaluation qui est... un contexte !
+
+Oui, mais çà ne suffit pas. Si on se contente d'associer le contexte à la variable, on perd la notion qu'un bloc est une liste.
+On ne peut plus accéder à son contenu, au code.
+
+Il faut donc les deux : le résultat de l'évaluation d'un bloc est donc...  un objet !
+
+C'est à dire l'association d'un contexte, et d'un pointeur sur le bloc parent (la classe, ou le code, comme on voudra).
+
+Il faut donc ajouter le type objet. Ce n'est pas une primitive de l'AST, toutefois. Comme le contexte, il s'agit d'un élément
+qui ne vit que pendant l'exécution.
+
+Pour simplifier, on peut toutefois considérer qu'un BLOC est un objet possédant un contexte NULL => çà évite de multiplier
+les classes et çà conserve l'idée que l'AST est un ensemble de primitives.
+
+
+----
+
+
+use gettext instead of Message.h ? (?)
+
+Display the track back when exception occured ?!
+
+
+----
+
+Test:
+
+> l=(4 5) l[0]
+ 4
+> l[-1]
+ 5
+> l[-2]
+ 4
+> l[-3]
+Error: read beyond array boundary
+> l[2]
+Error: read beyond array boundary
+> l[-3]=0
+Error: cannot extend list with the negative notation
+> l[5]=0 l
+ 4  5  ()  ()  ()  0
+
+----
+
+Pour KoaLang 2.0:
+
+l'ajout d'opérateurs.
+
+Au lieu de construire un AST, on laisse les objets sous forme d'une unique liste, correspondant aux lexèmes d'un fichier.
+
+Comme l'exécution du code ne change pas cette liste (tout comme l'AST n'est pas modifié par l'application de la fonction eval()),
+les opérateurs continuent de posséder des pointeurs vers leurs opérandes.
+
+Cela nous épargne donc déjà le pop des opérandes.
+
+D'autre part, les objets variables possèdent une référence sur cette liste corr
+
+
+----
+
+
+L1=(a b)
+L2=(c d)
+
+f=(l1 l2)->(l1 + l2)->(a + b + c +d)
+
+f[L1 L2]
+
+----
+
+Noter que ;/ est traité comme un commentaire de ligne si le /; ouvrant est enlevé.
+
+Noter la restriction due au non-usage d'un indicateur de fin d'instruction :
+une opérateur ne peut à la fois être unaire et binaire sans obliger dans
+certain cas utiliser des parenthèses :
+> 1 - 1
+ (1 - 1)
+0
+> 1 (-1)
+ 1  (-1)
+-1
+
+----
+
+
+1.  main.cpp: when error encountered, skip until end of line:
+use new method of parser (check line number still incremented) and call-back in
+parser::raise_error
+
+2. ? AST.h: Use C++ implicit conversions to avoid implementings too much operator functions.
+
+3. Operator definition (and so, function) with colon syntax:
+op: argument(s): evaluation
+(if then): (if cond then action) (0 action)[cond == 1]
+if: (if cond action) (0 action)[cond == 1]
+
+5. Other operators:
+ - opérateurs sur les blocs (scope (.), scope parent (..), dictionnaire (@@))
+ - opérateurs sur les listes (scope distributif, concaténation, ajout d'un élément,
+   select [] with slices as in python, taille (#))
+ - get variable name as a string: `v (variable à droite => cet opérateur ne doit servir qu'à çà)
+ - % like in python et pour parser une chaine `s`
+ - evaluate a statement: @s, @{ a } est équivalent à @
+> inc={get}
+  { get a  a + 1 }
+> v2=&inc
+a ?
+>> 2
+ 3
+6. Maps: use a bloc and its variables, but what if the name is contained in a variable ?
+> map={a=2 b=3}
+> map.a
+2
+> v="a"
+> map.&v
+
+8. Binding, API C++...
+
+9. Fonction
+(avec effet de bord)
+somme3={a + b + c}
+> somme3.(a=2 b=3 c=-1) somme3
+4
+
+type-safe:
+somme3={(a b c)=args a + b + c}
+> somme3.args=(1 2 3) somme3
+6
+
+10. If
+(else_statement if_statement)[a == 3]
+
+11. For (un example)
+for={a=start for_statement a=a+inc (for[1:] finally_statement)[a > end]}
+
+For:
+{
+/;  list
+    var
+    code ;/
+ 
+
+
+
+----
+
+  1. Définition de nouveaux opérateurs grâce à l'opérateur (:) :
+
+> func (a b): {a + b}
+
+ajout de la fonction func en tant qu'opérateur préfixe prenant deux paramètres :
+
+> func 1 2
+3
+
+équivalent à :
+> func (func a b): a + b
+
+func (a func b):
+{
+    a + b
+}
+
+> 1 func 2
+3
+
+2. Ajouts des opérateurs // (division entière) et ** (puissance) et << et >>
+
+Ajout des base 2, 8 et 16 comme en C et comme dans Prana pour les nombres :
+Le _ est ignoré dans le parseur de nombres entiers
+
+0 >> (x >> hexa_p | check_d(digit_p) >> octal_p | _ >> binary_p)
+
+
+> 017
+15
+> 0x10
+16
+> 0_10
+2
+
+3. Comment implémenter 1. ?
+
+On hash la signature de l'opérateur (ie contenu du paramètre 2 de l'opérateur :)
+On ajoute au type BLOC un pointeur sur une règle de grammaire (initialisé à & eps_p).
+Bonne chance pour ajouter une instanciation de template au run-time !
+:-(
+
+Il s'agit alors de l'opérateur de type CUSTOM, à voir
+
+Une autre solution revient à implémenter un nouveau type : le bloc paramétré.
+On utilise alors une surcharge de l'opérateur [] (par exemple) pour évaluer ce bloc en prenant une liste de paramètres.
+
+func [ 1 2 ]
+
+mais plus :
+1 func 2
+
+je préfère la première solution qui est plus puissante et plus générique...
+
+4. Bindings
+
+Bon, pour le binding, il suffit de concevoir l'API objet, qui aura le même effet que l'opérateur (:) !
+
+à binder rapidement :
+
+
+stdio.h
+stdlib.h
+math.h
+string.h
+XmlParser
+(libSDL ...)
+
+
+-----
+
+bloc (args):
+{
+    actions
+}
+
+est un raccourci pour :
+
+bloc=(args)->{actions}
+
+où (args)->{actions} est du type bloc paramétré.
+
+Deux opérateurs ont une valeur spéciale sur ce type :
+  @ renvoie le membre gauche
+  [list] renvoie l'évaluation du membre de gauche en remplaçant les occurence des
+  paramètres par les valeurs de list.
+
+  bp[args] est équivalent à :
+
+  @@bp=args
+  @bp
+
+----
+
+
+Dinstingons clairement les deux types d'opérateurs :
+
+- opérateurs de l'AST :
+
+  la majorité des opérateurs
+
+- opérateurs résolus lors de l'interprétation,
+  ils ne correspondent pas avec un noeud OPERATOR inséré dans l'AST :
+
+  .. . : :: ()
+
+Faire de l'objet en KoaLang :
+
+Repeat (nbr sep):
+{
+    do a:
+    (
+        r=()
+        if nbr
+        (
+            r=r + a
+            foreach nbr:
+                r=r + sep + a
+        )
+        r
+    )
+}
+
+> r=Repeat -> 5
+> r.do -> e
+( e  e  e  e  e )
+
+print -> ("hello")
+
+En fait, la différence entre une méthode et une classe n'est pas fondamentale.
+Dans les deux cas, on utilise simplement l'opérateur (:) dont la syntaxe est :
+
+identificateur (identificateur | liste d'identificateurs) ':' liste
+
+mais pour la classe, on utilise un bloc à la place de la liste (nota : un bloc
+EST une liste, donc la syntaxe de l'opérateur (:) est respectée).
+
+Le fait d'utiliser une liste simple fait qu'il n'y a pas création d'espace de
+noms, et que la fonction utilise donc l'espace de noms de la classe (ie le bloc
+englobant), tandis que la classe crée son espace de nom, et ne peut donc
+accéder à des variables définies dans un autre bloc, à moins d'utiliser
+l'opérateur .. ou de posséder un référence explicite sur le bloc qui possède
+cette variable.
+
+(Note:
+Pour pouvoir utiliser une fonction sans que celle-ci soit préalablement définie
+(comme dans les classes c++), l'approche qui considère les fonctions comme de
+nouveaux opérateurs de la grammaire n'est pas viable. Il faut nécessairement
+utiliser des variables.
+)
+
+L'opérateur (:) a pour effet d'ajouter une variable dans le bloc englobant.
+Cette variable se voit assigner un noeud du type BLOC. Le bloc est le
+contenu du 3è paramètre de l'opérateur (:) (liste ou bloc), et son espace de nom
+commence par les paramètres formels. Dans le cas d'un bloc paramétré, peuvent suivrent
+ses variables locales.
+
+L'opérateur d'appel ([]) est donc un opérateur binaire qui prend:
+   - un BLOC
+   - une liste de valeurs que doivent prendre les paramètres lors de l'appel
+
+Lors de l'évaluation, chaque élément de la liste de paramètres est assigné à la
+variable de rang correspondant dans la liste des variables du BLOC. Un
+contrôle est effectué pour vérifier que tous les paramètres sont assignés (afin
+de garantir la non-mémorisation de l'état des paramètres d'un appel de fonction
+à l'autre).
+
+Mais alors, où se situe la différence entre classes et méthode ?
+
+La différence provient de la différence d'interprétation des noms de variables
+dans le troisième paramètre (et donc des opérateurs . et .. dans cette liste) :
+
+lors du parsing de cette liste, le scope où sont insérées les variables n'est
+pas le bloc qui sera créé et inséré dans l'AST en tant que valeur d 
+
+
+
+
+----
+
+
+===== Introduction =====
+
+Ce document fait office à la fois de manuel de l'utilisateur et de tutoriel
+d'introduction au langage KoaLang, un langage que j'ai conçu parce que, en
+débit de la quantité extrêmement importante de langages déjà existants, aucun
+ne correspondait vraiment à mes besoins les plus exigents.
+
+KoaLang repose sur quelques concepts (certains sont de ma sauce) :
+  - prototype-oriented language
+  - aspect-oriented programming
+  - constant propagation
+  - operator ubiquity
+  - just-in-time evaluation
+
+Mais avant toute chose, une petite reflexion sur ce qui fait d'un langage un
+bon langage de programmation.
+
+==== Concepts préliminaires ====
+
+ajouter l'étude de :
+- la réentrance
+- la programmation parallele
+- la détection des points de sortie d'un module
+
+sur ce dernier point, le gros intérêt du c++, c'est qu'une classe ne connaît rien de son environnement, hormis ce qu'on lui transmet en paramètres, et c'est ce qui justifie le "self" en python, et l'absence d'homogénéité inérante aux autre langages objets...
+
+==== Structure du langage ====
+
+Mode interactif :
+
+Dans les exemples qui vont suivre, une ligne commence par (>) pour indiquer
+une commande tapée en mode interactif. Les autres lignes indiquent ce que
+répond l'interpréteur.
+
+=== Primitives ===
+
+Les primitives du langage sont seulement de 4 types. les nombres, les
+chaînes de caractères, les blocs et les listes :
+
+  > "Bonjour"
+  "Bonjour"
+
+  > 3
+  3
+
+  > {1 2 "Bonjour"}
+  { 1  2  "Bonjour" }
+
+  > 1, 2, "Salut"
+  (1, 2, "Salut")
+
+=== Expressions ===
+
+Le concept de base du langage est l'expression. Il s'agit d'une combinaison des
+primitives du langage avec des opérateurs et des variables. Une primitive
+prise seule est en elle-même une expression. Les même opérateurs s'appliquent
+à priori à toutes les primitives, et ce de façon hétérogène.
+
+Les expressions sont séparées par l'absence d'opérateur. Chaque expression,
+une fois complètement parsée, est évaluée, puis effacée de la mémoire.
+
+Il est possible d'accéder aux éléments d'une liste via leur index. Ceci n'est
+pas possible pour les blocs (vous verrez plus loin l'effet de l'opérateur ([])
+sur les blocs) :
+
+  > l=a, 1, "string"
+  l
+  > l
+  (a, 1, "string")
+  > l[0]
+  a
+  > l[1]
+  1
+  > l[2]
+  "string"
+  > l[0]=l[2]+l[3]
+  "1string"
+  > l + l[0]
+  ("1string", 1, string, "1string")
+
+  > b={1 2 3}
+  b
+  > b[2]
+  { 1 2 3 }
+
+Les expressions peuvent être écrites aussi bien à l'intérieur d'une liste ou
+d'un bloc qu'à l'extérieur. Comme une expression peut contenir une liste ou un
+bloc, cela introduit la possibilité d'imbrications d'une profondeur non
+arbitrairement limitée.
+
+  > l1=1, 2 l2=2, 3 l1+l2
+  1, 2, 2, 3
+  > l1[1]=l2 + (1,2)
+  (1, (2, 3, 1, 2))
+
+On peut bien-sûr combiner les listes et les blocs. La force d'attraction d'un
+bloc étant plus forte que celle d'une liste, il faut explicitement ajouter un
+bloc à une liste via l'opérateur d'indexation :
+
+  > 1,2 + {"Hello"}
+  { 1, 2  "Hello" }
+  > l=1, 2
+  1, 2
+  > l[2]={hello}
+  1, 2, {hello}
+
+L'opérateur (=) ne déroge pas à la règle qui dit que toute combinaison de
+types de primitives est acceptée. Ainsi, une liste ou un bloc peut également
+se voir affecter une expression, dans ce cas-là, l'interpréteur s'efforce
+d'avoir l'air intelligent :
+
+  > a, b, c={1 2 3}
+  (a, b, c)
+  > a
+  { 1  2  3 }
+  > b
+  ()
+  > c
+  ()
+
+  > a, b=1, 2, 3
+  > a
+  1
+  > b
+  2
+
+=== Espaces de noms ===
+
+Une variable définie dans un bloc fait de l'ombre à une variable de même nom
+d'un bloc englobant. Il n'est pas possible de créer une variable à l'intérieur
+d'un bloc depuis l'extérieur, mais on peut toutefois en lire ou en modifier le
+contenu. On utilise à cet effet l'opérateur de scope (.) ou l'opérateur
+d'indexation ([]) :
+
+  > l={a} l.a=1
+  1
+  > a
+  ()
+
+  > l={a}.a=1
+  1
+
+  > l={a=1}
+  { a = 1 }
+  > l.a
+  1
+
+  > l={a} l[a=1]
+  { a }
+  > l.a
+  1
+
+Grâce à ce mécanisme, une fonction pourra être codée comme suit :
+
+  > somme3={ a b c a+b+c }
+  { a  b  c  a + b + c }
+
+Et on l'appelera de la sorte :
+
+  > somme3[a=1 b=2 c=3]
+  6
+
+Après l'appel, le contenu des variables reste :
+
+  > somme3[2]
+  2
+
+Et les parenthèses ? Les parenthèses n'ont pas d'autre fonctions que celle de
+regrouper les termes dans des expressions afin de contourner les priorités ou
+le sens de l'associativité des opérateurs. Chaque parenthèse ouverte doit être
+refermée dans la même expression.
+
+  > 4 / 2 / 2
+  1
+  > 4 / (2 / 2)
+  4
+  > (((5)+3))
+  8
+  > (5 4)
+  Erreur !
+
+=== Organisation modululaire ===
+
+Les inclusions, les appels à la bibliothèque. L'opérateur (:) fait appel à un
+module de la bibliothèque, aussi bien qu'à des module du projet. Leur
+découverte dans l'arborescence à trait à la configuration de l'interpréteur et
+n'est pas abordée ici.
+
+Importation du contenu total du module trigo situé dans le répertoire math (qq
+part dans la lib ou dans le projet en cours) :
+
+  > :math:trigo:
+  > cos[r=3.14]
+
+Importation du module :
+
+  > :math:trigo
+  > trigo:cos[d=180]
+
+Importation de la fonction cos uniquement :
+
+  > :math:trigo:cos
+  > cos[d=360]
+
+=== Finesses d'utilisation des opérateurs ===
+
+Les tranches sont acceptées comme en python :
+
+    > l=4,3,5
+    l
+    > l[1:]
+    (3, 5)
+    > l[-2:]
+    (3, 5)
+    > l[1:134]
+    (3, 5)
+    > l[1:-6]
+    ()
+
+Comment créer une liste vide, ou à un seul élément ? Ce n'est pas possible,
+mais çà ne sert à rien !
+
+    > l=()
+    l
+    > l,=1
+    l
+    > l
+    1
+    > l,=2
+    (1, 2)
+
+L'opérateur de formatage % existe !
+
+==== Styles de programmation ====
+
+=== Comment programmer objet ===
+
+Je veux faire de l'objet ! N'avez-vous pas remarqué que c'est déjà de l'objet
+que l'on fait ?
+
+  > classe=
+  > {
+  attr1
+  attr2
+
+  methode1=
+  {
+  print attr1
+  }
+  > }
+
+  > objet=classe[attr1="Bonjour!" attr2=2]
+  > objet.methode1
+  Bonjour!
+
+A noter qu'il n'y a pas de séparation entre classes et objet : il s'agit d'un
+langage à prototypes.
+
+=== Programmation impérative ===
+
+Les structures de contrôle... Les if ? On peut simuler une structure de
+contrôle avec une liste. L'opérateur (?) a pour effet d'évaluer la valeur
+logique d'une variable.
+
+  > a=0 b=2
+  > alt=
+  > {
+  print 1
+  print 2
+  > }
+  > alt[a==0]
+  "2"
+  > alt[a]
+  "1"
+  > alt[a?]
+  "1"
+  > alt[b?]
+  "2"
+
+=== Programmation orientée aspects ===
+
+Et si je veux faire de l'Aspect Oriented Programming ?
+
+Héhé... A la recherche du langage ultime ? Et bien il est possible d'assigner
+des attributs à une liste, et des politiques définissant des actions à prendre
+en fonction des attributs. Mais la syntaxe à appliquer n'est pas encore
+totalement définie !
+===== AOP =====
+
+foreach classes as name->code:
+    if re"^prefix_" in name:
+       foreach methods in code as mname->mcode:
+            mcode=
+                { print "Log: entering method %s of class %s" % (mname,
+name) }
+                    + mcode
+        end
+    end
+end
+
+
+===== API Interpréteur =====
+
+
+kli=new KoaLangInterpretor();
+
+KoaObject o=
+kli.parse(const char *);
+
+kli.parse(const char *, bool (* reachEndCallBack)());
+kli.parse(FILE *);
+
+
+kli.addSymbol(KoaObjet & sym, KoaList & scope, bool override=false);
+
+KoaList & l=
+kli.getRootScope();
+
+
+kli.quit();
+
+
+===== Listes paramétrée =====
+
+> a=(a=4 b=5 a+b)
+(a=4 b=5 a+b)
+
+# est équivalent à :
+> a=()->(a=4 b=5 a+b)
+(a=4 b=5 a+b)
+
+# comment évaluer a ? Pas comment çà...
+> a
+(a=4 b=5 a+b)
+
+# comme çà :
+
+> a[]
+9
+
+# ou come çà ?
+
+> `a`
+9
+
+# Reste à savoir comment dissocier les deux ensemble qui définissent a... comme çà :
+> p -> l = a
+p -> l
+> p
+()
+> l
+(a=4 b=5 a+b)
+> l == a
+1
+# Forcément... il n'y a aucun paramètre !
+
+# Et accéder aux éléments d'une liste ?
+> a[0]
+a=4
+> a[]
+9
+
+# Oui, mais si :
+> b=x -> x + 4
+x -> (x + 4)
+> b[0]
+4
+
+> p->l=b
+p->l
+> l[0]
+x + 4
+
+# Gagné !
+
+===== Le problème récurrent : comment s'y retrouver dans un projet vaste et incoonu ? =====
+
+Une solution est d'interdire la transmission des symboles en 2 fichiers :
+
+fichier 1
+
+fichier 2
+
+
+fichier 1 inclus fichier 2, après avoir défini un symbol.
+
+fichier 2 ne devrait pas pouvoir l'utiliser à mois de dire explicitement
+ qu'il utilise le symbole défini dans fichier 1.
+
+En effet, ce genre de truc ressort du code impossible à relire.
+
+le scope racine est donc celui du fichier, on ne peut pas accéder aux symboles définis ailleurs à mois
+de faire :
+
+:relative:path:to:module
+
+(à ce sujet, supprimer l'opérateur root-scope)
+
+===== fonction if =====
+
+if=(a b c) -> a ? b : c
+
+if [toto == 0
+print "faux"
+print "vrai"]
+
+
+reste à trouver : while, for ...
+
+
+
+===== qq refflexion =====
+
+ # Bon, le problème : écrire un lang exploitable, mais qui ne dissocie
+# pas fondamentalement la définition de l'appel. Je m'explique.
+
+# On associe un bloc paramétré à une variable :
+somme3=(a b c)->( a + b + c )
+
+max=(a b) -> a > b ? a : b  # avec des parenth, c'est plus lisible
+
+carre = a -> a*a
+
+# dès lors, somme3 est de type bloc paramétré, on peut à présent évaluer ce bloc:
+
+somme3[1 2 3]
+carre[2]
+max[5 6]
+
+# un peu d'objet
+
+prefix=date   # on prend une référence sur la fonction 'date'
+prefix=date[]   # on prend la valeur de retour la fonction 'date'
+
+AddPrefix=
+(
+   init=prefix ->
+   ( # parenthes inutiles
+       ..prefix=prefix # .. permet de descendre d'un scope
+   )
+
+   print=msg ->
+   (
+        :print[do[msg]]   # si on ne met pas le root-scope-operator,
+                                    # cela devient un appel récursif à print !
+   )
+
+   do=msg -> :prefix + prefix + msg
+)
+  AddPrefix.init[":LOG:"]
+AddPrefix.do["Bonjour"]
+
+
+# Dériver un objet
+AddPrefix2=AddPrefix +
+(
+  do=m->:prefix + "_" + prefix + "_" + msg
+)
+
+AddPrefix2.do["Bonjour"]   # Doit écrire la date, suivi de "_:LOG:_Bonjour"
+
+/#
+Attention : il n'est pas possible de modifier le contenu d'un scope depuis l'extérieur.
+ceci serait interdit par l'interpreteur :
+
+AddPrefix2=AddPrefix
+AddPrefix2.do=m->:prefix + "_" + prefix + "_" + msg
+
+ou encore:
+
+AddPrefix.prefix=":LOG:"
+
+Bon, ce genre de code doit normalement horrifier un adepte du C, ou d'un langage impératif traditionnel. Essayons donc de l'implémenter !
+#/
+
+
+==== Verbosité et langage ====
+
+     semi - verbeux:
+
+blocname:
+   inst
+   inst
+_
+
+
+blocname(arguements):
+   inst
+   inst
+_
+
+
+_ =pass
+
+pratique :  prévoir des cpp-like shortcuts, ou bien utiliser la dynamique du langage (accès au nom du bloc contenant, introscpection, etc.)
+
+==== points oubliés ====
+
+ajouter l'étude de :
+- la réentrance
+- la programmation parallele
+- la détection des points de sortie d'un module
+
+sur ce dernier point, le gros intérêt du c++, c'est qu'une classe ne connaît rien de son environnement, hormis ce qu'on lui transmet en paramètres, et c'est ce qui justifie le "self" en python, et l'absence d'homogénéité inérante aux autre langages objets...
+
+
+
+

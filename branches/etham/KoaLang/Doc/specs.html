@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http: //www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+<title>Les specs de KoaLang</title>
+<meta name="generator" content="Samuel Hangou&euml;t, VIM" />
+<meta name="description" content="Spécifications du langage de programmation KoaLang" />
+<meta name="keywords" content="programmation, orienté objets, orienté aspects, beau,
+                               C++, C, KoaLang, embarqué, interfaçable, léger, facile à apprendre,
+                               simple, rapide, interprété, programme, interpréteur, etham" />
+<link rel="stylesheet" type="text/css" href="specs.css" />
+</head>
+<body>
+<h1> Les specs de KoaLang </h1>
+
+<div class="intro">
+Ce document est
+<span class="ref">
+à la fois un manuel de référence, un plan de test exécutable et
+</span>
+un tutorial d'introduction, pour le langage KoaLang.
+</div>
+
+<h2> Eléments de base </h2>
+
+<div>
+KoaLang est un nouveau langage de programmation.  Son interpréteur est léger et
+extensible afin d'être aisément embarqué au sein d'une application développée
+en C++.
+</div>
+<div>
+KoaLang se veut un langage simple et rapide d'apprentissage.  Une personne
+n'ayant jamais programmé, mais ayant quelques bases en mathématiques doit pouvoir le
+maîtriser en quelques jours.
+</div>
+<div>
+KoaLang peut donc être utilisé comme un langage de script complétant un
+logiciel, à destination de ses utilisateurs. Il est également utile au
+développeur confirmé, comme un outil lui permettant de réaliser rapidemment un
+prototype fonctionnel. Enfin, KoaLang apporte une solution à l'approche qui consiste à
+découper un logiciel en composants optimisés, écrits dans un langage compilé,
+appelés depuis un script de contrôle très lisible et aisément modifiable.
+</div>
+
+<h3> Un premier programme </h3>
+
+Plutôt que de définir formellement le langage, commençons par un exemple.
+
+<pre>
+    ; Mon premier programme
+
+    Tlbn[_min: 1 _max: 100]:
+    {
+        min: _min
+        max: _max
+        N: min + stdlib.rand [] % (max - min + 1)
+        n: 0
+
+        loop []:
+        (
+            while n \= N
+            (
+                stdio.puts ["Trouvez N entre %d et %d : " % (min max)]
+
+                n: stdio.getchar []
+
+                update_min_max []
+            )
+
+            stdio.puts ["Bravo !"]
+        )
+
+        update_min_max []:
+        (
+            if n &gt; N
+            (
+                stdio.puts ["Plus grand !"]
+                if n &lt; max
+                    max: n
+            )
+
+            if n &lt; N
+            (
+                stdio.puts ["Plus petit !"]
+                if n &gt; min
+                    min: n
+            )
+        )
+    }
+
+    tlbn: Tlbn []
+    tlbn.loop []
+
+</pre>
+
+
+<p>A CONTINUER</p>
+
+<h4> Définir et appeler une fonction </h4>
+
+<div>
+On définit une fonction au moyen d'une flèche appliquant une liste de
+paramètres formels à une expression&nbsp;:
+<pre>
+FIXME : f[x]: x + 1
+x -&gt; x + 1
+</pre>
+Lors de l'exécution du script, l'interpréteur évaluera cette expression comme une fonction
+possédant un unique paramètre formel (ici x, mais c'est une variable muette).
+</div>
+<div>
+Pour appeler la fonction, il faut lui fournir des paramètres au moyen 
+de l'opérateur <span class="code">[ ]</span> (notez la nécessité d'utiliser des parenthèses dans ce cas, cf.
+le <a href="#opprio">tableau de priorité des opérateurs</a>)&nbsp;:
+<pre>
+(x -&gt; x + 1)[2] ; 3
+</pre>
+bien-sûr, le plus souvent on affecte une fonction à une variable afin de pouvoir l'utiliser plusieurs fois&nbsp;:
+<pre>
+f:(x -&gt; x + 1
+f[1] ; 2
+f[2] ; 3
+</pre>
+Notez bien que le nom du paramètre formel n'est pris en compte que le temps de la définition de la fonction&nbsp;:
+<pre>
+x:3
+y:2
+f[x * y] ; 7
+</pre>
+</div>
+
+<h4> Les commentaires </h4>
+
+<div>
+Tout caractère suivant un point-virgule est ignoré, jusqu'à la fin de la ligne (ou du fichier).
+<pre>a:1 ; ceci est un commentaire de ligne</pre>
+Tout bloc commençant par <span class="code">/;</span> est ignoré jusqu'à la
+lecture du <span class="code">;/</span> fermant.
+<pre>
+b:2 /; ceci est un
+ commentaire de bloc ;/
+</pre>
+</div>
+
+<div class="note">
+Notez que le <span class="code">;/</span> fermant est traité comme un
+commentaire de ligne si le <span class="code">/;</span> ouvrant est enlevé.
+</div>
+
+<div class="note">
+Il est possible d'imbriquer des commentaires&nbsp;:
+<pre>
+/;
+
+    /;
+    ...
+    ;/
+
+    /;
+    ...
+    ;/
+
+;/
+</pre>
+</div>
+
+<h4> Règles lexicales </h4>
+
+<div>
+Ces premiers exemples nous permettent de relever quelques points&nbsp;:
+<ul>
+ <li>La ligne n'a aucun sens pour la grammaire du langage. Les sauts de ligne sont simplement ignorés, tout comme les espaces. </li>
+ <li>Il n'y a aucun marqueur de fin d'instruction. </li>
+ <li>Il n'y a pas non plus d'opérateur virgule&nbsp;: une séquence se crée simplement
+en mettant des expressions côte à côte, et en les regroupant si besoin au moyens de parenthèses.</li>
+ <li>Le langage est sensible à la casse.</li>
+ <li>Les caractères localisés sont autorisés dans les noms de variables.</li>
+</ul>
+</div>
+
+<h3> Primitives </h3>
+
+<div>
+KoaLang possède un nombre réduit de primitives&nbsp;:
+<ul>
+ <li>les nombres&nbsp;: <span class="code">1 3.14 34e12</span> </li>
+ <li>les chaînes de caractères&nbsp;: <span class="code">"Bonjour"</span> </li>
+ <li>les listes (ou tableaux)&nbsp;: <span class="code">(1 2 3)</span></li>
+ <li>les blocs&nbsp;: <span class="code">{a:1 b:2 a+b}</span></li>
+ <li>les fonctions&nbsp;: <span class="code">x -&gt; 2 * x + 1</span></li>
+</ul>
+La particularité d'une primitive, c'est que le résultat de son évaluation est
+égal à elle-même.
+</div>
+
+
+<h3> Expressions </h3>
+
+<div>
+Une expression est un ensemble de primitives reliées par des opérateurs. Une
+simple primitive constitue en elle-même une expression.  Le résultat de
+l'évaluation d'une expression est une primitive.
+<pre>
+2 * 3 + 4 ; égal 10
+</pre>
+</div>
+
+<div class="ref">
+En plus de l'évaluation, l'autre opération que l'on peu appliquer à une expression
+est l'exécution. L'exécution d'une expression est le plus souvent exactement équivalente
+à son évaluation.
+</div>
+
+<h3> Variables </h3>
+
+<div>
+Il faut voir une variable comme une étiquette à laquelle peut se trouver
+associée une valeur différente suivant le contexte d'exécution.
+
+<pre>
+a: 1
+a: "Hello"
+</pre>
+</div>
+
+<div class="note">
+L'évaluation d'une variable retourne son contenu et non pas l'évaluation de son
+contenu.  Néenmoins, comme l'opérateur d'assignation commence toujours par
+évaluer l'expression de droite avant de l'assigner, l'évaluation d'une variable
+retourne donc bien toujours une primitive.
+</div>
+
+<div>
+Une variable KoaLang s'écrit à l'aide d'un identificateur pouvant contenir&nbsp;:
+<ul>
+<li> des chiffres</li>
+<li> des lettres (dont la casse sera prise en compte)</li>
+<li> le caractère _ (underscore)</li>
+<li> tout caractère non ascii </li>
+</ul>
+Il n'y a pas de contrainte quant à sa longueur, mais il ne doit toutefois pas
+commencer par un chiffre.
+</div>
+
+<div>KoaLang possède un typage dynamique&nbsp;: une variable possède un
+type&nbsp;: celui de sa valeur. Mais elle peut se voir assigner une valeur
+d'un autre type à tout moment, sans que cela ne gêne l'interpréteur.
+</div>
+
+
+<div>
+Enfin, si on tente d'utiliser une variable non définie, l'interpréteur génère une erreur.
+</div>
+
+<h2> Les types de primitives </h2>
+
+<div class="intro">
+Cette partie présente l'ensemble des types qui existent dans le langage KoaLang.
+Pour chaque type, on présente des cas d'utilisation simples, les opérateurs qui
+permettent de les manipuler, et éventuellement quelques conseils d'utilisation.
+</div>
+
+
+<h3> Les nombres </h3>
+
+<div>Les nombres en KoaLang sont tous du même type, qui équivaut au type C++
+double. </div>
+                                                                                       
+<div class="note">
+On pourra s'étonner de ce choix de faire l'impasse sur les entiers.
+Il faut souligner que KoaLang est conçu pour être aisément embarqué au sein
+d'une application développée en C++. Si vous souhaitez accéder à la puissance
+du calcul entier, appelez depuis KoaLang une routine écrite en C++&nbsp;!
+</div>
+
+<div>KoaLang lit un nombre en appelant la fonction C standard strtod.
+Reportez-vous donc à son manuel pour en connaître les spécifications&nbsp;:
+</div>
+
+<pre>12 0.23 0X3p2 NAN -INF 2.3e4</pre>
+
+<dl>
+ <dt>Opérateurs unaires (tous préfixés)&nbsp;: </dt>
+ <dd><ul>
+         <li>négation:  <span class="code">-</span></li>
+         <li>complément logique:  <span class="code">!</span></li>
+         <li>complément binaire:  <span class="code">~</span></li>
+     </ul></dd>
+ <dt>Opérateurs binaires&nbsp;: </dt>
+ <dd><ul>
+         <li>arithmétiques&nbsp;: <span class="code">** * / + - %</span></li>
+         <li>de relation d'ordre&nbsp;:  <span class="code">= \= &lt;= &gt;= &lt; &gt;</span></li>
+         <li>booléens&nbsp;: <span class="code">&amp; | \&amp; \|</span></li>
+     </ul></dd>
+</dl>
+
+<div class="note">Notez qu'il demeure toujours possible d'écrire un nombre précédé du signe +. En effet,
+même si l'opérateur + unaire n'existe pas dans le langage, il demeure parfaitement compris par le parseur de nombres.</div>
+
+<h3> Les chaînes </h3>
+
+<div>
+Une chaîne KoaLang s'écrit comme en C, avec des guillemets.
+Les caractères spéciaux standards sont gérés&nbsp;:
+<pre>\n \t \r \0 \a \b \v \f</pre>
+En dehors de ces caractères, toute rencontre d'une antislash a pour effet de
+protéger le caractère suivant (c'est utile pour écrire un guillemet). Une
+antislash placée devant un caractère ordinaire reste donc sans effet, elle est
+ignorée. Pour écrire une antislash, il faut donc la protéger elle-même au moyen
+d'une autre antislash.
+</div>
+
+<div class="note">Etant donné l'absence de séparateurs d'instructions, deux
+chaînes côtes à côtes sans séparateurs ne sont bien entendu pas concaténées,
+comme le fait le préprocesseur C. Pour concaténer deux chaînes, utilisez
+l'opérateur +&nbsp;:
+<pre>"ab" + "cd"</pre>
+</div>
+
+<dl>
+ <dt>Opérateurs unaires (tous préfixés)&nbsp;: </dt>
+ <dd><ul>
+         <li>complément logique&nbsp;:  <span class="code">!</span></li>
+         <li>complément binaire:  <span class="code">~</span></li>
+     </ul></dd>
+ <dt>Opérateurs binaires&nbsp;: </dt>
+ <dd><ul>
+         <li>concaténation, répétition&nbsp;: <span class="code">+ *</span></li>
+         <li>de relation d'ordre&nbsp;:  <span class="code">= \= &lt;= &gt;= &lt; &gt;</span></li>
+         <li>booléens&nbsp;: <span class="code">&amp; \&amp; | \|</span></li>
+         <li>sélection&nbsp;: <span class="code">[]</span></li>
+     </ul></dd>
+</dl>
+
+<div>
+Une opération logique sur une chaîne revient à considérer sa longueur (<span
+class="code">! "je suis vrai"</span> est évalué à zéro).
+</div>
+
+
+<div>
+L'opérateur de sélection accepte les tranches et les notations négatives (comme en python, mais en remplaçant les deux-points par un chapeau)&nbsp;:
+<pre>
+"abcd"[1..3] ; équivaut à "bc"
+"abcd"[-1]  ; équivaut à "d"
+</pre>
+</div>
+
+<div>
+Une sous-chaîne est assignable&nbsp;:
+<pre>
+chaîne2[2]:"z"
+</pre>
+</div>
+
+<h3> Les listes </h3>
+
+<div>
+Les listes (ou tableaux) sont un aggrégat ordonné d'éléments quelconques
+pouvant être répétés.  Une liste s'écrit comme une séquences
+d'expressions&nbsp;:
+<pre>1  2  3 * 4</pre>
+est une liste de 3 éléments. Notons donc qu'on programme n'est rien d'autre
+qu'une liste, au sens même du langage&nbsp;:
+<pre>a:1 b:2 a+b</pre>
+</div>
+<div>
+Dès lors que l'on souhaite utiliser une liste comme une sous-expression d'une
+autre expression, il faut utiliser des parenthèses&nbsp;:
+<pre>l:(1 2 3)</pre>
+Notez bien que la parenthèse ici n'est pas un marqueur de liste, mais
+intervient simplement pour grouper l'action des opérateurs. En effet, il n'y a
+pas de listes dans les expressions suivantes&nbsp;:
+<pre>
+a:(1)
+b:2 * (1 + 4)
+</pre>
+</div>
+<div>Mais alors, vous posez peut-être la question suivante&nbsp;: comment créer
+une liste à un seul élément&nbsp;?  Et bien, il faut commencer par créer une
+liste vide&nbsp;:
+<pre>
+l:()
+l[0]:1
+</pre>
+ou encore&nbsp;:
+<pre>
+l:() + 1
+</pre>
+Ces deux écritures sont complètement équivalentes. En fait, des parenthèses
+vides indiquent l'objet "ensemble vide", qui n'est rien d'autre qu'une liste
+vide.
+</div>
+
+<div>
+D'une manière générale, un opérateur logique sur une liste agit comme s'il
+considérait sa taille.  Les opérateurs de relations d'ordre considèrent d'abord
+la taille des listes, puis descendent dans la comparaison des éléments en cas
+d'égalité, ce de façon récursive.
+</div>
+
+<dl>
+ <dt>Opérateurs unaires (tous préfixés)&nbsp;: </dt>
+ <dd><ul>
+         <li>complément logique&nbsp;:  <span class="code">!</span></li>
+     </ul></dd>
+ <dt>Opérateurs binaires&nbsp;: </dt>
+ <dd><ul>
+         <li>concaténation, répétition&nbsp;: <span class="code">+ *</span></li>
+         <li>de relation d'ordre&nbsp;:  <span class="code">= \= &lt;= &gt;= &lt; &gt;</span></li>
+         <li>booléens&nbsp;: <span class="code">&amp; \&amp; | \| </span></li>
+         <li>sélection&nbsp;: <span class="code">[]</span></li>
+         <li>assignation&nbsp;: <span class="code">:</span></li>
+     </ul></dd>
+</dl>
+
+<div>
+Les opérateurs sur les listes fonctionnent de la même façon que pour les chaînes de caractères.
+</div>
+
+<div>Une liste est assignable si elle ne comporte que des éléments assignables
+(identificateurs ou listes assignables).  L'interpréteur s'efforce alors de
+faire correspondre la structure de l'assigné à l'assignable, en s'accordant des
+différences de taille avec souplesse.
+<pre>((a b) c d):((1 2 3) 2) ; a:1 b:2 c:2</pre>
+Un élément d'une liste aussi bien qu'une sous-liste peut se voir affecter au moyen de l'opérateur de sélection&nbsp;:
+<pre>
+l:(1 2)
+l[0]:(3 4) ; à présent l est égal à ((3 4) 2)
+l[..]:(4 5) ; équivaut à l:() suivi de l[0]:(4 5), cad. une liste contenant un seul élément qui est une liste
+</pre>
+</div>
+
+<h3> Les blocs </h3>
+
+<div>
+La première chose à connaître sur les blocs, c'est qu'un bloc <strong>est</strong> une liste.
+Dès lors, toute opération valable sur une liste est valable sur un bloc.
+</div>
+
+<div>Un bloc se note entre accolades&nbsp;:
+<pre>bloc:{this is a bloc}
+</pre>
+</div>
+
+<div>
+Le rôle d'un bloc est de créer un contexte local, pour réduire la portée des variables qu'il contient.
+Il est ensuite possible d'accéder aux éléments d'un bloc&nbsp;:
+<pre>
+bloc.this:1
+bloc.is:2
+bloc.a:3
+bloc.bloc:4
+</pre>
+On peut donc utiliser un bloc comme une map (cad. comme un dictionnaire)&nbsp;:
+<pre>
+bouquet:{paquerettes:5 roses:7 marguerittes:4}
+</pre>
+
+Ou simplement comme du code manipulant des variables locales&nbsp;:
+<pre>
+r:4
+{
+  i:5
+  j:3
+  r:r * (3 * i + j)
+}
+; ici, les variables i et j n'existent pas...
+</pre>
+</div>
+
+<div>L'opérateur @@ renvoie les variables présentes dans le contexte du bloc sous la forme d'une liste de variables&nbsp;:
+<pre>
+bloc:{a:1 b:2}
+@@bloc ; (a b)
+</pre>
+</div>
+
+<h2> Les opérateurs </h2>
+
+Voici les opérateurs de KoaLang, classés par ordre de priorité décroissante&nbsp;:
+
+<p>A CONTINUER</p>
+
+<h2> Concepts avancés </h2>
+
+<h3> L'extensibilité </h3>
+
+<div>
+KoaLang ne possède aucun mots clés. Seulement des opérateurs.
+Un programmeur a donc l'entière liberté pour choisir ses identificateurs,
+et ce dans la langue de son choix.
+</div>
+
+<div>
+Le plus souvent, cela permet également d'adopter une syntaxe très concise.
+</div>
+
+<div>
+Hélas cela peut parfois nuire à la clareté du langage. Pour vous en convaincre
+imaginez qu'un programmeur ne connaissant que le langage basique (et qui
+possède les notions d'anglais permettant d'en comprendre les mots-clés), soit
+brutalement confronté à un code C non commenté.
+</div>
+
+<div>
+Il est parfois intéressant d'utiliser des mots-clés dans un langage. Ne
+serait-ce pour la clareté d'une inévitable structure de contrôle.
+</div>
+
+<div>
+KoaLang permet de définir ses propres alias. Un peu comme le préprocesseur C,
+si ce n'est que cette fonction est résolé dynamiquement.
+
+On peut donc utiliser KoaLang pour se retailler un dialecte sur mesure
+particulièrement adapté à la tâche qui nous incombe, et proche du langage
+naturel.
+</div>
+
+<p>A CONTINUER</p>
+
+<h3> Embarquer l'interpréteur,
+appeler des fonctions externes </h3>
+
+<p>A CONTINUER</p>
+
+<h2> Les méthode de programmation </h2>
+
+<div class="intro">
+En programmation, on désigne par paradigme le modèle d'organisation d'un
+programme. Certains langages sont associés particulièrement à un paradigme,
+mais on dénombre de nombreux langages "multiparadigmes".
+
+Il s'agit de réfléchir à la façon dont on veut présenter son code.
+
+Pour chaque paradigme, on présente une ou plusieurs façons de l'adopter en KoaLang,
+en discutant l'intérêt et les dangers des diverses méthodes.
+</div>
+
+<p>A CONTINUER</p>
+
+<h3> Impératif </h3>
+<h3> Procédural </h3>
+<h3> Orienté Objets </h3>
+<h3> Orienté Prototypes </h3>
+<h3> Fonctionnel </h3>
+<h3> Déclaratif </h3>
+<h3> Concurrent </h3>
+<h3> Orienté Aspects </h3>
+
+<h2> Bestiaire des Bugs </h2>
+
+<div class="intro">
+Pour chaque bug, on donne ici des méthodes de prévention et de guérison
+applicables ou non en KoaLang.  De ce fait, cette partie permet de justifier en
+partie la structure de KoaLang.
+</div>
+
+
+
+<p>A CONTINUER</p>
+
+</body>
+</html>

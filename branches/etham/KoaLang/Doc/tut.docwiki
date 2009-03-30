@@ -1,0 +1,235 @@
+===== Ecrire une grammaire pour le Parser Napalm =====
+
+Voyons, voyons... nous allons écrire une grammaire qui détecte si un mot est un
+palindrôme (ie un mot qui possède une symétrie dans l'ordre de ses caractères).
+
+Prenons tout d'abord le soin d'écrire une grammaire sans équivoque :
+
+  palindrome : ALPHA palindrome SAME_ALPHA | ALPHA SAME_ALPHA | ALPHA
+
+Bien-sûr, la primitive SAME_ALPHA n'existe pas, il faut utiliser des appels à
+des fonctions pour tester que le caractère est le même.
+
+Tenant pour acquis que nous avons une pile (FIFO) à notre disposition :
+  * ''push'' va mettre le caractère lu dans cette pile
+  * ''checkpop'' va vérifier que le caractère lu est le même caractère que celui au sommet de la pile, et retirer ce dernier seulement si c'est bien le cas. Dans le cas contraire, cette fonction renverra //false//, faisant échouer la règle courante, et l'on passera à la ligne suivante de l'alternative
+  * ''pop'' va simplement retirer le caractère du sommet de la pile
+
+  palindrome : ALPHA [push] palindrome ALPHA [checkpop] |
+               ALPHA ALPHA [checkpop] |
+               ALPHA [pop]
+
+L'opérateur [] indique une action à effectuer seulement si l'argument (situé
+devant) a été matché.
+
+
+Voilà pour la théorie. Maintenant, construisons une classe Grammaire. Elle doit
+dériver de la class Parser::Rule :
+
+<code cpp>
+#include "KoaLang/CommonHeaders.h"
+#include "KoaLang/Parser/Parser.h"
+
+using namespace KoaLang::Parser;
+
+class PalinGram : public Rule
+{
+    public:
+</code>
+
+La traduction de la grammaire BNF précédente sous forme C++ sera introduite dans le constructeur.
+La variable ''top'' est un champ de la classe Rule qui précise le point d'entrée de la grammaire.
+A noter que ''push'', ''checkpop'' et ''pop'' sont données en tant qu'adresses de fonctions membres de notre grammaire.
+
+Nous avons ajouté une règle permettant de vérifier que la fin du mot est
+atteinte, avant de signaler qu'un palindrôme a été trouvé.  Les macros
+NAPALM_PARSER_NAME_RULE ont pour effet de personaliser le dump en mode debug des
+tentatives du parser pour matcher les règles fournies en argument.
+
+Voici ce que cela donne :
+
+<code cpp>
+        PalinGram()
+        {
+            top= & palindrome;
+
+            palindrome = (souspalindrome >> check_d(eos_p)) [printmsg];
+
+            souspalindrome = alpha_p [push] >> souspalindrome >> alpha_p [checkpop]
+                           | alpha_p >> alpha_p [checkpop]
+                           | alpha_p [pop];
+
+            KOALANG_PARSER_NAME_RULE(palindrome);
+            KOALANG_PARSER_NAME_RULE(souspalindrome);
+        }
+
+</code>
+
+Les identificateurs terminant par ''_p'' sont des primitives. Elles sont définies dans ''Parser/Parsers.h''.
+
+Et maintenant, les données de la classe. Les fonctions push et pop doivent
+respecter le même type : une fonction renvoyant ''bool'' et prenant 2 pointeurs.
+Ces pointeurs sont le parser utilisé (qui permet de connaître notament la position courante dans
+le flux), et le début de la portion de buffer matchée.
+
+Cette fonction sera soit statique, soit une méthode de notre classe grammaire
+(mais dans ce cas, attention : il doit s'agir exactement d'une méthode de la
+classe fournie au parser pour son champ grammar).
+
+Une action sémentique est appelée seulement si son argument de gauche a été
+maché (il est bien-sûr possible d'utiliser des parenthèses pour appeler une
+action sur un ensemble de règles). Si la fonction renvoie ''true'', le parseur
+valide la règle et continue. Si elle renvoie ''false'', alors la règle ne
+matchera pas et le parseur reviendra en arrière pour essayer de matcher une
+autre branche de l'arbre (voir [[tech::doc_parser | la doc du module]]).
+
+Il est également possible de fournir une fonction renvoyant ''void'' et ne
+prenant en paramètre que l'adresse du parser. Une telle fonction ne pourra pas dans
+ce cas influer sur la continuation de l'analyse...
+
+<code cpp>
+
+    private:
+        Rule palindrome, souspalindrome;
+
+        std::stack<std::string> st;
+
+        bool push(Parser * pp, const char * begin)
+        {
+            st.push(std::string(begin, pp->position));
+            return true;
+        }
+            
+        bool checkpop(Parser * pp, const char * begin)
+        {
+            std::string s1=st.top();
+            std::string s2=std::string(begin, pp->position);
+            if (s1 == s2)
+            {
+                printf("%s == %s\n", s1.c_str(), s2.c_str());
+                st.pop();
+            }
+            else
+            {
+                printf("%s != %s\n", s1.c_str(), s2.c_str());
+                // Will be popped by the pop function
+            }
+
+            return (s1 == s2);
+        }
+ 
+        bool pop(Parser *, const char *)
+        {
+            st.pop();
+            return true;
+        }
+
+        bool printmsg(Parser * pp, const char * begin)
+        {
+            printf("%s est un palindrome !\n", std::string(begin, pp->position).c_str());
+            return true;
+        }
+};   
+</code>
+
+Maintenant, nous pouvons parser via cette grammaire :
+
+<code cpp>
+
+int main()
+{
+    PalinGram g;
+    Parser p(& g); // On ne fournit pas de skipper, c'est une analyse au niveau caractère, sans lexèmes.
+    p.debug_flag=true;  // Parser dump activation
+    p.parse("Bonjour");
+    p.parse("kayak");
+    p.parse("KaaK");
+
+    return 0;
+}
+</code>
+
+Voici à quoi ressemble le dump. Le caractère / indique que la règle a matché, tandisque # indique l'échec de la règle en question.
+Pour Bonjour, on voit le parser aller jusqu'à la fin du mot, puis revenir jusqu'au début: seule la troisième branche de l'alternative est retenue à chaque fois. Ainsi, on se trouve avec un palindrôme d'un seul caractère, mais qui n'est pas le mot complet, il est donc refusé par la règle principale :
+
+   \rule(palindrome)    "Bonjour"
+    \rule(souspalindrome)       "Bonjour"
+     \rule(souspalindrome)      "onjour"
+      \rule(souspalindrome)     "njour"
+       \rule(souspalindrome)    "jour"
+        \rule(souspalindrome)   "our"
+         \rule(souspalindrome)  "ur"
+          \rule(souspalindrome)         "r"
+           \rule(souspalindrome)        ""
+           #rule(souspalindrome)        ""
+          /rule(souspalindrome) ""
+  u != r
+         /rule(souspalindrome)  "r"
+  o != r
+  o != u
+        /rule(souspalindrome)   "ur"
+  j != u
+  j != o
+       /rule(souspalindrome)    "our"
+  n != o
+  n != j
+      /rule(souspalindrome)     "jour"
+  o != j
+  o != n
+     /rule(souspalindrome)      "njour"
+  B != n
+  B != o
+    /rule(souspalindrome)       "onjour"
+   #rule(palindrome)    "Bonjour"
+
+"kayak" fera matcher une fois la 3è alternative, et sinon toujours la première :
+
+   \rule(palindrome)    "kayak"
+    \rule(souspalindrome)       "kayak"
+     \rule(souspalindrome)      "ayak"
+      \rule(souspalindrome)     "yak"
+       \rule(souspalindrome)    "ak"
+        \rule(souspalindrome)   "k"
+         \rule(souspalindrome)  ""
+         #rule(souspalindrome)  ""
+        /rule(souspalindrome)   ""
+  a != k
+       /rule(souspalindrome)    "k"
+  y != k
+  y != a
+      /rule(souspalindrome)     "ak"
+  a == a
+     /rule(souspalindrome)      "k"
+  k == k
+    /rule(souspalindrome)       ""
+  kayak est un palindrome !
+   /rule(palindrome)    ""
+
+Enfin, "KaaK" fera appel à la première alternative encapsulant la seconde :
+
+   \rule(palindrome)    "KaaK"
+    \rule(souspalindrome)       "KaaK"
+     \rule(souspalindrome)      "aaK"
+      \rule(souspalindrome)     "aK"
+       \rule(souspalindrome)    "K"
+        \rule(souspalindrome)   ""
+        #rule(souspalindrome)   ""
+       /rule(souspalindrome)    ""
+  a != K
+      /rule(souspalindrome)     "K"
+  a != K
+  a == a
+     /rule(souspalindrome)      "K"
+  K == K
+    /rule(souspalindrome)       ""
+  KaaK est un palindrome !
+   /rule(palindrome)    ""
+  Good bye!
+
+Et voilà.
+
+Pour la liste des primitives et des parseurs fournis par défaut, allez voir la
+[[tech::doc_parser | documentation du module]].
+
+Amusez-vous bien !
+

@@ -1,8 +1,5 @@
 USED_MODULES = libELL
-
-TARGET = xml_test
+TARGET = koalang
 TARGET_FILES = Test/*.cpp
-CFLAGS += -I../Parser/Include -IInclude -DPARSER_DEBUG=1
-
 
 include ../Script/module.mk

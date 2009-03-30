@@ -1,0 +1,62 @@
+> a={a=1 b}
+Runtime error: Source/Language/Context.cpp:28: Undefined variable: b.
+> a={a=1 b=1}
+( a={ a=1  b=1 } )
+( a )
+{ a=1  b=1 }
+> a
+( a )
+( a )
+{ a=1  b=1 }
+> #a
+( #a )
+( a )
+2
+> a[2]
+Unexpected error: Include/KoaLang/System/Vector.h:66: Read beyond array boundary.
+> a[1]
+( a[1] )
+ a  b 
+1
+> a[0]
+( a[0] )
+ a  b 
+1
+> a[2]={c=1}
+( a[2]={ c=1 } )
+ a  b 
+{ c=1 }
+> a
+( a )
+ a  b 
+1
+
+This is not a bug, because when writing a[0], its value a=1 overwrite the block value in current context.
+The problem is still the same : do we prefer symbolic variables, or static-scoped ones ?
+
+> b={a=1}
+( b={ a=1 } )
+( b )
+{ a=1 }
+> b
+( b )
+( b )
+{ a=1 }
+> b[0]
+( b[0] )
+ b  a 
+1
+> b
+( b )
+ b  a 
+{ a=1 }
+> b[1]={c=2}
+( b[1]={ c=2 } )
+ b  a 
+{ c=2 }
+> b
+( b )
+ b  a 
+{ a=1 }
+
+here, it seems there is a bug: why the b block has not be extended ?

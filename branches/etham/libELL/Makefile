@@ -1,5 +1,5 @@
 USED_MODULES =
-TARGET = parser_test
+TARGET = test
 TARGET_FILES = Test/test.cpp
 CFLAGS +=
 

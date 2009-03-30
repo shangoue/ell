@@ -1,0 +1,260 @@
+Cette bibliothèque permet d'implémenter un parseur très rapidement sous la
+forme d'une grammaire EBNF exécutable, selon le même principe que la lib
+[[http://www.boost.org/libs/spirit/doc/introduction.html | boost spirit]] (à
+ceci près que Spriti est basé sur du metaprogramming grâce à des expression
+template).
+
+Voici, en quelques mots, le principe de cette bibliothèque, et la façon de l'utiliser.
+
+===== La grammaire =====
+
+==== Principe de construction ====
+
+Prenons la grammaire qui décrit le fonctionnement de nos expressions mathématiques :
+ 
+  factor     : "(" expression ")" | INTEGER
+  term       : factor ('*' factor | '/' factor) *
+  expression : term ('+' term | '-' term) *
+
+L'idée est pouvoir insérer cette grammaire sous forme de code C++ exécutable.
+L'exécution de ce code permet de générer un graphe syntaxique.
+Parser le flux d'entrée reviendra alors à parcourir ce graphe en essayant de
+faire correspondre chaque noeud à un ou plusieurs caractères du flux. Note
+théorique: il s'agit de mener analyse descendante LL(n).
+
+On peut voir ce graphe comme un ensemble d'arbres syntaxiques, dont les noeuds
+peuvent être soit des primitives comme INTEGER ou le caractère "(", soit des
+liens vers d'autres arbres. Chaque règle de la grammaire (aussi appelée
+non-terminal) est la définition d'un arbre. Par exemple, voici un arbre
+équivalent à  la règle "factor" :
+
+              factor
+             /      \
+           "("     INTEGER
+           /
+       expression
+         /
+       ")"
+
+Dans cette arbre, "expression" est un lien vers la règle expression, donc vers
+la racine sont arbre.
+
+En fait, cette forme d'arbre est limitée à la représentation de grammaires BNF.
+Les grammaires EBNF (pour Extended Backus Naur Form) permettent d'utiliser en
+prime des opérateurs semblables à ceux que l'on trouve dans les expressions
+rationnelles (ou régulières) qu'on trouve dans les scripts sed ou perl :
+  - l'opérateur * : répétition de zéro à autant de fois que possible
+  - l'opérateur ! : facultatif
+  - l'opérateur + : au moins une fois
+
+Essayer de convertir la règle "term" en arbre, et vous verrez le problème.
+
+Plutôt que d'opter pour une réprésentation mettant les éléments les uns à la
+suite des autres en descendant l'arbre, nous avons opté pour un arbre possédant
+des noeuds opérateurs, et dont tous les noeuds sont soit binaire, soit unaires.
+
+Voici en réalité à quoi ressemblera notre arbre :
+
+              factor
+                |
+            alternative
+             /      \
+      aggregation    INTEGER
+      /        \
+     "("    aggregation
+           /          \
+       expression     ")"
+
+Voici à quoi ressemble de notre grammaire une fois //traduite// en C++ :
+
+<code language="C++">
+        factor = real_p
+            |    ch_p('(') >> expression >> ch_p(')')
+            |   (ch_p('-') >> factor)
+            |   (ch_p('+') >> factor);
+
+        term = factor
+            >> *(   (ch_p('*') >> factor)
+                |   (ch_p('/') >> factor)
+                |   (ch_p('%') >> factor)
+                );
+
+        expression = term
+            >> *(  (ch_p('+') >> term)
+                |  (ch_p('-') >> term)
+                );  
+</code>
+
+Et nous pouvons biensûr y ajouter des actions sémantiques. Ces dernières seront
+exécutées seulement en cas de validation de la règle avec le flux (match) :
+
+<code language="C++">
+        factor = real_p [push_number]
+            |    ch_p('(') >> expression >> ch_p(')')
+            |   (ch_p('-') >> factor) [do_negate]
+            |   (ch_p('+') >> factor);
+
+        term = factor
+            >> *(   (ch_p('*') >> factor) [multiply]
+                |   (ch_p('/') >> factor) [divide]
+                );
+
+        expression = term
+            >> *(  (ch_p('+') >> term) [add]
+                |  (ch_p('-') >> term) [substract]
+                );  
+</code>
+
+Le fichier Test/Calc/main.cpp présent un exemple complet d'utilisation
+de cette grammaire.
+
+Tous les objets de la grammaire (opérateurs, primitives, règles et la grammaire
+elle-même) dérivent d'une classe ''Subrule'' qui possède deux caractéristiques :
+  - elle définit les opérateurs de la grammaire EBNF
+  - elle admet une méthode virtuelle unique match(), qui permet de réaliser effectivement le parsing par des appels récursifs en descendant l'arbre.
+
+Cette dernière méthode admet en argument un pointeur sur la parser : c'est
+l'objet qui va être le point d'entrée au parsing.
+
+==== Les opérateurs de la grammaire ====
+
+Voici la liste des opérateurs utilisés pour bâtir une grammaire. Leurs priorités sont bien-sûr celles du C++ !
+
+  * opérateurs binaires
+
+^ Opérateur ^ Explication ^ Nom de la classe dans l'arbre grammatical généré ^ Note ^
+| a >> b | Matche a puis b | Aggregation | |
+| a &verbar; b | Matche soit a soit b | Alternative | |
+| a - b | Matche a mais pas b | Difference | Au besoin, on peut créer l'opérateur + selon le même modèle |
+| a % b | Matche autant de a que possible séparés par b | List | équivalent à a >> * (b >> a) |
+| a * b | Matche succession de a terminée par b | BoundRepetition | équivalent à * (a - b) >> b |
+
+  * opérateurs sémantique : ceux-ci n'ont un effet que si la règle en paramètre matche
+
+^ Opérateur ^ Explication ^ Nom de la classe dans l'arbre grammatical généré ^ Note ^
+| a (v) | Assigne la valeur issue du parsing de la primitive a à la variable v | Assignation | Défini seulement pour certaines primitives |
+| a [b] | Assigne la portion de flux matchant à la std::string b, ou appelle la fonction/le functor/la méthode b | Assignation | |
+| a [b] | Appelle la fonction/le functor/la méthode b de la grammaire| Assignation | |
+
+  * autres opérateurs unaires
+
+^ Opérateur ^ Explication ^ Nom de la classe dans l'arbre grammatical généré ^ Note ^
+| ! a | Matche éventuellement | Repetition<0, 1> | |
+| + a | Matche au moins une fois | Repetition<1, -1> | |
+| * a | Matche autnat que possible | Repetition<0, -1> | |
+
+Si vous avez le besoin, ou l'idée d'un autre opérateur, demandez-le moi !
+ --- //[[etham@napalm-project.org|Samuel Hangouet]] 2006/09/03 21:35//
+
+===== Le parser =====
+
+L'objet parser contient toutes les données nécessaires à l'analyse d'un flux guidé par le parcourt d'une grammaire. Il prend en entrée trois objets :
+
+   - la grammaire (du type Subrule) : le parser appelera sa fonction match en passant this en paramètre.
+   - le skipper (du type Subrule) : si elle est fournie, cette grammaire sera appelée entre chaque éléments de la grammaire (par exemple, pour ignorer les espaces et les sauts de ligne...) sauf si la directive lexeme_d est utilisée (cf ci-dessous).
+   - le buffer à analyser
+
+Il est tout a fait possible de faire travailler simultanément plusieurs objet Parser sur la même grammaire, étant donné que les objets de la lib Parser sont parfaitement réentrants (cf. considérations de réantrance à la fin de cette page).
+
+===== Les primitives =====
+
+^ Primitive ^ Usage ^
+| eps_p                                        | match toujours, ne consomme rien |
+| eos_p                                        | match la fin du flux (caractère nul) |
+| anychar_p                                    | match n'importe quel caractère (y compris le EOF) |
+| blank_p                                      | espace ou tabulation |
+| ch_p(arg)                                    | match le caractère indiqué |
+| digit_p                                      | 0-9 |
+| range_p(a, b)                                | caractère ascii compris entre a et b (compris) |
+| alpha_p                                      | A-Za-z |
+| alnum_p                                      | A-Za-z0-9 |
+| xdigit_p                                     | 0-9A-Fa-f |
+| uint_p                                       | entier décimal non signé (+digit_p) |
+| int_p                                        | entier décimal signé |
+| real_p                                       | nombre flottant |
+| hex_p                                        | nombre héxadécimal |
+| oct_p                                        | nombre octal |
+| bin_p                                        | nombre binaire |
+| upper_p                                      | A-Z |
+| integer_p(Sign, Radix, MinDigits, MaxDigits) | entier (Sign=signed ou unsigned, Radix=la base choisie) |
+| str_p(arg)                                   | chaîne de caractère |
+| istr_p(arg)                                  | chaîne de caractère en ignorant la casse |
+| chset_p(arg)                                 | un caractère parmis un ensemble ex: "A-Z_.-" |
+| token_p(str, chset)                          | mache la chaîne à condition qu'elle ne soit pas immédiatement suivi par un charactère du jeu fourni |
+| error_p(msg)                                 | génère une erreur |
+
+
+===== Les directives =====
+
+Une directive s'emploie en préfixant une expression pour en modifier l'interprétation. Par exemple :
+
+  check_d(a >> b)
+  
+aura pour effet de vérifier si la règle a >> b matcherait le flux, mais sans rien consommer.
+
+^ Directive ^ Usage ^
+| check_d(rule)               | Ne consomme pas |
+| lexeme_d(rule)              | Annule l'action du skipper (et du look-ahead) |
+| no_actions_d(rule)          | N'appelle pas les actions (ie l'opérateur [ ] reste sans effet) |
+| repeat_d<n>(rule)           | Répétition exacte |
+| repeat_d<min, max>(rule)    | Répétition dans un intervalle |
+| must_match_d(rule)          | Génère une erreur si rule ne match pas. |
+| no_step_back_d(rule)        | Considère que la grammaire est LL(1), une erreur est donc générée si le sous-arbe de droite d'un opérateur >> ne match pas (la directive lexeme_d annule cet effet) |
+
+
+===== Considérations de réantrance =====
+
+Une grosse grammaire demande un travail non négligeable à la machine pour se
+construire : il s'agit d'allouer dynamiquement tout un arbre avec un noeud par
+opérateur, règle ou primitive. Il peut donc s'avérer intéressant de ne
+construire les grosses grammaires que sous la forme de singletons sur lesquels
+travaillent des objets Parsers alloués au besoin.
+
+Par contre, il faut dans ce cas s'assurer que la grammaire est réantrante, en
+particulier si plusieurs threads peuvent appeler des objets Parser sur elle.
+
+Ceci n'est pas possible si la grammaire possède des variables. En effet,
+celles-ci seront modifiées pendant le parcourt de la grammaire et l'action
+simultannée de plusieurs parsers sur cette grammaire provoquerait un résultat
+imprévisible...
+
+Seulement, il est parfois très pratique de stocker des valeurs temporaires. Par
+exemple, prenons la grammaire suivante, minimaliste, qui va parser des débuts
+d'élements XML du type " <tag attribut " :
+
+<code c++>
+  class XmlGrammar : public Rule, public Parser
+  {
+     std::string tagname;
+     Rule xml_element;
+
+     XmlGrammar()
+     {
+        xml_element=ch_p('<') >> str_p [tagname] >> str_p[& XmlGrammar::add_attribute];
+     }
+
+     bool add_attribute(const char * end)
+     {
+        ...
+     }
+  };
+</code>
+
+On commence par stocker la valeur du nom de l'élément dans le champ ''tagname''
+de la classe, puis on appelle la méthode ''add_attribute'' une fois que l'on
+sait le nom de l'attribut. Cette dernière méthode pourra alors travailler sur
+la valeur de l'attribut en connaissant le nom de l'élément XML auquel il se
+rapporte.
+
+On comprend ici que la variable tagname casse la réantrance de notre classe grammaire.
+
+On peut contourner ce problème en dérivant la classe Parser pour créer notre
+propre parseur contenant des buffers de données temporaires.  Comme chaque
+opération de parsing commence par instancier un parser, ce dernier n'est pas
+partagé et n'a pas besoin d'être réentrant.
+
+
+===== En pratique =====
+
+Pour commencer sur un exemple simple, vous pouvez lire le [[tech:tuts:parser|tutorial]].
+

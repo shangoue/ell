@@ -1,0 +1,44 @@
+    ; Mon premier programme
+
+    Tlbn[_min: 1 _max: 100]:
+    {
+        min: _min
+        max: _max
+        N: min + stdlib.rand [] % (max - min + 1)
+        n: 0
+
+        loop []:
+        (
+            while n \= N
+            (
+                stdio.puts ["Trouvez N entre %d et %d : " % (min max)]
+
+                n: stdio.getchar []
+
+                update_min_max []
+            )
+
+            stdio.puts ["Bravo !"]
+        )
+
+        update_min_max []:
+        (
+            if n &gt; N
+            (
+                stdio.puts ["Plus grand !"]
+                if n &lt; max
+                    max: n
+            )
+
+            if n &lt; N
+            (
+                stdio.puts ["Plus petit !"]
+                if n &gt; min
+                    min: n
+            )
+        )
+    }
+
+    tlbn: Tlbn []
+    tlbn.loop []
+

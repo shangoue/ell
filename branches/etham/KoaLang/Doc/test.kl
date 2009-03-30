@@ -1,0 +1,45 @@
+' vi: filetype=kl
+
+/'
+ ' Un premier programme pour montrer à quoi peut ressembler du code KoaLang...
+ '/
+
+Tlbn [min max]:
+{
+    Min = min
+    Max = max
+
+    N = min + stdlib.rand [] % (max - min + 1)
+    n = 0
+
+    loop:
+    (
+        while n \= N
+        (
+            stdio.puts ["Trouvez N entre %d et %d : " % (min max)]
+            n = stdio.getchar []
+            update_min_max []
+        )
+
+        stdio.puts ["Bravo !\n"]
+    )
+
+    update_min_max:
+    (
+        if n > N
+        (
+            stdio.puts ["Plus grand !\n"]
+            if n < max
+                max = n
+        )
+        else if n < N
+        (
+            stdio.puts ["Plus petit !"]
+            if n > min
+                min = n
+        )
+    )
+}
+
+Tlbn[1 100].loop[]
+

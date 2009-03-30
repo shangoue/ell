@@ -1,0 +1,67 @@
+body {
+ font-family: sans-serif;
+ background-color: white;
+ text-align: justify;
+ color: #88A;
+ font-size: 12pt;
+ line-height: 14pt;
+ margin: 24pt;
+}
+
+div, ul, dl, li {
+ margin: 7pt;
+}
+
+/* Code KoaLang exécutable. */
+.code, pre {
+ font-family: monospace;
+ margin-left: 4pt;
+ margin-right: 4pt;
+ text-align: left;
+ text-indent: 0pt;
+ font-size: 11pt;
+ font-style: normal;
+ color: #C75;
+}
+
+pre {
+ padding-left: 12pt;
+ margin-left: 24pt;
+ border-left: 1pt solid gray;
+}
+
+/* Explication qui n'a pas sa place dans un tutorial
+ * d'introduction au langage. A réserver pour un manuel de référence. */
+.ref {
+}
+
+/* Bloc de code permettant de tester la fonctionnalité
+ * présentée et qui constitue une partie du plan de test du langage. */
+.test {
+}
+
+/* Texte d'introduction d'une partie, purement organisationnel. Ne contient
+ * pas d'information sur KoaLang. */
+.intro {
+ color: gray;
+ text-indent: 24pt;
+}
+
+/* Petite remarque en passant pouvant répondre à une question que se poserait
+ * le lecteur, mais qui n'est pas cruciale pour la définition du langage. */
+.note {
+ font-style: italic;
+ font-size: 12pt;
+ background: url(note.png) no-repeat top left;
+ padding: 17px;
+ border: 1px inset #99E;
+ text-indent: 24pt;
+}
+
+a {
+ text-decoration: none;
+ color: #EA4;
+}
+a:hover {
+ text-decoration: underline;
+}

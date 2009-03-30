@@ -1,0 +1,88 @@
+Parser
+  - merge en retour depuis Napalm, adaptation du logger et du système de build tant qu'à faire
+Opérateurs
+  - Ajouter le mot-cle continue
+  - Faire des modifs pour un typage fort (pas de conversions implicites)
+  - Opérateurs de formattage et de clonage
+  - Implémenter les exceptions e=?!"Error" (tests = et \= en génèrent) et a ~ b (comparable)
+  - Approche plus c++: virer transparent de Object, et dériver object
+  - Accéder à l'objet (this), for i in @
+  - Essayer de se passer de def
+  - Opérateur de range .. itérable => dérivation virtuelle de Abstract
+Binding
+  - Implémenter les types natifs, et l'API de binding
+  - Premier binding opérationnel
+=> v0.1a
+
+Documentation et plan de test :
+  - Compléter ou corriger la doc
+  - Ajouter des programme d'exemple qui sont en même temps des programmes de test
+  - Générer un unique fichier de test .kl à partir de la doc et corriger les bugs éventuels
+  - Passage d'arguments par nommage
+  - Documenter la division d'indexable et les valeurs renvoyées par les structures de contrôle
+=> v0.1
+
+Parser
+  - Appeler la fonction de génération d'erreur du parseur pour les erreurs d'évaluation
+  - Fournir le nom du fichier au parseur (toujours pour les messages d'erreurs)
+  - Parser XML respectueux de la norme
+  - Récupération sur erreur intelligente pendant l'interprétation d'un fichier
+Interpréteur
+  - Implémenter la back-trace quand l'interpréteur catche une exception (cf journal papier)
+Garbage collector
+  - Implémenter un algo de comptage de ref avec détection de cyles adapté au langage
+Chaînes de charactère
+  - Utiliser wstring dans le dictionnaire
+  - Convertir proprement les utf8 strings lors du parsing
+  - Tirer partie du dictionnaire pour les comparaisons
+  - Transformer le hash_set en hash_map pour compter les références et nettoyer
+Généricité
+  - Opérateurs ADD & SUB sur les iterable et pas seulements les indexables
+Documentation et plan de test :
+  - Compléter ou corriger la doc/test
+=> v0.2
+
+Optimisation phase 1 :
+  - Rechercher des raccourcis dans la grammaire, en vérifiant que çà ne casse pas les priotités
+  - Surcharger new/delete pour tous les types Abstract avec un tas d'unions
+  - Réaliser de petits benchmark pour comparer les perfs avec python et lua
+  - Profiling du programme et optimiser les opérations et les types (moins de copie, etc.)
+Programmation orientée Aspects :
+  - Regexp
+  - Renvoyer les mots et non plus les caractères lorsqu'on itère sur une chaîne
+  - Mettre en place l'AOP de façon simple et viable (impact sur la structure de l'AST)
+  - Problème de la concrete factory (reflexion)
+Documentation et plan de test :
+  - Compléter ou corriger la doc/test
+=> v0.3
+
+Bibliothèque standard et modules :
+  - Binder stdio.h, math.h, stdlib
+Interactivité
+  - Message d'erreurs plus explicites
+  - Supprimer les what() du code des opérateurs et faire un catch dans les fonctions eval() des
+    classes de base en affichant le nom de l'opérateur et les valeurs des opérandes après
+    évaluation. A ceci s'ajoutera l'information de ligne, et éventuellement un appel à what() sur
+    l'opérateur lui-même (si ce n'est pas trop lourd).
+Projets :
+  - Mettre en place des mécanismes de modularité (inclusion, modules, import... ?)
+Documentation et plan de test :
+  - Compléter ou corriger la doc/test
+=> v0.4
+
+Optimisation phase 2 :
+  - Étudier les différentes techniques d'optimisation à l'oeuvre dans les intépréteurs (pypy..)
+  - Implémenter une passe d'optimisation sur l'AST (une fois le EOF atteint)
+  - Implémenter une sérialisation de l'AST ainsi optimisé sous la forme de fichier .klc
+  - Recomparer et conclure : faut-il JITer ?
+Documentation et plan de test :
+  - Compléter ou corriger la doc/test
+=> v0.5
+
+Concurrence et programmation multi-agents
+  - Étudier la façon d'utiliser KoaLang à cette fin
+  - Mettre en oeuvre des primitives pour le faire
+Documentation et plan de test :
+  - Parcourir tout le journal pour compléter le livre et vérifier qu'on a rien oublié
+  - Compléter ou corriger la doc/test
+=> v1.0
