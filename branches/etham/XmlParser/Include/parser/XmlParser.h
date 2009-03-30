@@ -23,7 +23,7 @@
 
 #include "XmlNode.h"
 
-namespace parser
+namespace ell
 {
     /// Basic XML Grammar.
     ///

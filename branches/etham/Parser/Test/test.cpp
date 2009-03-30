@@ -20,12 +20,12 @@
 #include "parser/Grammar.h"
 #include "parser/Parser.h"
 
-struct ListTest : public parser::Grammar<char>
+struct ListTest : public ell::Grammar<char>
 {
-    struct Parser : public parser::Parser<char>
+    struct Parser : public ell::Parser<char>
     {
         Parser(ListTest * g)
-          : parser::Parser<char>(& g->root2, & g->blank, "1, 2, 3")
+          : ell::Parser<char>(& g->root2, & g->blank, "1, 2, 3")
         {
             flags.debug = true;
         }
@@ -59,7 +59,7 @@ struct ListTest : public parser::Grammar<char>
         parser.parse();
     }
 
-    parser::Rule<char> root, root2;
+    ell::Rule<char> root, root2;
 };
 
 int main()

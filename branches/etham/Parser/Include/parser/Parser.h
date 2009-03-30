@@ -20,7 +20,7 @@
 
 #include "Utils.h"
 
-namespace parser
+namespace ell
 {
     template <typename Token>
     struct Node;

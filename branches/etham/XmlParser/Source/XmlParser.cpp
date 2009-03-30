@@ -15,7 +15,7 @@
 
 #include "XmlParser.h"
 
-namespace parser
+namespace ell
 {
     XmlGrammar XmlParser::grammar;
 

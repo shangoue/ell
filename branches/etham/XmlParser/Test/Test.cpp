@@ -17,7 +17,7 @@
 
 #include "XmlParser.h"
 
-using namespace parser;
+using namespace ell;
 
 #define DUMP(f, ...) fprintf(stderr, f "\n" , ## __VA_ARGS__)
 #define ERROR(f, ...) do { DUMP(f , ## __VA_ARGS__); abort(); } while(0)
