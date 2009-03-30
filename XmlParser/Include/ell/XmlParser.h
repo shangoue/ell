@@ -18,8 +18,8 @@
 
 #include <stack>
 
-#include <parser/Grammar.h>
-#include <parser/Parser.h>
+#include <ell/Grammar.h>
+#include <ell/Parser.h>
 
 #include "XmlNode.h"
 
