@@ -16,8 +16,8 @@
 #ifndef INCLUDED_PARSER_BINARY_NODES_H
 #define INCLUDED_PARSER_BINARY_NODES_H
 
-#include "BinaryNode.h"
-#include "Parser.h"
+#include <ell/BinaryNode.h>
+#include <ell/Parser.h>
 
 namespace ell
 {

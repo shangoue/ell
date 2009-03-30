@@ -1,8 +1,7 @@
-USED_MODULES = Parser
+USED_MODULES = libELL
 
 TARGET = xml_test
 TARGET_FILES = Test/*.cpp
-CFLAGS += -I../Parser/Include -IInclude -DPARSER_DEBUG=1
-
+CFLAGS += #-DPARSER_DEBUG=1
 
 include ../Script/module.mk

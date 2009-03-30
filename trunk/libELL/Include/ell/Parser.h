@@ -18,7 +18,7 @@
 
 #include <stdexcept>
 
-#include "Utils.h"
+#include <ell/Utils.h>
 
 namespace ell
 {

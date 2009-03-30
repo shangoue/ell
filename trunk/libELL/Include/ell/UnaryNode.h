@@ -16,7 +16,7 @@
 #ifndef INCLUDED_PARSER_UNARY_NODE_H
 #define INCLUDED_PARSER_UNARY_NODE_H
 
-#include "Rule.h"
+#include <ell/Rule.h>
 
 namespace ell
 {
@@ -25,9 +25,11 @@ namespace ell
     {
         void describe(std::ostream & os) const
         {
+#           if PARSER_DEBUG == 1
             if (Node<Token>::must_be_dumped())
                 os << Node<Token>::name << '(' << ((UnaryFlavour *) this)->target << ')';
             else
+#           endif
                 os << ((UnaryFlavour *) this)->target;
         }
     };

@@ -1,4 +1,4 @@
-MODULES = Parser XmlParser
+MODULES = libELL XmlParser
 
 .PHONY: $(MODULES)
 

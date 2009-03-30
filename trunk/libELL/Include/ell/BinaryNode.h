@@ -16,7 +16,7 @@
 #ifndef INCLUDED_PARSER_BINARY_NODE_H
 #define INCLUDED_PARSER_BINARY_NODE_H
 
-#include "Rule.h"
+#include <ell/Rule.h>
 
 namespace ell
 {

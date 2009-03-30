@@ -16,7 +16,7 @@
 #ifndef INCLUDED_PARSER_RULE_H
 #define INCLUDED_PARSER_RULE_H
 
-#include "Node.h"
+#include <ell/Node.h>
 
 namespace ell
 {
