@@ -188,11 +188,11 @@ La bibliothèque fournit un ensemble de terminaux de haut niveau :
 || eps                  || match toujours, ne consomme rien ||
 || any                  || match n'importe quel caractère (y compris le EOF) ||
 || ch(arg)              || match le caractère indiqué ||
-|| digit                || `[`0-9] ||
+|| digit                || `[0-9]` ||
 || range<a, b>          || caractère ASCII compris entre a et b (compris) ||
-|| lower                || `[`a-z] ||
-|| upper                || `[`A-Z] ||
-|| alnum                || `[`a-zA-Z0-9_] ||
+|| lower                || `[a-z]` ||
+|| upper                || `[A-Z]` ||
+|| alnum                || `[a-zA-Z0-9_]` ||
 || blank                || caractère invisible (équivalent à chset(" \t\n\r")) ||
 || ident                || équivalent de lexeme(chset("a-zA-Z_") >> `*` alnum) ||
 || str(arg)             || chaîne de caractère ||
@@ -200,7 +200,7 @@ La bibliothèque fournit un ensemble de terminaux de haut niveau :
 || chset(arg)           || un caractère parmi un ensemble ex: "A-Z_.-" ||
 || error(msg)           || génère une erreur ||
 || no_suffix(a, b)      || équivalent de lexeme(a >> (eps - b)) ||
-|| visible_ascii        || caractères visibles du code ASCII-7bit `[`!-~] ||
+|| visible_ascii        || caractères visibles du code ASCII-7bit `[!-~]` ||
 || utf8nonascii         || caractères utf8 valide non ASCII ||
 || integer              || entier décimal signé ||
 || real                 || nombre flottant ||
