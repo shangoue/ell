@@ -19,7 +19,7 @@
 #include "UnaryNode.h"
 #include "Parser.h"
 
-namespace parser
+namespace ell
 {
     /// Disable any nested semantic action
     template <typename Token, typename Child>

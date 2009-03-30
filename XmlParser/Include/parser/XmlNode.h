@@ -18,7 +18,7 @@
 
 #include <parser/Parser.h>
 
-namespace parser
+namespace ell
 {
     template <typename Token>
     class Parser;

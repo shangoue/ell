@@ -18,7 +18,7 @@
 
 #include "Utils.h"
 
-namespace parser
+namespace ell
 {
     template <typename Token>
     struct Parser;
@@ -131,7 +131,7 @@ namespace parser
 #include "Primitives.h"
 #include "Numerics.h"
 
-namespace parser
+namespace ell
 {
     template <typename Token, typename ConcreteNode>
     template <typename ConcreteParser, typename T>

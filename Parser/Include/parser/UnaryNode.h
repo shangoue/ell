@@ -18,7 +18,7 @@
 
 #include "Rule.h"
 
-namespace parser
+namespace ell
 {
     template <typename Token, typename ConcreteNode, typename UnaryFlavour>
     struct UnaryNodeBase : public ConcreteNodeBase<Token, ConcreteNode>

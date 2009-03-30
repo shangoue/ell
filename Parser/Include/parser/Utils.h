@@ -37,7 +37,7 @@
 #define BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
 #define END_PARSE   parser->end_of_parsing(this, match); return match;
 
-namespace parser
+namespace ell
 {
     /// Exception-safe temporary modification
     template <typename T = bool>
