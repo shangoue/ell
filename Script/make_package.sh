@@ -5,7 +5,7 @@ if [ ! "$*" ]; then
     exit 1
 fi
 
-pkg="Ell-`date +%Y%b%d`"
+pkg="Ell-`date +%Y%b%d`-r`svnversion`"
 echo Generate $pkg
 mkdir $pkg
 cp --parent CommonHeaders.h COPYING.LESSER Makefile $pkg/
