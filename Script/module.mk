@@ -24,7 +24,6 @@ ifeq ($(COMPILER),icc)
 CFLAGS += -Wbrief
 else
 COMPILER = LANG=C g++
-ifneq ($(filter $(COMPILER),g++),)
 CFLAGS += -Winvalid-pch -Wall -pipe -Wno-parentheses
 endif
 
