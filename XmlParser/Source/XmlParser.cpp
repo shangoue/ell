@@ -92,14 +92,14 @@ namespace ell
         ident = lexeme((chset("a-zA-Z_:") |
                        range<0x80, 0xFF>()) >> * (chset("a-zA-Z0-9_.:-") |
                                                   range<0x80, 0xFF>()));
-        PARSER_NAME_RULE(document);
-        PARSER_NAME_RULE(element);
-        PARSER_NAME_RULE(attribute);
-        PARSER_NAME_RULE(reference);
-        PARSER_NAME_RULE(comment);
-        PARSER_NAME_RULE(pi);
-        PARSER_NAME_RULE(cdata);
-        PARSER_NAME_RULE(data);
-        PARSER_NAME_RULE(ident);
+        ELL_NAME_RULE(document);
+        ELL_NAME_RULE(element);
+        ELL_NAME_RULE(attribute);
+        ELL_NAME_RULE(reference);
+        ELL_NAME_RULE(comment);
+        ELL_NAME_RULE(pi);
+        ELL_NAME_RULE(cdata);
+        ELL_NAME_RULE(data);
+        ELL_NAME_RULE(ident);
     }
 }

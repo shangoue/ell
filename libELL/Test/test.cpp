@@ -15,8 +15,8 @@
 
 #include <iostream>
 
-#define PARSER_DEBUG 1
-#define PARSER_DUMP_NODES 1
+#define ELL_DEBUG 1
+#define ELL_DUMP_NODES 1
 #include <ell/Grammar.h>
 #include <ell/Parser.h>
 

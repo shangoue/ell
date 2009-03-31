@@ -48,9 +48,9 @@ namespace ell
 
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             match = top->parse(parser);
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -61,7 +61,7 @@ namespace ell
                 os << * top;
         }
 
-#       if PARSER_DEBUG == 1
+#       if ELL_DEBUG == 1
         bool must_be_dumped() const { return true; }
 #       endif
 

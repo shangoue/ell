@@ -18,7 +18,7 @@
 #else
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
             int count = 0;
 
@@ -56,7 +56,7 @@
                     }
                 }
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 # undef MIN
 # undef MAX
