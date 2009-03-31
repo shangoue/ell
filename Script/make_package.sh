@@ -15,18 +15,21 @@ rm -f Ell-*-.tar.bz2
 
 echo Generate $pkg
 mkdir $pkg
-
+mkdir $pkg/lib
+mkdir $pkg/include
 
 # Get dev package content
 cp --parent COPYING.LESSER $pkg/
 MODE=Release COMPILER=icc make -C libELL
 for m in $*; do
     MODE=Release COMPILER=icc make -C $m
-    cp --parent GNU_Linux/x86_64/Release/lib$m.a $pkg
+    cp GNU_Linux/x86_64/Release/lib`basename $m`.a $pkg/lib
 done
 
 for m in libELL $*; do
-    cp --parent `find $m/Include -name "*.h"` $pkg/
+    cd $m/Include
+    cp --parent `find . -name "*.h"` ../../$pkg/include
+    cd ../..
 done
 
 # Get doc
@@ -37,22 +40,4 @@ cp ../wiki/ReferenceManual.wiki $pkg/
 
 # Generate dev package
 tar cjvf $pkg-dev.tar.bz2 $pkg
-
-# Remove binaries
-rm -rf $pkg/GNU_Linux
-
-# Add source package content
-cp --parent CommonHeaders.h COPYING.LESSER Makefile $pkg/
-cp --parent `find Script -name "*.mk"` $pkg/
-
-for m in libELL $*; do
-    cp --parent $m/Makefile $pkg/
-    for dir in Source Test; do
-        [ -d $m/$dir ] && cp --parent `find $m/$dir -name "*.cpp" -o -name "*.h"` $pkg/
-    done
-done
-
-# Generate source package
-tar cjvf $pkg.tar.bz2 $pkg
-
 rm -rf $pkg
