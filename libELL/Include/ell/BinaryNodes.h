@@ -120,6 +120,7 @@ namespace ell
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
             T element;
+            list.clear();
 
             while (left.parse(parser, element))
             {
