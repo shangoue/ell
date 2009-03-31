@@ -10,19 +10,23 @@ svn up
 ver=`svnversion | sed "s/^[^:]*:\([0-9]\+\)/\1/" | sed "s/\([0-9]\+\)M\?/\1/"`
 
 pkg="Ell-`date +%Y%b%d`-r$ver"
+rm -rf GNU_Linux $pkg
+rm -f Ell-*-.tar.bz2
+
 echo Generate $pkg
 mkdir $pkg
 
+
 # Get dev package content
 cp --parent COPYING.LESSER $pkg/
-MODE=Release make -C libELL
+MODE=Release COMPILER=icc make -C libELL
 for m in $*; do
     MODE=Release COMPILER=icc make -C $m
     cp --parent GNU_Linux/x86_64/Release/lib$m.a $pkg
 done
 
 for m in libELL $*; do
-    cp --parent `find Include -name "*.h"` $pkg/
+    cp --parent `find $m/Include -name "*.h"` $pkg/
 done
 
 # Get doc
