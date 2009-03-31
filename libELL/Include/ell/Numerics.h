@@ -180,18 +180,6 @@ namespace ell
         using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >::parse;
         using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >::operator [ ];
 
-        template <typename ConcreteParser>
-        Action<Token, Integer<Token, Sign, Radix, 1, 200>, ConcreteParser, Sign ConcreteParser::*> operator [ ] (Sign ConcreteParser::* var) const
-        {
-            return make_action(var);
-        }
-
-        template <typename ConcreteParser>
-        Action<Token, Integer<Token, Sign, Radix, 1, 200>, ConcreteParser,  void (ConcreteParser::*)(const Sign &)> operator [ ] (void (ConcreteParser::* meth)(const Sign &)) const
-        {
-            return make_action(meth);
-        }
-
         bool parse(Parser<Token> * parser) const
         {
             Sign v;
@@ -242,18 +230,6 @@ namespace ell
     {
         using ConcreteNodeBase<Token, Real<Token> >::parse;
         using ConcreteNodeBase<Token, Real<Token> >::operator [ ];
-
-        template <typename ConcreteParser>
-        Action<Token, Real<Token>, ConcreteParser, double ConcreteParser::*> operator [ ] (double ConcreteParser::* var) const
-        {
-            return make_action(var);
-        }
-
-        template <typename ConcreteParser>
-        Action<Token, Real<Token>, ConcreteParser,  void (ConcreteParser::*)(const double &)> operator [ ] (void (ConcreteParser::* meth)(const double &)) const
-        {
-            return make_action(meth);
-        }
 
         Real()
         { }
