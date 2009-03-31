@@ -185,6 +185,7 @@ namespace ell
         { }
 
         using Base::parse;
+
         bool parse(Parser<Token> * parser) const
         {
             ELL_BEGIN_PARSE
