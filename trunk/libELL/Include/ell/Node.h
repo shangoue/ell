@@ -64,8 +64,8 @@ namespace ell
             return os;
         }
 
-#       if PARSER_DEBUG == 1
-        virtual bool must_be_dumped() const { return PARSER_DUMP_NODES; }
+#       if ELL_DEBUG == 1
+        virtual bool must_be_dumped() const { return ELL_DUMP_NODES; }
 #       endif
 
         void get_value() { }

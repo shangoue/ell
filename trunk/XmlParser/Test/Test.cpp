@@ -49,7 +49,7 @@ int nonreg()
 
             // Parse and check result
             XmlDomParser p;
-#           if PARSER_DEBUG == 1
+#           if ELL_DEBUG == 1
             p.flags.debug = true;
 #           endif
 
@@ -74,7 +74,7 @@ int nonreg()
                 root1->unparse(s1);
 
                 XmlDomParser p2;
-#               if PARSER_DEBUG == 1
+#               if ELL_DEBUG == 1
                 p2.flags.debug = true;
 #               endif
 
@@ -146,7 +146,7 @@ int main(int argc, const char ** argv)
     fclose(f);
 
     XmlDomParser p;
-#   if PARSER_DEBUG == 1
+#   if ELL_DEBUG == 1
     p.flags.debug = false;
 #   endif
 

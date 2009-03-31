@@ -51,27 +51,27 @@ namespace ell
     template <typename Token, typename Left, typename Right>
     bool Alternative<Token, Left, Right>::parse(Parser<Token> * parser) const
     {
-        BEGIN_PARSE
+        ELL_BEGIN_PARSE
         match = left.parse(parser) or right.parse(parser);
-        END_PARSE
+        ELL_END_PARSE
     }
 
     template <typename Token, typename Left, typename Right>
     bool Difference<Token, Left, Right>::parse(Parser<Token> * parser) const
     {
-        BEGIN_PARSE
+        ELL_BEGIN_PARSE
         typename Parser<Token>::Context sav_pos = parser->save_pos();
         if (right.parse(parser))
             parser->restore_pos(sav_pos);
         else
             match = left.parse(parser);
-        END_PARSE
+        ELL_END_PARSE
     }
 
     template <typename Token, typename Left, typename Right>
     bool Aggregation<Token, Left, Right>::parse(Parser<Token> * parser) const
     {
-        BEGIN_PARSE
+        ELL_BEGIN_PARSE
         typename Parser<Token>::Context sav_pos = parser->save_pos();
 
         if (left.parse(parser))
@@ -89,13 +89,13 @@ namespace ell
         }
         else
             parser->restore_pos(sav_pos);
-        END_PARSE
+        ELL_END_PARSE
     }
 
     template <typename Token, typename Left, typename Right>
     bool List<Token, Left, Right>::parse(Parser<Token> * parser) const
     {
-        BEGIN_PARSE
+        ELL_BEGIN_PARSE
         typename Parser<Token>::Context sav_pos = parser->save_pos();
 
         while (left.parse(parser))
@@ -110,13 +110,13 @@ namespace ell
         }
 
         parser->restore_pos(sav_pos);
-        END_PARSE
+        ELL_END_PARSE
     }
 
     template <typename Token, typename Left, typename Right>
     bool BoundRepetition<Token, Left, Right>::parse(Parser<Token> * parser) const
     {
-        BEGIN_PARSE
+        ELL_BEGIN_PARSE
         while (1)
         {
             match = right.parse(parser);
@@ -124,13 +124,13 @@ namespace ell
                 break;
             parser->skip();
         }
-        END_PARSE
+        ELL_END_PARSE
     }
 
     template <typename Token, typename Left, typename Right>
     bool DisorderedAggregation<Token, Left, Right>::parse(Parser<Token> * parser) const
     {
-        BEGIN_PARSE
+        ELL_BEGIN_PARSE
         if (left.parse(parser))
         {
             match = true;
@@ -141,13 +141,13 @@ namespace ell
             match = true;
             left.parse(parser);
         }
-        END_PARSE
+        ELL_END_PARSE
     }
 
     template <typename Token, typename Left, typename Right>
     bool NoSuffix<Token, Left, Right>::parse(Parser<Token> * parser) const
     {
-        BEGIN_PARSE
+        ELL_BEGIN_PARSE
         SafeModify<> m1(parser->flags.no_step_back, false);
         typename Parser<Token>::Context sav_pos = parser->save_pos();
         match = left.parse(parser);
@@ -156,7 +156,7 @@ namespace ell
             parser->restore_pos(sav_pos);
             match = false;
         }
-        END_PARSE
+        ELL_END_PARSE
     }
 }
 

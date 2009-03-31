@@ -25,7 +25,7 @@ namespace ell
     {
         void describe(std::ostream & os) const
         {
-#           if PARSER_DEBUG == 1
+#           if ELL_DEBUG == 1
             if (Node<Token>::must_be_dumped())
                 os << Node<Token>::name << '(' << ((UnaryFlavour *) this)->target << ')';
             else

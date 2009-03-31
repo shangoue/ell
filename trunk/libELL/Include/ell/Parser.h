@@ -97,7 +97,7 @@ namespace ell
             Flags()
               : step_back(true)
               , action(true)
-#               if PARSER_DEBUG == 1
+#               if ELL_DEBUG == 1
               , debug(false)
               , level(0)
 #               endif
@@ -107,7 +107,7 @@ namespace ell
             /// To be modified only through ModifyFlag class
             bool step_back;
             bool action;
-#           if PARSER_DEBUG == 1
+#           if ELL_DEBUG == 1
             bool debug;
             int level;
 #           endif
@@ -133,7 +133,7 @@ namespace ell
         /// but an error will be raised on get().
         void next()
         {
-#           if PARSER_DEBUG == 1
+#           if ELL_DEBUG == 1
             if (not bool(* position))
                 raise_error("Unexpected end", line_number);
 #           endif
@@ -158,7 +158,7 @@ namespace ell
         {
             if (skipper)
             {
-#               if PARSER_DEBUG == 1 && PARSER_DUMP_SKIPPER != 1
+#               if ELL_DEBUG == 1 && ELL_DUMP_SKIPPER != 1
                 SafeModify<> md(flags.debug, false);
 #               endif
                 SafeModify<const Node<Token> *> ms(skipper, 0);
@@ -173,7 +173,7 @@ namespace ell
 
         void begin_of_parsing(const Node<Token> * node)
         {
-#           if PARSER_DEBUG == 1
+#           if ELL_DEBUG == 1
             if (flags.debug && node->must_be_dumped())
             {
                 std::cout << std::string(++flags.level, ' ');
@@ -184,7 +184,7 @@ namespace ell
 
         void end_of_parsing(const Node<Token> * node, bool match)
         {
-#           if PARSER_DEBUG == 1
+#           if ELL_DEBUG == 1
             if (flags.debug && node->must_be_dumped())
             {
                 std::cout << std::string(flags.level--, ' ');

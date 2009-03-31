@@ -45,9 +45,9 @@ namespace ell
         using TokenPrimitiveBase<Token, Epsilon<Token> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             match = true;
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -62,13 +62,13 @@ namespace ell
         using TokenPrimitiveBase<Token, Any<Token> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             if (bool(parser->get()))
             {
                 match = true;
                 parser->next();
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -83,9 +83,9 @@ namespace ell
         using TokenPrimitiveBase<Token, EndOfStream<Token> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             match = not bool(parser->get());
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -104,7 +104,7 @@ namespace ell
         using TokenPrimitiveBase<Token, Charset<Token> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             const char * p = & set[0];
             const wchar_t c = parser->get();
             while (* p)
@@ -131,7 +131,7 @@ namespace ell
                     p += 2;
                 }
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -152,13 +152,13 @@ namespace ell
         using TokenPrimitiveBase<Token, Character<Token> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             if (parser->get() == c)
             {
                 parser->next();
                 match = true;
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -175,7 +175,7 @@ namespace ell
         using TokenPrimitiveBase<Token, Range<Token, C1, C2> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             const Token c = parser->get();
             const int d1 = c - C1;
             const int d2 = c - C2;
@@ -184,7 +184,7 @@ namespace ell
                 parser->next();
                 match = true;
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -203,9 +203,9 @@ namespace ell
         using ConcreteNodeBase<Token, Error<Token> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             parser->raise_error(str, parser->line_number);
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -227,7 +227,7 @@ namespace ell
         using ConcreteNodeBase<Token, IgnoreCaseString<Token> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
             const Token * p = & str[0];
             match = true;
@@ -250,7 +250,7 @@ namespace ell
                     break;
                 }
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -274,7 +274,7 @@ namespace ell
         using ConcreteNodeBase<Token, String<Token> >::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
             const Token * p = str.c_str();
             match = true;
@@ -289,7 +289,7 @@ namespace ell
                 parser->next();
                 ++p;
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -306,7 +306,7 @@ namespace ell
         using ConcreteNodeBase<char, UTF8NonASCII>::parse;
         bool parse(Parser<char> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             Parser<char>::Context sav_pos = parser->save_pos();
 
             unsigned char c = parser->get();
@@ -340,7 +340,7 @@ namespace ell
                     }
                 }
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const

@@ -112,7 +112,7 @@ namespace ell
 
         bool parse(Parser<Token> * parser, Sign & out_value) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
 
             int digit_nb = 0;
@@ -163,7 +163,7 @@ namespace ell
                     out_value = value * sign;
                 }
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -200,7 +200,7 @@ namespace ell
 
         bool parse(Parser<Token> * parser, Sign & out_value) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
 
             Sign value = 0;
@@ -228,7 +228,7 @@ namespace ell
             {
                 parser->restore_pos(sav_pos);
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const
@@ -267,7 +267,7 @@ namespace ell
         bool parse(Parser<Token> * parser, double & out_value) const
         {
             // No wide string real number parsing implemented
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             char * endptr;
             double value = strtod(parser->position, & endptr);
 
@@ -277,7 +277,7 @@ namespace ell
                 out_value = value;
                 match = true;
             }
-            END_PARSE
+            ELL_END_PARSE
         }
 
         void describe(std::ostream & os) const

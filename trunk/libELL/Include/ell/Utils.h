@@ -21,21 +21,21 @@
 #include <sstream>
 #include <cwchar>
 
-#ifndef PARSER_DEBUG
-#define PARSER_DEBUG             0
+#ifndef ELL_DEBUG
+#define ELL_DEBUG             0
 #else
-#ifndef PARSER_DUMP_NODES
-#define PARSER_DUMP_NODES        0
+#ifndef ELL_DUMP_NODES
+#define ELL_DUMP_NODES        0
 #endif
-#ifndef PARSER_DUMP_SKIPPER
-#define PARSER_DUMP_SKIPPER      0
+#ifndef ELL_DUMP_SKIPPER
+#define ELL_DUMP_SKIPPER      0
 #endif
 #endif
 
-#define PARSER_NAME_RULE(arg) arg.set_name(#arg);
+#define ELL_NAME_RULE(arg) arg.set_name(#arg);
 
-#define BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
-#define END_PARSE   parser->end_of_parsing(this, match); return match;
+#define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
+#define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;
 
 namespace ell
 {

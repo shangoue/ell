@@ -34,10 +34,10 @@ namespace ell
         using Base::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.action, false);
             match = Base::target.parse(parser);
-            END_PARSE
+            ELL_END_PARSE
         }
     };
 
@@ -54,10 +54,10 @@ namespace ell
         using Base::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.step_back, false);
             match = Base::target.parse(parser);
-            END_PARSE
+            ELL_END_PARSE
         }
     };
 
@@ -74,11 +74,11 @@ namespace ell
         using Base::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
             match = Base::target.parse(parser);
             parser->restore_pos(sav_pos);
-            END_PARSE
+            ELL_END_PARSE
         }
     };
 
@@ -96,11 +96,11 @@ namespace ell
         using Base::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.step_back, true);
             SafeModify<const Node<Token> *> m2(parser->skipper, 0);
             match = Base::target.parse(parser);
-            END_PARSE
+            ELL_END_PARSE
         }
     };
 
@@ -187,12 +187,12 @@ namespace ell
         using Base::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             if (parser->flags.action)
                 match = Base::target.parse(parser, ((ConcreteParser *) parser)->*var);
             else
                 match = Base::target.parse(parser);
-            END_PARSE
+            ELL_END_PARSE
         }
 
     private:
@@ -213,7 +213,7 @@ namespace ell
         using Base::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             if (parser->flags.action)
             {
                 Value v;
@@ -223,7 +223,7 @@ namespace ell
             }
             else
                 match = Base::target.parse(parser);
-            END_PARSE
+            ELL_END_PARSE
         }
 
     private:
@@ -244,11 +244,11 @@ namespace ell
         using Base::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             match = Base::target.parse(parser);
             if (parser->flags.action and match)
                 (((ConcreteParser *) parser)->*method)();
-            END_PARSE
+            ELL_END_PARSE
         }
 
     private:
@@ -269,7 +269,7 @@ namespace ell
         using Base::parse;
         bool parse(Parser<Token> * parser) const
         {
-            BEGIN_PARSE
+            ELL_BEGIN_PARSE
             if (parser->flags.action)
             {
                 Value v;
@@ -279,7 +279,7 @@ namespace ell
             }
             else
                 match = Base::target.parse(parser);
-            END_PARSE
+            ELL_END_PARSE
         }
 
     private:
