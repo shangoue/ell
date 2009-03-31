@@ -16,10 +16,12 @@
 #ifndef INCLUDED_PARSER_UTILS_H
 #define INCLUDED_PARSER_UTILS_H
 
+#include <vector>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <cwchar>
+#include <stdlib.h>
 
 #ifndef ELL_DEBUG
 #define ELL_DEBUG             0
