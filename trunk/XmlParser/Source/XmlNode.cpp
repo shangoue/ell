@@ -147,7 +147,7 @@ namespace ell
             else
             {
                 out << '>';
-                XmlNode * last;
+                XmlNode * last = _first_child;
                 for (XmlNode * p = _first_child;
                     p;
                     p = p->_next_sibling)
