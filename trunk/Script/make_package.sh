@@ -17,7 +17,7 @@ mkdir $pkg
 cp --parent COPYING.LESSER $pkg/
 MODE=Release make -C libELL
 for m in $*; do
-    MODE=Release make -C $m
+    MODE=Release COMPILER=icc make -C $m
     cp --parent GNU_Linux/x86_64/Release/lib$m.a $pkg
 done
 
