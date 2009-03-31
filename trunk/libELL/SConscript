@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 env = Environment(CPPPATH = ['Include'])
 
 env.Program('parser_test', 'Test/test.cpp')

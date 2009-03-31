@@ -21,7 +21,8 @@
 #include <iostream>
 #include <sstream>
 #include <cwchar>
-#include <stdlib.h>
+#include <map>
+#include <cstdlib>
 
 #ifndef ELL_DEBUG
 #define ELL_DEBUG             0
