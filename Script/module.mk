@@ -11,7 +11,6 @@ else
 CFLAGS += -fPIC
 endif
 
-MODE = Debug
 ifeq ($(MODE),Release)
 CFLAGS += -O3
 else
@@ -21,6 +20,9 @@ endif
 
 BUILD_FOOTPRINT = $(OS)/$(ARCH)/$(MODE)
 
+ifeq ($(COMPILER),icc)
+CFLAGS += -Wbrief
+else
 COMPILER = LANG=C g++
 ifneq ($(filter $(COMPILER),g++),)
 CFLAGS += -Winvalid-pch -Wall -pipe -Wno-parentheses
