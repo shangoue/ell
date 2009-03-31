@@ -309,9 +309,9 @@ la bibliothèque (lexèmes prédéfinis, opérateurs et directives détaillés d
 les tableaux précédents, voir Grammar.h).
 
 {{{
-    #include <Napalm/Parser/Grammar.h"
+    #include <ell/Grammar.h>
    
-    class PalinGram : public Grammar<char>
+    class PalinGram : public ell::Grammar<char>
     {
     public:
 }}}
@@ -344,11 +344,11 @@ Voici ce que cela donne :
       }
 
   private:
-      Rule<char> palindrome, souspalindrome;
+      ell::Rule<char> palindrome, souspalindrome;
   };
 }}}
 
-Les primitives (terminaux ou directives prédéfines) sont définies dans ''Parser/Grammar.h''.
+Les primitives (terminaux ou directives prédéfines) sont définies dans <Parser/Grammar.h>.
 
 Et maintenant, le parseur.  Pour plus de faciliter, nous créons un typedef du
 type de la class parente.  Dans l'appel au constructeur de la class parente,
@@ -357,13 +357,11 @@ On peut voir notre grammaire comme un lexeur qui recherche les lexèmes
 palindromes.
 
 {{{
-class PalinParser : public parser::Parser<char>
+class PalinParser : public ell::Parser<char>
 {
 public
-    typedef parser::Parser<char> base_type;
-
     PalinParser()
-      : Parser(& grammar.palindrome, NULL, NULL)
+      : ell::Parser(& grammar.palindrome, NULL, NULL)
     { }
 
     // Override this for custom error management
@@ -372,26 +370,19 @@ public
       ...
     }
 
-    // Useless but for better understanding
-    void parse(const char * word)
-    {
-      base_type::parse(word);
-    }
-
 private:
     static PalinGram grammar;
 
     stack<string> st;
 
-    void push(const char * begin)
+    void push(const std::string & s)
     {
-        st.push(string(begin, base_type::position));
+        st.push(s);
     }
 
-    bool checkpop(const char * begin)
+    bool checkpop(const std::string s2)
     {
         string s1=st.top();
-        string s2=string(begin, base_type::position);
         if (s1 == s2)
         {
             printf("%s == %s", s1.c_str(), s2.c_str());
@@ -411,9 +402,9 @@ private:
         st.pop();
     }
 
-    void printmsg(const char * begin)
+    void printmsg(const std::string & s)
     {
-        cout << string(begin, base_type::position << " est un palindrome!\n");
+        std::cout << s << " est un palindrome!" << std::endl;
     }
 };
 }}}
