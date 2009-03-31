@@ -295,9 +295,9 @@ Tenant pour acquis que nous avons une pile (FIFO) à notre disposition :
 Compétons donc la grammaire :
 
 {{{
-  palindrome : ALPHA [push] palindrome ALPHA [checkpop] |
-               ALPHA ALPHA [checkpop] |
-               ALPHA [pop]
+    palindrome : ALPHA [push] palindrome ALPHA [checkpop] |
+                 ALPHA ALPHA [checkpop] |
+                 ALPHA [pop]
 }}}
 
 L'opérateur [] indique une action à effectuer seulement si l'argument (situé
@@ -309,11 +309,11 @@ la bibliothèque (lexèmes prédéfinis, opérateurs et directives détaillés d
 les tableaux précédents, voir Grammar.h).
 
 {{{
-  #include <Napalm/Parser/Grammar.h"
-
-  class PalinGram : public Grammar<char>
-  {
-  public:
+    #include <Napalm/Parser/Grammar.h"
+   
+    class PalinGram : public Grammar<char>
+    {
+    public:
 }}}
 
 La traduction de la grammaire sous forme C++ sera introduite dans le
