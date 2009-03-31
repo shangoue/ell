@@ -380,7 +380,7 @@ private:
         st.push(s);
     }
 
-    bool checkpop(const std::string s2)
+    bool checkpop(const std::string & s2)
     {
         string s1=st.top();
         if (s1 == s2)
