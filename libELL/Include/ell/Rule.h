@@ -28,20 +28,30 @@ namespace ell
         using Node<Token>::name;
         using ConcreteNodeBase<Token, Rule<Token> >::parse;
 
+        // Default name to anonymous to avoid infinite recursion in describe
+        // when no names has been given
         Rule()
           : top(0)
-        { }
-
-        virtual ~Rule()
         {
-            if (top) delete top;
+            Node<Token>::name = "<anonymous>";
+        }
+
+        virtual ~Rule() { clean(); }
+
+        void clean()
+        {
+            if (top and not dynamic_cast<const Rule *>(top))
+                delete top;
         }
 
         template <typename N>
         void operator = (const N & n)
         {
-            if (top) delete top;
-            top = new N(n);
+            clean();
+            if (dynamic_cast<const Rule *>(& n))
+                top = & n;
+            else
+                top = new N(n);
         }
 
         void set_name(const char * n) { name = n; }
@@ -66,7 +76,7 @@ namespace ell
 #       endif
 
     private:
-        Node<Token> * top;
+        const Node<Token> * top;
     };
 }
 

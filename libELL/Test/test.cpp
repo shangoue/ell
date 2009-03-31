@@ -25,19 +25,9 @@ struct ListTest : public ell::Grammar<char>
     struct Parser : public ell::Parser<char>
     {
         Parser(ListTest * g)
-          : ell::Parser<char>(& g->root2, & g->blank, "1, 2, 3")
+          : ell::Parser<char>(& g->root, & g->blank, "1 , 2,3,")
         {
             flags.debug = true;
-        }
-
-        void printValue(unsigned long v)
-        {
-            std::cout << v << std::endl;
-        }
-
-        void print(const std::string & s)
-        {
-            std::cout << "-" << s << "-" << std::endl;
         }
 
         void doNothing(void)
@@ -45,21 +35,27 @@ struct ListTest : public ell::Grammar<char>
             std::cout << "coucou" << std::endl;
         }
 
+        void getValues(std::vector<unsigned long> l)
+        {
+            for (unsigned int i = 0; i < l.size(); ++i)
+                std::cout << l[i] << ", ";
+            std::cout << std::endl;
+        }
+
         std::string s;
     };
 
     ListTest()
     {
-        root = dec [& Parser::printValue][& Parser::print] % ch(',')[& Parser::s];
-
-        root2 = root [& Parser::doNothing];
+        root = other [& Parser::doNothing];
+        other = (dec % ch(',')) [& Parser::getValues];
 
         Parser parser(this);
 
         parser.parse();
     }
 
-    ell::Rule<char> root, root2;
+    ell::Rule<char> root, other;
 };
 
 int main()

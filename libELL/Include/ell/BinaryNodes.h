@@ -21,143 +21,218 @@
 
 namespace ell
 {
-#   define D(CLASS, NAME)                                                            \
-    template <typename Token, typename Left, typename Right>                         \
-    struct CLASS : public BinaryNode<Token, CLASS<Token, Left, Right>, Left, Right>  \
-    {                                                                                \
-        typedef BinaryNode<Token, CLASS<Token, Left, Right>, Left, Right> Base;      \
-        using Base::right;                                                           \
-        using Base::left;                                                            \
-                                                                                     \
-        CLASS(const Left & left, const Right & right)                                \
-            : Base(left, right)                                                      \
-        {                                                                            \
-            Node<Token>::name = #NAME;                                               \
-        }                                                                            \
-                                                                                     \
-        using Base::parse;                                                           \
-        bool parse(Parser<Token> * parser) const;                                    \
-    };                                                                               \
-
-    D(Alternative,           or)
-    D(Difference,            bereft of)
-    D(Aggregation,           followed by)
-    D(List,                  separated by)
-    D(BoundRepetition,       until)
-    D(DisorderedAggregation, and)
-    D(NoSuffix,              not followed by)
-#   undef D
-
     template <typename Token, typename Left, typename Right>
-    bool Alternative<Token, Left, Right>::parse(Parser<Token> * parser) const
+    struct Alternative : public BinaryNode<Token, Alternative<Token, Left, Right>, Left, Right>
     {
-        ELL_BEGIN_PARSE
-        match = left.parse(parser) or right.parse(parser);
-        ELL_END_PARSE
-    }
+        typedef BinaryNode<Token, Alternative<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
 
-    template <typename Token, typename Left, typename Right>
-    bool Difference<Token, Left, Right>::parse(Parser<Token> * parser) const
-    {
-        ELL_BEGIN_PARSE
-        typename Parser<Token>::Context sav_pos = parser->save_pos();
-        if (right.parse(parser))
-            parser->restore_pos(sav_pos);
-        else
-            match = left.parse(parser);
-        ELL_END_PARSE
-    }
+        Alternative(const Left & left, const Right & right)
+          : Base(left, right, "or")
+        { }
 
-    template <typename Token, typename Left, typename Right>
-    bool Aggregation<Token, Left, Right>::parse(Parser<Token> * parser) const
-    {
-        ELL_BEGIN_PARSE
-        typename Parser<Token>::Context sav_pos = parser->save_pos();
-
-        if (left.parse(parser))
+        using Base::parse;
+        bool parse(Parser<Token> * parser) const
         {
-            parser->skip();
+            ELL_BEGIN_PARSE
+            match = left.parse(parser) or right.parse(parser);
+            ELL_END_PARSE
+        }
+    };
+
+    template <typename Token, typename Left, typename Right>
+    struct Difference : public BinaryNode<Token, Difference<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, Difference<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        Difference(const Left & left, const Right & right)
+          : Base(left, right, "bereft of")
+        { }
+
+        using Base::parse;
+        bool parse(Parser<Token> * parser) const
+        {
+            ELL_BEGIN_PARSE
+            typename Parser<Token>::Context sav_pos = parser->save_pos();
             if (right.parse(parser))
-                match=true;
-            else
-            {
-                if (not parser->flags.step_back)
-                    parser->raise_error(right);
-
                 parser->restore_pos(sav_pos);
+            else
+                match = left.parse(parser);
+            ELL_END_PARSE
+        }
+    };
+
+    template <typename Token, typename Left, typename Right>
+    struct Aggregation : public BinaryNode<Token, Aggregation<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, Aggregation<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        Aggregation(const Left & left, const Right & right)
+          : Base(left, right, "followed by")
+        { }
+
+        using Base::parse;
+        bool parse(Parser<Token> * parser) const
+        {
+            ELL_BEGIN_PARSE
+            typename Parser<Token>::Context sav_pos = parser->save_pos();
+
+            if (left.parse(parser))
+            {
+                parser->skip();
+                if (right.parse(parser))
+                    match=true;
+                else
+                {
+                    if (not parser->flags.step_back)
+                        parser->raise_error(right);
+
+                    parser->restore_pos(sav_pos);
+                }
             }
+            else
+                parser->restore_pos(sav_pos);
+            ELL_END_PARSE
         }
-        else
+    };
+
+    template <typename Token, typename Left, typename Right>
+    struct List : public BinaryNode<Token, List<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, List<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        List(const Left & left, const Right & right)
+          : Base(left, right, "separated by")
+        { }
+
+        using Base::parse;
+
+        template <typename T>
+        bool parse(Parser<Token> * parser, std::vector<T> & list) const
+        {
+            ELL_BEGIN_PARSE
+            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            T element;
+
+            while (left.parse(parser, element))
+            {
+                match = true;
+                list.push_back(element);
+                parser->skip();
+                sav_pos = parser->save_pos();
+
+                if (! right.parse(parser))
+                    break;
+                parser->skip();
+            }
+
             parser->restore_pos(sav_pos);
-        ELL_END_PARSE
-    }
-
-    template <typename Token, typename Left, typename Right>
-    bool List<Token, Left, Right>::parse(Parser<Token> * parser) const
-    {
-        ELL_BEGIN_PARSE
-        typename Parser<Token>::Context sav_pos = parser->save_pos();
-
-        while (left.parse(parser))
-        {
-            match = true;
-            parser->skip();
-            sav_pos = parser->save_pos();
-
-            if (! right.parse(parser))
-                break;
-            parser->skip();
+            ELL_END_PARSE
         }
 
-        parser->restore_pos(sav_pos);
-        ELL_END_PARSE
-    }
+        bool parse(Parser<Token> * parser) const
+        {
+            ELL_BEGIN_PARSE
+            typename Parser<Token>::Context sav_pos = parser->save_pos();
 
-    template <typename Token, typename Left, typename Right>
-    bool BoundRepetition<Token, Left, Right>::parse(Parser<Token> * parser) const
-    {
-        ELL_BEGIN_PARSE
-        while (1)
-        {
-            match = right.parse(parser);
-            if (match or not left.parse(parser))
-                break;
-            parser->skip();
-        }
-        ELL_END_PARSE
-    }
+            while (left.parse(parser))
+            {
+                match = true;
+                parser->skip();
+                sav_pos = parser->save_pos();
 
-    template <typename Token, typename Left, typename Right>
-    bool DisorderedAggregation<Token, Left, Right>::parse(Parser<Token> * parser) const
-    {
-        ELL_BEGIN_PARSE
-        if (left.parse(parser))
-        {
-            match = true;
-            right.parse(parser);
-        }
-        else if (right.parse(parser))
-        {
-            match = true;
-            left.parse(parser);
-        }
-        ELL_END_PARSE
-    }
+                if (! right.parse(parser))
+                    break;
+                parser->skip();
+            }
 
-    template <typename Token, typename Left, typename Right>
-    bool NoSuffix<Token, Left, Right>::parse(Parser<Token> * parser) const
-    {
-        ELL_BEGIN_PARSE
-        SafeModify<> m1(parser->flags.no_step_back, false);
-        typename Parser<Token>::Context sav_pos = parser->save_pos();
-        match = left.parse(parser);
-        if (match and right.parse(parser))
-        {
             parser->restore_pos(sav_pos);
-            match = false;
+            ELL_END_PARSE
         }
-        ELL_END_PARSE
-    }
+    };
+
+    template <typename Token, typename Left, typename Right>
+    struct BoundRepetition : public BinaryNode<Token, BoundRepetition<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, BoundRepetition<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        BoundRepetition(const Left & left, const Right & right)
+          : Base(left, right, "until")
+        { }
+
+        using Base::parse;
+        bool parse(Parser<Token> * parser) const
+        {
+            ELL_BEGIN_PARSE
+            while (1)
+            {
+                match = right.parse(parser);
+                if (match or not left.parse(parser))
+                    break;
+                parser->skip();
+            }
+            ELL_END_PARSE
+        }
+    };
+
+    template <typename Token, typename Left, typename Right>
+    struct Association : public BinaryNode<Token, Association<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, Association<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        Association(const Left & left, const Right & right)
+          : Base(left, right, "followed or preceded by")
+        { }
+
+        using Base::parse;
+        bool parse(Parser<Token> * parser) const
+        {
+            ELL_BEGIN_PARSE
+            if (left.parse(parser))
+                match = right.parse(parser);
+            else if (right.parse(parser))
+                match = left.parse(parser);
+            ELL_END_PARSE
+        }
+    };
+
+    template <typename Token, typename Left, typename Right>
+    struct NoSuffix : public BinaryNode<Token, NoSuffix<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, NoSuffix<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        NoSuffix(const Left & left, const Right & right)
+          : Base(left, right, "not followed by")
+        { }
+
+        using Base::parse;
+        bool parse(Parser<Token> * parser) const
+        {
+            ELL_BEGIN_PARSE
+            SafeModify<> m1(parser->flags.no_step_back, false);
+            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            match = left.parse(parser);
+            if (match and right.parse(parser))
+            {
+                parser->restore_pos(sav_pos);
+                match = false;
+            }
+            ELL_END_PARSE
+        }
+    };
 }
 
 #endif // INCLUDED_PARSER_BINARY_NODES_H
