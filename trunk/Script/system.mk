@@ -42,7 +42,7 @@ ifneq ($(COLORTERM),)
 ifneq ($(shell ls -l /bin/sh | grep bash),)
 PF = -e
 endif
-COL1=$(PF) "\033[34m"
+COL1=$(PF) "\033[34;1m"
 COL2=$(PF) "\033[32m"
 COL3=$(PF) "\033[33m"
 COLE="\033[0m"

@@ -210,7 +210,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << "error(\"" << protect<Token>(str) << "\")";
+            os << "error(\"" << protect<char>(str) << "\")";
         }
 
     private:
@@ -255,7 +255,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << "icase(\"" << protect<Token>(str) << "\")";
+            os << "icase(\"" << protect<char>(str) << "\")";
         }
 
         std::basic_string<Token> str;
