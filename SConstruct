@@ -1,10 +1,5 @@
 #!/usr/bin/python
 
-MODULES = ['libELL', 'XmlParser']
+import glob
 
-scripts = []
-
-for m in MODULES:
-    scripts.append('%s/SConscript' % m)
-
-SConscript(scripts)
+SConscript(glob.glob('*/SConscript'))
