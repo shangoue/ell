@@ -53,5 +53,7 @@ TARGET := $(addprefix $(BUILD_FOOTPRINT)/,$(TARGET))
 DEPENDS := $(addprefix $(BUILD_FOOTPRINT)/,$(DEPENDS))
 TARGET_FILES := $(wildcard $(TARGET_FILES))
 
+LDFLAGS += -Wl,-rpath,$(shell pwd)/$(BUILD_FOOTPRINT)
+
 include Script/system.mk
 endif
