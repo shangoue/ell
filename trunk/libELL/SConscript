@@ -1,2 +1,0 @@
-#!/usr/bin/python
-Program('parser_test', 'Test/test.cpp', CPPPATH = ['Include'])

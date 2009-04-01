@@ -1,8 +1,0 @@
-#!/usr/bin/python
-
-from glob import glob
-env = Environment(CPPPATH = ['Include', '../libELL/Include'])
-
-env.Library('ellxml', glob('Source/*'))
-
-env.Program('xml_test', glob('Test/*.cpp'), LIBS = 'ellxml', LIBPATH = '.')
