@@ -104,6 +104,24 @@ namespace ell
         return oss.str();
     }
     //@}
+
+    template <typename Char>
+    std::string dump_position(const Char * position)
+    {
+        std::string s = "\"";
+        const Char * p = position;
+        while (* p and p - position < 31)
+        {
+            s += protect_char(* p);
+            ++p;
+        }
+        s += "\"";
+        if (s.size() == 2)
+            return "<EOS>";
+        if (* p)
+            s += "...";
+        return s;
+    }
 }
 
 #endif // INCLUDED_PARSER_UTILS_H

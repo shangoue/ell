@@ -75,22 +75,7 @@ namespace ell
             throw std::runtime_error(oss.str());
         }
 
-        std::string dump_position() const
-        {
-            std::string s = "\"";
-            const Token * p = position;
-            while (* p and p - position < 31)
-            {
-                s += protect_char(* p);
-                ++p;
-            }
-            s += "\"";
-            if (s.size() == 2)
-                return "<EOS>";
-            if (* p)
-                s += "...";
-            return s;
-        }
+        std::string dump_position() const;
 
         struct Flags
         {
@@ -206,6 +191,12 @@ namespace ell
 
     template <>
     inline bool Parser<wchar_t>::isnewline(const wchar_t * token) const { return (* token == L'\n'); }
+
+    template <>
+    inline std::string Parser<char>::dump_position() const { return ell::dump_position(position); }
+
+    template <>
+    inline std::string Parser<wchar_t>::dump_position() const { return ell::dump_position(position); }
 }
 
 #endif // INCLUDED_PARSER_PARSER_H
