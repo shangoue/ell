@@ -1,10 +1,5 @@
 #!/bin/sh
 
-if [ ! "$*" ]; then
-    echo Please, give a list of modules you want to package
-    exit 1
-fi
-
 # Generate package name
 svn up
 ver=`svnversion | sed "s/^[^:]*:\([0-9]\+\)/\1/" | sed "s/\([0-9]\+\)M\?/\1/"`
@@ -20,17 +15,17 @@ mkdir $pkg/include
 
 cp --parent COPYING.LESSER $pkg/
 
-scons
-for m in $*; do
-    MODE=Release COMPILER=icc make -C $m
-    cp $m/*.so $pkg/lib
+MODE=Release NOPCH=1 make
+
+for m in */; do
+    if [ -e $m/Include ]; then
+        cd $m/Include
+        cp --parent `find . -name "*.h"` ../../$pkg/include
+        cd ../..
+    fi
 done
 
-for m in libELL $*; do
-    cd $m/Include
-    cp --parent `find . -name "*.h"` ../../$pkg/include
-    cd ../..
-done
+cp `find GNU_Linux -name "*.so"` $pkg/lib
 
 # Generate dev package
 tar cjvf $pkg-dev.tar.bz2 $pkg

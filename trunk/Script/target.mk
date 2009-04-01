@@ -23,7 +23,6 @@ MAKEFILES=
 EXT=
 BUILD_DIR=
 CFLAGS=
-COMPILER=
 LDFLAGS=
 PCH=
 CLEAN_MORE=
@@ -43,8 +42,10 @@ COMPILER = LANG=C g++
 CFLAGS += -Winvalid-pch -Wall -pipe -Wno-parentheses
 endif
 
+ifeq ($(NOPCH),)
 PCH = CommonHeaders.h
 CFLAGS += -include $(PCH)
+endif
 
 BUILD_DIR = $(BUILD_FOOTPRINT)/$(MODULE)
 
