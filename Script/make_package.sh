@@ -6,7 +6,7 @@ ver=`svnversion | sed "s/^[^:]*:\([0-9]\+\)/\1/" | sed "s/\([0-9]\+\)M\?/\1/"`
 
 pkg="Ell-`date +%Y%b%d`-r$ver"
 rm -rf GNU_Linux $pkg
-rm -f Ell-*-.tar.bz2
+rm -f Ell-*.tar.bz2
 
 echo Generate $pkg
 mkdir $pkg
