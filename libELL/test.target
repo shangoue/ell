@@ -1,0 +1,7 @@
+TARGET = libell_test
+
+TARGET_FILES = libELL/Test/*.cpp
+CFLAGS += -IlibELL/Include
+LDFLAGS += -lstdc++
+
+include Script/target.mk

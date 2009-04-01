@@ -18,12 +18,12 @@ mkdir $pkg
 mkdir $pkg/lib
 mkdir $pkg/include
 
-# Get dev package content
 cp --parent COPYING.LESSER $pkg/
-MODE=Release COMPILER=icc make -C libELL
+
+scons
 for m in $*; do
     MODE=Release COMPILER=icc make -C $m
-    cp GNU_Linux/x86_64/Release/lib`basename $m`.a $pkg/lib
+    cp $m/*.so $pkg/lib
 done
 
 for m in libELL $*; do
@@ -31,12 +31,6 @@ for m in libELL $*; do
     cp --parent `find . -name "*.h"` ../../$pkg/include
     cd ../..
 done
-
-# Get doc
-pushd ../wiki
-svn up
-popd
-cp ../wiki/ReferenceManual.wiki $pkg/
 
 # Generate dev package
 tar cjvf $pkg-dev.tar.bz2 $pkg

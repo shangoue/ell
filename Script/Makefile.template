@@ -1,9 +1,0 @@
-USED_MODULES = libELL
-
-TARGET = my_test
-TARGET_FILES = MyTest/*.cpp
-MODE = Release
-CFLAGS += -Werr
-LDFLAGS += -lm
-
-include ../Script/module.mk
