@@ -231,31 +231,6 @@ namespace ell
         void (ConcreteParser::*method)(Value);
     };
 
-    template <typename Token, typename Child, typename ConcreteParser>
-    struct Action<Token, Child, ConcreteParser, void(ConcreteParser::*)()>
-      : public UnaryNode<Token, Action<Token, Child, ConcreteParser, void(ConcreteParser::*)()>, Child>
-    {
-        typedef UnaryNode<Token, Action<Token, Child, ConcreteParser, void(ConcreteParser::*)()>, Child> Base;
-
-        Action(const Child & target, void (ConcreteParser::*method)())
-          : Base(target, "call"),
-            method(method)
-        { }
-
-        using Base::parse;
-        bool parse(Parser<Token> * parser) const
-        {
-            ELL_BEGIN_PARSE
-            match = Base::target.parse(parser);
-            if (parser->flags.action and match)
-                (((ConcreteParser *) parser)->*method)();
-            ELL_END_PARSE
-        }
-
-    private:
-        void (ConcreteParser::*method)();
-    };
-
     template <typename Token, typename Child, typename ConcreteParser, typename Value>
     struct Action<Token, Child, ConcreteParser, void(ConcreteParser::*)(const Value &)>
       : public UnaryNode<Token, Action<Token, Child, ConcreteParser, void(ConcreteParser::*)(const Value &)>, Child>
@@ -285,6 +260,60 @@ namespace ell
 
     private:
         void (ConcreteParser::*method)(const Value &);
+    };
+
+    template <typename Token, typename Child, typename ConcreteParser>
+    struct Action<Token, Child, ConcreteParser, void(ConcreteParser::*)()>
+      : public UnaryNode<Token, Action<Token, Child, ConcreteParser, void(ConcreteParser::*)()>, Child>
+    {
+        typedef UnaryNode<Token, Action<Token, Child, ConcreteParser, void(ConcreteParser::*)()>, Child> Base;
+
+        Action(const Child & target, void (ConcreteParser::*method)())
+          : Base(target, "call"),
+            method(method)
+        { }
+
+        using Base::parse;
+        bool parse(Parser<Token> * parser) const
+        {
+            ELL_BEGIN_PARSE
+            match = Base::target.parse(parser);
+            if (parser->flags.action and match)
+                (((ConcreteParser *) parser)->*method)();
+            ELL_END_PARSE
+        }
+
+    private:
+        void (ConcreteParser::*method)();
+    };
+
+    template <typename Token, typename Child, typename ConcreteParser>
+    struct Action<Token, Child, ConcreteParser, bool(ConcreteParser::*)()>
+      : public UnaryNode<Token, Action<Token, Child, ConcreteParser, bool(ConcreteParser::*)()>, Child>
+    {
+        typedef UnaryNode<Token, Action<Token, Child, ConcreteParser, bool(ConcreteParser::*)()>, Child> Base;
+
+        Action(const Child & target, bool (ConcreteParser::*method)())
+          : Base(target, "validator"),
+            method(method)
+        { }
+
+#       if ELL_DEBUG == 1
+        bool must_be_dumped() const { return true; }
+#       endif
+
+        using Base::parse;
+        bool parse(Parser<Token> * parser) const
+        {
+            ELL_BEGIN_PARSE
+            match = Base::target.parse(parser);
+            if (match)
+                match = (((ConcreteParser *) parser)->*method)();
+            ELL_END_PARSE
+        }
+
+    private:
+        bool (ConcreteParser::*method)();
     };
 }
 
