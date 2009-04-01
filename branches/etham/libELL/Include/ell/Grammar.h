@@ -21,19 +21,58 @@
 namespace ell
 {
     template <typename Token>
-    struct Grammar
+    struct GrammarBase
     {
-        Grammar()
+        EndOfStream<Token>                      eos;
+        Epsilon<Token>                          eps;
+        Any<Token>                              any;
+
+        template <typename P>
+        NoAction<Token, P>                      no_action(const P & p) const { return NoAction<Token, P>(p); }
+
+        template <typename P>
+        NoStepBack<Token, P>                    no_step_back(const P & p) const { return NoStepBack<Token, P>(p); }
+
+        template <typename P>
+        NoConsume<Token, P>                     no_consume(const P & p) const { return NoConsume<Token, P>(p); }
+
+        template <typename P>
+        Lexeme<Token, P>                        lexeme(const P & p) const { return Lexeme<Token, P>(p); }
+
+        template <const int exact, typename P>
+        Repeat<Token, P, exact, exact>          repeat(const P & p) const { return Repeat<Token, P, exact, exact>(p); }
+
+        template <const int min, const int max, typename P>
+        Repeat<Token, P, min, max>              repeat(const P & p) const { return Repeat<Token, P, min, max>(p); }
+
+        template <typename P, typename CP>
+        DynRepeat<Token, P, CP>                 repeat(const int CP::*exact, const P & p) const { return DynRepeat<Token, P, CP>(p, exact, exact); }
+
+        template <typename P, typename CP>
+        DynRepeat<Token, P, CP>                 repeat(const int CP::*min, const int CP::*max, const P & p) const { return DynRepeat<Token, P, CP>(p, min, max); }
+
+        template <typename P, typename Suffix>
+        NoSuffix<Token, P, Suffix>              no_suffix(const P & p, const Suffix & s) const { return NoSuffix<Token, P, Suffix>(p, s); }
+
+        Error<Token>                            error(const std::string & msg) const { return Error<Token>(msg); }
+
+        template <typename T>
+        Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
+
+        template <const Token C1, const Token C2>
+        Range<Token, C1, C2>                    range() const { return Range<Token, (Token) C1, (Token) C2>(); }
+
+        String<Token>                           str(const std::basic_string<Token> & arg) const { return String<Token>(arg); }
+    };
+
+    template <typename Token>
+    struct CharGrammarBase : public GrammarBase<Token>
+    {
+        CharGrammarBase()
           : alnum(chset("a-zA-Z0-9_")),
             blank(chset(" \t\n\r")),
             ident(lexeme(chset("a-zA-Z_") >> * alnum))
         { }
-
-        virtual ~Grammar() { }
-
-        EndOfStream<Token>                      eos;
-        Epsilon<Token>                          eps;
-        Any<Token>                              any;
 
         Range<Token, (Token) '0', (Token) '9'>  digit;
         Range<Token, (Token) 'A', (Token) 'Z'>  upper;
@@ -61,44 +100,7 @@ namespace ell
 
         Real<Token>                             real;
 
-        template <typename P>
-        NoAction<Token, P>                      no_action(const P & p) const { return NoAction<Token, P>(p); }
-
-        template <typename P>
-        NoStepBack<Token, P>                    no_step_back(const P & p) const { return NoStepBack<Token, P>(p); }
-
-        template <typename P>
-        NoConsume<Token, P>                     no_consume(const P & p) const { return NoConsume<Token, P>(p); }
-
-        template <typename P>
-        Lexeme<Token, P>                        lexeme(const P & p) const { return Lexeme<Token, P>(p); }
-
-        template <typename P, const int exact>
-        Repeat<Token, P, exact, exact>          repeat(const P & p) const { return Repeat<Token, P, exact, exact>(p); }
-
-        template <typename P, const int min, const int max>
-        Repeat<Token, P, min, max>              repeat(const P & p) const { return Repeat<Token, P, min, max>(p); }
-
-        template <typename P, typename CP>
-        DynRepeat<Token, P, CP>                 repeat(const int CP::*exact, const P & p) const { return DynRepeat<Token, P, CP>(p, exact, exact); }
-
-        template <typename P, typename CP>
-        DynRepeat<Token, P, CP>                 repeat(const int CP::*min, const int CP::*max, const P & p) const { return DynRepeat<Token, P, CP>(p, min, max); }
-
-        template <typename P, typename Suffix>
-        NoSuffix<Token, P, Suffix>              no_suffix(const P & p, const Suffix & s) const { return NoSuffix<Token, P, Suffix>(p, s); }
-
-        Error<Token>                            error(const std::string & msg) const { return Error<Token>(msg); }
-
-        template <typename T>
-        Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
-
-        template <const Token C1, const Token C2>
-        Range<Token, C1, C2>                    range() const { return Range<Token, (Token) C1, (Token) C2>(); }
-
         Charset<Token>                          chset(const std::string & set) const { return Charset<Token>(set); }
-
-        String<Token>                           str(const std::basic_string<Token> & arg) const { return String<Token>(arg); }
 
         IgnoreCaseString<Token>                 istr(const std::basic_string<Token> & arg) const { return IgnoreCaseString<Token>(arg); }
 
@@ -108,6 +110,18 @@ namespace ell
         NoSuffix<Token, IgnoreCaseString<Token>, Charset<Token> >
                                                 ikw(const std::basic_string<Token> & s) const { return no_suffix(istr(s), alnum); }
     };
+
+    template <typename Token>
+    struct Grammar : public GrammarBase<Token>
+    { };
+
+    template <>
+    struct Grammar<char> : public CharGrammarBase<char>
+    { };
+
+    template <>
+    struct Grammar<wchar_t> : public CharGrammarBase<wchar_t>
+    { };
 }
 
 #endif // INCLUDED_PARSER_GRAMMAR_H
