@@ -48,7 +48,7 @@ COL3=$(PF) "\033[33m"
 COLE="\033[0m"
 endif
 
-default: $(TARGET)
+$(TARGET):
 
 ifneq ($(PCH),)
 ifeq ($(PCHLANG),)
@@ -76,7 +76,6 @@ $(DCH): $(PCH)
 -include $(DCH)
 endif
 
-ifneq ($(TARGET),)
 TARGET_OBJ := $(addprefix $(BUILD_DIR)/,$(TARGET_FILES:%$(EXT)=%.o))
 TARGET_DEP := $(TARGET_OBJ:%.o=%.d)
 
@@ -109,7 +108,6 @@ $(TARGET_DEP): $(BUILD_DIR)/%.d: %$(EXT) $(DCH)
 	$(COMPILER) $(CFLAGS) -MG -MP -MMD -o $(@:%.d=%.o) -c $<
 
 -include $(TARGET_DEP)
-endif
 
 ifeq ($(BUILD_DIR),.)
 clean:
