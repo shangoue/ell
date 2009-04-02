@@ -22,7 +22,7 @@ using namespace ell;
 #define DUMP(f, ...) fprintf(stderr, f "\n" , ## __VA_ARGS__)
 #define ERROR(f, ...) do { DUMP(f , ## __VA_ARGS__); abort(); } while(0)
 
-int nonreg()
+void nonreg()
 {
     struct Vector
     {
@@ -104,16 +104,15 @@ int nonreg()
                     root2->dump(std::cout);
                     ERROR("DOMs are differents");
                 }
+                else
+                    DUMP("Ok.");
             }
         }
     }
     catch(std::exception &e)
     {
         ERROR("%s", e.what());
-        return 1;
     }
-
-    return 0;
 }
 
 int main(int argc, const char ** argv)
@@ -121,7 +120,9 @@ int main(int argc, const char ** argv)
     if (argc == 1)
     {
         DUMP("No argument given, perform non-regression tests");
-        return nonreg();
+        nonreg();
+        DUMP("Everything is Ok.\n");
+        return 0;
     }
 
     if (argc > 3)

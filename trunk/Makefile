@@ -1,3 +1,6 @@
+# MODLUR: modular, env-free build system using GNU make
+# by Samuel Hangouët
+
 TARGET_FILES = $(wildcard */*.target)
 
 all: $(TARGET_FILES)
