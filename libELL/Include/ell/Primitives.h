@@ -26,7 +26,7 @@ namespace ell
     {
         using ConcreteNodeBase<Token, ConcreteNode>::parse;
 
-        bool parse(Parser<Token> * parser, Token & output) const
+        bool parse(Parser<Token> * parser, Storage<Token> & output) const
         {
             const Token & t = parser->get();
 
@@ -43,7 +43,7 @@ namespace ell
     struct Epsilon : public TokenPrimitiveBase<Token, Epsilon<Token> >
     {
         using TokenPrimitiveBase<Token, Epsilon<Token> >::parse;
-        bool parse(Parser<Token> * parser) const
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             match = true;
@@ -60,7 +60,7 @@ namespace ell
     struct Any : public TokenPrimitiveBase<Token, Any<Token> >
     {
         using TokenPrimitiveBase<Token, Any<Token> >::parse;
-        bool parse(Parser<Token> * parser) const
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             if (bool(parser->get()))
