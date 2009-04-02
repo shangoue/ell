@@ -82,7 +82,8 @@ namespace ell
     {
         bool parse(Parser<Token> * parser) const
         {
-            return parse(parser, Storage<void>());
+            Storage<void> s;
+            return ((ConcreteNode *) this)->parse(parser, s);
         }
 
         bool parse(Parser<Token> * parser, Storage<std::basic_string<Token> > & s) const
