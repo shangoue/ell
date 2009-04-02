@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_UTILS_H
-#define INCLUDED_PARSER_UTILS_H
+#ifndef INCLUDED_ELL_UTILS_H
+#define INCLUDED_ELL_UTILS_H
 
 #include <vector>
 #include <string>
@@ -104,24 +104,6 @@ namespace ell
         return oss.str();
     }
     //@}
-
-    template <typename Char>
-    std::string dump_position(const Char * position)
-    {
-        std::string s = "\"";
-        const Char * p = position;
-        while (* p and p - position < 31)
-        {
-            s += protect_char(* p);
-            ++p;
-        }
-        s += "\"";
-        if (s.size() == 2)
-            return "<EOS>";
-        if (* p)
-            s += "...";
-        return s;
-    }
 }
 
-#endif // INCLUDED_PARSER_UTILS_H
+#endif // INCLUDED_ELL_UTILS_H

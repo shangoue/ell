@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_NUMERICS_H
-#define INCLUDED_PARSER_NUMERICS_H
+#ifndef INCLUDED_ELL_NUMERICS_H
+#define INCLUDED_ELL_NUMERICS_H
 
 #include <ell/Node.h>
 #include <ell/Parser.h>
@@ -263,4 +263,4 @@ namespace ell
     };
 }
 
-#endif // INCLUDED_PARSER_NUMERICS_H
+#endif // INCLUDED_ELL_NUMERICS_H

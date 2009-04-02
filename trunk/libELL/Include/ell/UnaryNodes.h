@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_UNARY_NODES_H
-#define INCLUDED_PARSER_UNARY_NODES_H
+#ifndef INCLUDED_ELL_UNARY_NODES_H
+#define INCLUDED_ELL_UNARY_NODES_H
 
 #include <ell/UnaryNode.h>
 #include <ell/Parser.h>
@@ -32,10 +32,13 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.action, false);
+            /// Propagating storage is useless
             match = Base::target.parse(parser);
             ELL_END_PARSE
         }
@@ -52,11 +55,12 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.step_back, false);
-            match = Base::target.parse(parser);
+            match = Base::target.parse(parser, s);
             ELL_END_PARSE
         }
     };
@@ -72,11 +76,12 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
-            match = Base::target.parse(parser);
+            match = Base::target.parse(parser, s);
             parser->restore_pos(sav_pos);
             ELL_END_PARSE
         }
@@ -94,12 +99,13 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.step_back, true);
             SafeModify<const Node<Token> *> m2(parser->skipper, 0);
-            match = Base::target.parse(parser);
+            match = Base::target.parse(parser, s);
             ELL_END_PARSE
         }
     };
@@ -186,11 +192,13 @@ namespace ell
 
         using Base::parse;
 
-        bool parse(Parser<Token> * parser) const
+        bool parse(Parser<Token> * parser, Storage<Var> & s) const
         {
             ELL_BEGIN_PARSE
             if (parser->flags.action)
+            {
                 match = Base::target.parse(parser, ((ConcreteParser *) parser)->*var);
+            }
             else
                 match = Base::target.parse(parser);
             ELL_END_PARSE
@@ -317,4 +325,4 @@ namespace ell
     };
 }
 
-#endif // INCLUDED_PARSER_UNARY_NODES_H
+#endif // INCLUDED_ELL_UNARY_NODES_H

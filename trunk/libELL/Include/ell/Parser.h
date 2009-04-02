@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_PARSER_H
-#define INCLUDED_PARSER_PARSER_H
+#ifndef INCLUDED_ELL_PARSER_H
+#define INCLUDED_ELL_PARSER_H
 
 #include <stdexcept>
 
@@ -25,28 +25,23 @@ namespace ell
     template <typename Token>
     struct Node;
 
-    /// Parser class.
-    /// Work on the root node of a Grammar to parse a null-terminated buffer of Tokens.
-    /// A token must be convertible to bool to know if it is a null-terminator.
     template <typename Token>
-    struct Parser
+    struct ParserBase
     {
-        Parser(const Node<Token> * _grammar = 0,
-               const Node<Token> * _skipper = 0,
-               const Token * begin = 0)
+        ParserBase(const Node<Token> * grammar,
+                   const Node<Token> * skipper = 0,
+                   const Token * begin = 0)
           : position(begin),
-            grammar(_grammar),
-            skipper(_skipper),
-            line_number(1)
+            grammar(grammar),
+            skipper(skipper)
         { }
 
-        virtual ~Parser() { }
+        virtual ~ParserBase() { }
 
         /// Parse a (new) buffer
         void parse(const Token * position_)
         {
             position = position_;
-            line_number = 1;
             parse();
         }
 
@@ -54,28 +49,19 @@ namespace ell
         void parse()
         {
             skip();
-            if (not grammar->parse(this))
-                raise_error(* grammar);
+            if (not grammar->parse((Parser<Token> *) this))
+                mismatch(* grammar);
         }
 
-        void raise_error(const Node<Token> & mismatch) const
+        void mismatch(const Node<Token> & mismatch) const
         {
             std::ostringstream oss;
             oss << "expecting " << mismatch;
-            raise_error(oss.str(), line_number);
+            raise_error(oss.str());
         }
 
-        /// Override this function to use your own exceptions (and put filename)
-        virtual void raise_error(const std::string & msg, int line = 0) const
-        {
-            std::ostringstream oss;
-            if (line)
-                oss << line << ": ";
-            oss << "before " << dump_position() << ": " << msg << std::endl;
-            throw std::runtime_error(oss.str());
-        }
-
-        std::string dump_position() const;
+        /// Override this function to use your own exceptions (and put filename and line number)
+        virtual void raise_error(const std::string & msg) const = 0;
 
         struct Flags
         {
@@ -99,44 +85,42 @@ namespace ell
             //@}
         };
 
+        /// Redefine your context if needed
         struct Context
         {
-            Context(int _line_number, const Token * _position)
-              : line_number(_line_number),
-                position(_position)
+            Context(Parser<Token> * parser)
+              : position(parser->position)
             { }
 
-            int line_number;
-            const Token * position;
+            void restore(Parser<Token> * parser)
+            {
+                parser->position = position;
+            }
+
+            Token * position;
         };
 
-        /// For use from Node::parse methods
-        //@{
-        const Token & get() { return * position; }
-
-        /// Going beyond end of buffer is authorized,
-        /// but an error will be raised on get().
+        /// Redefine the way you iterate through tokens if needed
         void next()
-        {
-#           if ELL_DEBUG == 1
-            if (not bool(* position))
-                raise_error("Unexpected end", line_number);
-#           endif
-
-            if (isnewline(position))
-                ++line_number;
+        { 
             ++position;
         }
 
-        Context save_pos()
+        const Token & get()
         {
-            return Context(line_number, position);
+#           if ELL_DEBUG == 1
+            if (not bool(* position))
+                raise_error("Unexpected end");
+#           endif
+            return * position;
         }
 
-        void restore_pos(const Context & c)
+        /// Redefine the way you dump the position if needed
+        std::string dump_position() const
         {
-            line_number = c.line_number;
-            position = c.position;
+            std::ostringstream oss;
+            oss << * position << std::endl;
+            return oss.str();
         }
 
         void skip()
@@ -148,13 +132,10 @@ namespace ell
 #               endif
                 SafeModify<const Node<Token> *> ms(skipper, 0);
 
-                while (ms.sav->parse(this))
+                while (ms.sav->parse((Parser<Token> *) this))
                     ;
             }
         }
-
-        Flags flags;
-        //@}
 
         void begin_of_parsing(const Node<Token> * node)
         {
@@ -178,25 +159,121 @@ namespace ell
 #           endif
         }
 
-        bool isnewline(const Token * token) const;
-
+        Flags flags;
         const Token * position;
         const Node<Token> * grammar;
         const Node<Token> * skipper;
+    };
+
+    template <typename Char>
+    struct StringParser : public ParserBase<Char>
+    {
+        StringParser(const Node<Char> * grammar,
+                     const Node<Char> * skipper = 0,
+                     const Char * begin = 0)
+          : ParserBase<Char>(grammar, skipper, begin)
+        {
+            line_number = 1;
+        }
+
+        typedef ParserBase<Char> Base;
+        using Base::position;
+
+        /// Parse a (new) buffer
+        void parse(const Char * position)
+        {
+            line_number = 1;
+            Base::parse(position);
+        }
+
+        /// Override this function to use your own exceptions (and put filename)
+        void raise_error(const std::string & msg) const
+        {
+            std::ostringstream oss;
+            if (line_number)
+                oss << line_number << ": ";
+            oss << "before " << dump_position() << ": " << msg << std::endl;
+            throw std::runtime_error(oss.str());
+        }
+
+        std::string dump_position() const
+        {
+            std::string s = "\"";
+            const Char * p = position;
+            while (* p and p - position < 31)
+            {
+                s += protect_char(* p);
+                ++p;
+            }
+            s += "\"";
+            if (s.size() == 2)
+                return "<EOS>";
+            if (* p)
+                s += "...";
+            return s;
+        }
+
+        struct Context
+        {
+            Context(StringParser<Char> * parser)
+              : line_number(parser->line_number),
+                position(parser->position)
+            { }
+
+            void restore(StringParser<Char> * parser)
+            {
+                parser->line_number = line_number;
+                parser->position = position;
+            }
+
+            int line_number;
+            const Char * position;
+        };
+
+        /// Going beyond end of buffer is authorized,
+        /// but an error will be raised on get().
+        void next()
+        {
+            if (* position == '\n')
+                ++line_number;
+            ++position;
+        }
+
         int line_number;
     };
 
-    template <>
-    inline bool Parser<char>::isnewline(const char * token) const { return (* token == '\n'); }
+    /// Parser class.
+    /// Work on the root node of a Grammar to iterate over a container of (Token *).
+    /// A token must be convertible to bool to know if it is a null-terminator.
+    template <typename Token>
+    struct Parser : public ParserBase<Token>
+    {
+        Parser(const Node<Token> * grammar,
+               const Node<Token> * skipper = 0,
+               const Token * begin = 0)
+          : ParserBase<Token>(grammar, skipper, begin)
+        { }
+    };
 
     template <>
-    inline bool Parser<wchar_t>::isnewline(const wchar_t * token) const { return (* token == L'\n'); }
+    struct Parser<char> : public StringParser<char>
+    {
+        Parser(const Node<char> * grammar,
+               const Node<char> * skipper = 0,
+               const char * begin = 0)
+          : StringParser<char>(grammar, skipper, begin)
+        { }
+    };
 
     template <>
-    inline std::string Parser<char>::dump_position() const { return ell::dump_position(position); }
-
-    template <>
-    inline std::string Parser<wchar_t>::dump_position() const { return ell::dump_position(position); }
+    struct Parser<wchar_t> : public StringParser<wchar_t>
+    { 
+        Parser(const Node<wchar_t> * grammar,
+               const Node<wchar_t> * skipper = 0,
+               const wchar_t * begin = 0)
+          : StringParser<wchar_t>(grammar, skipper, begin)
+        { }
+    };
 }
 
-#endif // INCLUDED_PARSER_PARSER_H
+#endif // INCLUDED_ELL_PARSER_H

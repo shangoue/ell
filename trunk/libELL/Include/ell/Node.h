@@ -13,10 +13,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_NODE_H
-#define INCLUDED_PARSER_NODE_H
+#ifndef INCLUDED_ELL_NODE_H
+#define INCLUDED_ELL_NODE_H
 
 #include <ell/Utils.h>
+#include <ell/Storage.h>
 
 namespace ell
 {
@@ -45,7 +46,7 @@ namespace ell
     struct BoundRepetition;
 
     template <typename Token, typename Left, typename Right>
-    struct DisorderedAggregation;
+    struct Association;
 
     template <typename Token>
     struct Node
@@ -79,12 +80,17 @@ namespace ell
     template <typename Token, typename ConcreteNode>
     struct ConcreteNodeBase : public Node<Token>
     {
-        bool parse(Parser<Token> * parser, std::basic_string<Token> & value) const
+        bool parse(Parser<Token> * parser) const
+        {
+            return parse(parser, Storage<void>());
+        }
+
+        bool parse(Parser<Token> * parser, Storage<std::basic_string<Token> > & s) const
         {
             const Token * begin = parser->position;
             bool match = ((ConcreteNode *) this)->parse(parser);
             if (match)
-                value.assign(begin, parser->position);
+                s.value.assign(begin, parser->position);
             return match;
         }
 
@@ -121,7 +127,7 @@ namespace ell
         BoundRepetition<Token, ConcreteNode, Right> operator * (const Right & r) const;
 
         template <typename Right>
-        DisorderedAggregation<Token, ConcreteNode, Right> operator & (const Right & r) const;
+        Association<Token, ConcreteNode, Right> operator & (const Right & r) const;
         //@}
     };
 }
@@ -195,10 +201,10 @@ namespace ell
 
     template <typename Token, typename ConcreteNode>
     template <typename Right>
-    DisorderedAggregation<Token, ConcreteNode, Right> ConcreteNodeBase<Token, ConcreteNode>::operator & (const Right & r) const
+    Association<Token, ConcreteNode, Right> ConcreteNodeBase<Token, ConcreteNode>::operator & (const Right & r) const
     {
-        return DisorderedAggregation<Token, ConcreteNode, Right>(* (ConcreteNode *) this, r);
+        return Association<Token, ConcreteNode, Right>(* (ConcreteNode *) this, r);
     }
 }
 
-#endif // INCLUDED_PARSER_NODE_H
+#endif // INCLUDED_ELL_NODE_H

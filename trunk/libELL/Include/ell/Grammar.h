@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_GRAMMAR_H
-#define INCLUDED_PARSER_GRAMMAR_H
+#ifndef INCLUDED_ELL_GRAMMAR_H
+#define INCLUDED_ELL_GRAMMAR_H
 
 #include <ell/Node.h>
 
@@ -124,4 +124,4 @@ namespace ell
     { };
 }
 
-#endif // INCLUDED_PARSER_GRAMMAR_H
+#endif // INCLUDED_ELL_GRAMMAR_H

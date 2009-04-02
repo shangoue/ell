@@ -16,19 +16,24 @@
 #if ! defined(MIN) || ! defined(MAX)
 # error "MIN and MAX parameters must be defined before inclusion"
 #else
-        bool parse(Parser<Token> * parser) const
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
             int count = 0;
 
+            typename Storage<V>::Unit se;
+
             while (count < MIN)
             {
-                if (! target.parse(parser))
+                if (! target.parse(parser, se))
                 {
                     parser->restore_pos(sav_pos);
                     break;
                 }
+
+                s.enqueue(se);
                 ++count;
                 parser->skip();
             }
@@ -38,8 +43,11 @@
                 if (MAX == -1)
                 {
                     match = true;
-                    while (target.parse(parser))
+                    while (target.parse(parser, se))
+                    {
+                        s.enqueue(se);
                         parser->skip();
+                    }
                 }
                 else
                 {
@@ -51,6 +59,7 @@
                         if (! target.parse(parser))
                             break;
 
+                        s.enqueue(se);
                         parser->skip();
                         ++count;
                     }
