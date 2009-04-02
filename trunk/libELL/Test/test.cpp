@@ -14,18 +14,37 @@
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <cstdio>
 
 #define ELL_DEBUG 1
 #define ELL_DUMP_NODES 1
 #include <ell/Grammar.h>
 #include <ell/Parser.h>
 
+#define ERROR(f, ...) do { printf("Error parsing %s: " f "\n", buffer , ## __VA_ARGS__); exit(1); } while (0)
+
+void check(ell::Parser<char> & parser, const char * buffer, bool status, bool full)
+{
+    printf("Parse %s\n", buffer);
+    try
+    {
+        parser.parse(buffer);
+    }
+    catch (std::runtime_error & e)
+    {
+        if (status)
+            ERROR("%s", e.what());
+    }
+    if (not full xor bool(parser.get()))
+        ERROR("Expecting %s at %s", (full ? "<EOS>" : "smthg"), parser.position);
+}
+
 struct ListTest : public ell::Grammar<char>
 {
     struct Parser : public ell::Parser<char>
     {
         Parser(ListTest * g)
-          : ell::Parser<char>(& g->root, & g->blank, "1 , 2,3,")
+          : ell::Parser<char>(& g->root, & g->blank)
         {
             flags.debug = true;
         }
@@ -50,9 +69,23 @@ struct ListTest : public ell::Grammar<char>
         root = other [& Parser::doNothing];
         other = (dec % ch(',')) [& Parser::getValues];
 
+        ELL_NAME_RULE(root);
+        ELL_NAME_RULE(other);
+
         Parser parser(this);
 
-        parser.parse();
+        bool status, full;
+        const char * buffer;
+
+#       define TEST(B, S, F) B; S; F; check(parser, buffer, status, full);
+
+        TEST(buffer="1,",   status=true,  full=false);
+        TEST(buffer="2,3",  status=true,  full=true );
+        TEST(buffer=",",    status=false, full=false);
+        TEST(buffer="4",    status=true,  full=true );
+        TEST(buffer="5,6,", status=true,  full=false);
+
+#       undef TEST
     }
 
     ell::Rule<char> root, other;
@@ -61,5 +94,6 @@ struct ListTest : public ell::Grammar<char>
 int main()
 {
     ListTest l;
+    printf("Everything is ok.\n");
     return 0;
 }
