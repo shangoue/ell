@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_PRIMITIVES_H
-#define INCLUDED_PARSER_PRIMITIVES_H
+#ifndef INCLUDED_ELL_PRIMITIVES_H
+#define INCLUDED_ELL_PRIMITIVES_H
 
 #include <ell/Node.h>
 #include <ell/Parser.h>
@@ -307,7 +307,7 @@ namespace ell
         bool parse(Parser<char> * parser) const
         {
             ELL_BEGIN_PARSE
-            Parser<char>::Context sav_pos = parser->save_pos();
+            Parser<char>::Context sav_pos(parser);
 
             unsigned char c = parser->get();
             if (c < 0xC0 || c > 0xFD)
@@ -335,7 +335,7 @@ namespace ell
                     if (c < 0x80 || c > 0xBF)
                     {
                         match = false;
-                        parser->restore_pos(sav_pos);
+                        sav_pos.restore(parser);
                         break;
                     }
                 }
@@ -350,4 +350,4 @@ namespace ell
     };
 }
 
-#endif // INCLUDED_PARSER_PRIMITIVES_H
+#endif // INCLUDED_ELL_PRIMITIVES_H

@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_BINARY_NODES_H
-#define INCLUDED_PARSER_BINARY_NODES_H
+#ifndef INCLUDED_ELL_BINARY_NODES_H
+#define INCLUDED_ELL_BINARY_NODES_H
 
 #include <ell/BinaryNode.h>
 #include <ell/Parser.h>
@@ -33,10 +33,12 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            match = left.parse(parser) or right.parse(parser);
+            match = left.parse(parser, s) or right.parse(parser, s);
             ELL_END_PARSE
         }
     };
@@ -53,14 +55,16 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
             if (right.parse(parser))
                 parser->restore_pos(sav_pos);
             else
-                match = left.parse(parser);
+                match = left.parse(parser, s);
             ELL_END_PARSE
         }
     };
@@ -77,16 +81,24 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
 
-            if (left.parse(parser))
+            typename Storage<V>::Unit s1;
+            if (left.parse(parser, s1))
             {
                 parser->skip();
-                if (right.parse(parser))
+                typename Storage<V>::Unit s2;
+                if (right.parse(parser, s2))
+                {
+                    s.enqueue(s1);
+                    s.enqueue(s2);
                     match=true;
+                }
                 else
                 {
                     if (not parser->flags.step_back)
@@ -115,36 +127,17 @@ namespace ell
         using Base::parse;
 
         template <typename T>
-        bool parse(Parser<Token> * parser, std::vector<T> & list) const
+        bool parse(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
             T element;
-            list.clear();
+            s.clear();
+            typename Storage<T>::Unit se;
 
-            while (left.parse(parser, element))
+            while (left.parse(parser, se))
             {
-                match = true;
-                list.push_back(element);
-                parser->skip();
-                sav_pos = parser->save_pos();
-
-                if (! right.parse(parser))
-                    break;
-                parser->skip();
-            }
-
-            parser->restore_pos(sav_pos);
-            ELL_END_PARSE
-        }
-
-        bool parse(Parser<Token> * parser) const
-        {
-            ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
-
-            while (left.parse(parser))
-            {
+                s.enqueue(se);
                 match = true;
                 parser->skip();
                 sav_pos = parser->save_pos();
@@ -171,14 +164,18 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+        template <typename T>
+        bool parse(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
+            s.clear();
+            typename Storage<T>::Unit se;
             while (1)
             {
                 match = right.parse(parser);
-                if (match or not left.parse(parser))
+                if (match or not left.parse(parser, se))
                     break;
+                s.enqueue(se);
                 parser->skip();
             }
             ELL_END_PARSE
@@ -197,13 +194,30 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+        template <typename T>
+        bool parse(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
-            if (left.parse(parser))
-                match = right.parse(parser);
-            else if (right.parse(parser))
-                match = left.parse(parser);
+            s.clear();
+            typename Storage<T>::Unit se;
+            if (left.parse(parser, se))
+            {
+                s.enqueue(se);
+                if (right.parse(parser, se))
+                {
+                    s.enqueue(se);
+                    match = true;
+                }
+            }
+            else if (right.parse(parser, se))
+            {
+                s.enqueue(se);
+                if (left.parse(parser, se))
+                {
+                    s.enqueue(se);
+                    match = true;
+                }
+            }
             ELL_END_PARSE
         }
     };
@@ -220,12 +234,13 @@ namespace ell
         { }
 
         using Base::parse;
-        bool parse(Parser<Token> * parser) const
+        template <typename T>
+        bool parse(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.step_back, true);
             typename Parser<Token>::Context sav_pos = parser->save_pos();
-            match = left.parse(parser);
+            match = left.parse(parser, s);
             if (match and right.parse(parser))
             {
                 parser->restore_pos(sav_pos);
@@ -236,4 +251,4 @@ namespace ell
     };
 }
 
-#endif // INCLUDED_PARSER_BINARY_NODES_H
+#endif // INCLUDED_ELL_BINARY_NODES_H

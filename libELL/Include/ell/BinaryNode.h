@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef INCLUDED_PARSER_BINARY_NODE_H
-#define INCLUDED_PARSER_BINARY_NODE_H
+#ifndef INCLUDED_ELL_BINARY_NODE_H
+#define INCLUDED_ELL_BINARY_NODE_H
 
 #include <ell/Rule.h>
 
@@ -87,4 +87,4 @@ namespace ell
     };
 }
 
-#endif // INCLUDED_PARSER_BINARY_NODE_H
+#endif // INCLUDED_ELL_BINARY_NODE_H

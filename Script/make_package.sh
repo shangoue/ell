@@ -15,7 +15,7 @@ mkdir $pkg/include
 
 cp --parent COPYING.LESSER $pkg/
 
-MODE=Release NOPCH=1 make
+make MODE=Release NOPCH=1 
 
 for m in */; do
     if [ -e $m/Include ]; then
@@ -30,3 +30,7 @@ cp `find GNU_Linux -name "*.so"` $pkg/lib
 # Generate dev package
 tar cjvf $pkg-dev.tar.bz2 $pkg
 rm -rf $pkg
+
+# Generate src package
+svn export . $pkg
+tar cjvf $pkg-src.tar.bz2 $pkg
