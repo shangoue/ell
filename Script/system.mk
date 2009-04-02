@@ -1,6 +1,5 @@
-# Simple MaKefile,
-# but fullly featured. GNU make probably required
-# Samuel Hangouët
+# MODLUR: modular, env-free build system using GNU make
+# by Samuel Hangouët
 #
 # Input variables:
 #

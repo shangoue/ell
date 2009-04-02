@@ -1,3 +1,6 @@
+# MODLUR: modular, env-free build system using GNU make
+# by Samuel Hangouët
+
 ARCH = $(shell uname -m)
 OS = $(shell uname -o | sed "s/[^A-Za-z0-9]/_/g")
 
@@ -19,6 +22,7 @@ BUILD_FOOTPRINT = $(OS)/$(ARCH)/$(MODE)
 ifeq ($(MOLDUR_BUILD_TARGET),)
 # prevent environment variable interferences
 TARGET=
+COMPILER=
 MAKEFILES=
 EXT=
 BUILD_DIR=
