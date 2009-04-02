@@ -150,7 +150,7 @@ exécutées seulement en cas de validation de la règle avec le flux :
 === Les opérateurs de la grammaire ===
 
 Voici la liste des opérateurs utilisés pour bâtir une grammaire. Leurs
-priorités sont bien-sûr celles du C++ !
+priorités sont bien-sûr [http://www.cppreference.com/wiki/operator_precedence celles du C++] !
 
   * opérateurs binaires
 
