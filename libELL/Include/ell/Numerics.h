@@ -16,6 +16,7 @@
 #ifndef INCLUDED_ELL_NUMERICS_H
 #define INCLUDED_ELL_NUMERICS_H
 
+#include <cstdlib>
 #include <ell/Node.h>
 #include <ell/Parser.h>
 

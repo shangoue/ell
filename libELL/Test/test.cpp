@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
 
 #define ELL_DEBUG 1
 #define ELL_DUMP_NODES 1

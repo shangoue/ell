@@ -16,6 +16,10 @@
 #ifndef INCLUDED_ELL_STORAGE_H
 #define INCLUDED_ELL_STORAGE_H
 
+#include <vector>
+#include <list>
+#include <set>
+
 namespace ell
 {
     /// Storage class is used to propage output data of matched values through parse calls.
