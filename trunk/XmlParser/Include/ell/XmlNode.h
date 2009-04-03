@@ -16,6 +16,7 @@
 #ifndef INCLUDED_ELL_XMLNODE_H
 #define INCLUDED_ELL_XMLNODE_H
 
+#include <map>
 #include <ell/Parser.h>
 
 namespace ell

@@ -16,14 +16,9 @@
 #ifndef INCLUDED_ELL_UTILS_H
 #define INCLUDED_ELL_UTILS_H
 
-#include <vector>
 #include <string>
-#include <iostream>
 #include <sstream>
 #include <cwchar>
-#include <map>
-#include <cstdlib>
-#include <stdexcept>
 
 #ifndef ELL_DEBUG
 #define ELL_DEBUG             0

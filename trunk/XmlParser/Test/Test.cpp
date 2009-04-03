@@ -14,6 +14,7 @@
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
+#include <iostream>
 
 #include <ell/XmlParser.h>
 

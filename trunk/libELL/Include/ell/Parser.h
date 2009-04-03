@@ -16,6 +16,7 @@
 #ifndef INCLUDED_ELL_PARSER_H
 #define INCLUDED_ELL_PARSER_H
 
+#include <stdexcept>
 #include <ell/Utils.h>
 
 namespace ell
