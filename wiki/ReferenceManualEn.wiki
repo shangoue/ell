@@ -36,63 +36,37 @@ The definition of each non-terminal (called rule of the grammar) can be represen
        ")"
 }}}
 
+In this tree nodes `INTEGER` and `(` are primitives. To the contrary the node `expression` is a link to another tree. Thus, the whole grammar can be represented by a graph.
 
-The node called `expression` is a link to another tree.
+The C++ code of the grammar will build this syntactic graph in memory. The parser will walk through this graph trying to match each node with the input flow, according to the principle of LL(n) parsing.
 
-Thus, the whole grammar can be represented by a graph. The nodes of this graph can be either primitives (like INTEGER or `(` character in our exemple), either links to the root of another tree.
+*Note:*
 
-The C++ code of the grammar will build such a graph in memory.
+  This libray is not a parser generator (like bison ou antlr), but a tool to program an executable high-level grammar.
+  So, there is no mecanism to find conflicts between branches : the analysis will stop at the first matching branch find within the grammar. So the order of writing alternatives (with the `|` operator) matters.
+  In practical, writing ambiguous branches in the grammar is most of the times useless, as we prefer to group their prefix in a separate rule to write a grammar with a "one-token look-ahead".
 
 
-TO BE CONTINUED
+Let's come back to the previous tree, and notice that its representation only supports BNF grammars, not EBNF ones. EBNF grammars extend BNF ones by the use of regular expression operators, such as thoses found in posix or perl regexp:
+  * `*`: repeat the argument zero or more times
+  * `+`: repeat one or more times
+  * `!`: argument is optional
 
-Dans cette arbre, "expression" est un lien vers la règle expression, donc vers
-la racine de l'arbre correspondant à la définition d'une expression.
-
-Telle que la bibliothèque est conçue, l'exécution du code de la grammaire
-permet de générer un graphe syntaxique.  Parser le flux d'entrée revient alors
-à parcourir ce graphe en essayant de faire correspondre chaque noeud à un ou
-plusieurs caractères du flux, selon le principe d'une analyse descendante
-LL(n).
-
-*Note :*
-
-Cette bibliothèque n'est pas un générateur de grammaire (comme bison ou antlr),
-mais juste un outils permettant à un programmeur de coder une grammaire à un
-haut niveau.  Il n'y a donc pas de résolution des conflits entre branche :
-l'analyse s'arrête dans la première branche valide, selon l'ordre donné par la
-grammaire. Ainsi, si on est en présence d'une grammaire LL(n) avec n > 1 et
-qu'une branche est le préfixe d'une autre, c'est au programmeur d'écrire la
-grammaire dans l'ordre garantissant que le parseur commence par parcourir la
-branche la plus longue.  Dans la pratique, il est recommandé de factoriser le
-préfixe dans une sous règle afin de revenir vers du LL(1). Quand ce n'est pas
-possible, on utilisera plutôt des données contextuelles ajoutées au parseur (la
-grammaire devient attribuée).
-
-Revenons à l'arbre précédant et notons que son format est limité à la
-représentation de grammaires BNF et non EBNF. Les grammaires EBNF (pour
-Extended Backus Naur Form) permettent d'utiliser en prime des opérateurs
-semblables à ceux que l'on trouve dans les expressions rationnelles que l'on
-trouve dans les scripts sed ou perl :
-  * l'opérateur `*` : répétition de zéro à autant de fois que possible
-  * l'opérateur ! : facultatif
-  * l'opérateur + : au moins une fois
-  * et bien d'autres (la liste exhaustive est donnée plus bas)
-
-Pour représenter ces opérateurs, nous optons pour un arbre possédant des noeuds
-opérateurs. Voici donc une nouvelle version du même non-terminal 'factor' :
+To represent these operators, we will chose a new format for our tree:
 
 {{{
               factor
                 |
            Alternative
              /      \
-      Agrégation    INTEGER
+      Aggregation    INTEGER
       /        \
-     "("    Agrégation
+     "("    Aggregation
            /          \
        expression     ")"
 }}}
+
+TO BE CONTINUED
 
 Avec cette représentation nous pouvons alors représenter les opérateurs
 complexes, comme dans la règle expression où l'étoile est représentée par un
