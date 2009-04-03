@@ -111,21 +111,17 @@ namespace ell
             ++position;
         }
 
-        const Token & get()
-        {
-#           if ELL_DEBUG == 1
-            if (not bool(* position))
-                raise_error("Unexpected end");
-#           endif
-            return * position;
-        }
-
-        /// Redefine the way you dump the position if needed
-        std::string dump_position() const
+        /// Redefine this for custom dump
+        std::string dump_position()
         {
             std::ostringstream oss;
-            oss << * position << std::endl;
+            oss << * position;
             return oss.str();
+        }
+
+        const Token & get()
+        {
+            return * position;
         }
 
         void skip()
@@ -148,7 +144,8 @@ namespace ell
             if (flags.debug && node->must_be_dumped())
             {
                 std::cout << std::string(++flags.level, ' ');
-                std::cout << "\\ " << * node << ": \t" << dump_position() << std::endl;
+                std::cout << "\\ " << * node << ": \t"
+                          << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
 #           endif
         }
@@ -159,7 +156,8 @@ namespace ell
             if (flags.debug && node->must_be_dumped())
             {
                 std::cout << std::string(flags.level--, ' ');
-                std::cout << (match ? '/' : '#') << ' ' << * node << ": \t" << dump_position() << std::endl;
+                std::cout << (match ? '/' : '#') << ' ' << * node << ": \t"
+                          << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
 #           endif
         }
@@ -238,8 +236,6 @@ namespace ell
             const Char * position;
         };
 
-        /// Going beyond end of buffer is authorized,
-        /// but an error will be raised on get().
         void next()
         {
             if (* position == '\n')

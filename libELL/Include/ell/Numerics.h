@@ -108,7 +108,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
 
             int digit_nb = 0;
             Sign value = 0;
@@ -122,7 +122,7 @@ namespace ell
 
                 if (d < 0)
                 {
-                    parser->restore_pos(sav_pos);
+                    sav_pos.restore(parser);
                     break;
                 }
 
@@ -150,7 +150,7 @@ namespace ell
 
                 if (d >= 0)
                 {
-                    parser->restore_pos(sav_pos); // Too much digits
+                    sav_pos.restore(parser); // Too much digits
                 }
                 else
                 {

@@ -139,7 +139,7 @@ namespace ell
                 s.enqueue(se);
                 match = true;
                 parser->skip();
-                sav_pos.restore(parser);
+                sav_pos = typename Parser<Token>::Context(parser);
 
                 if (! right.parse(parser))
                     break;
