@@ -16,14 +16,19 @@
 #ifndef INCLUDED_ELL_PARSER_H
 #define INCLUDED_ELL_PARSER_H
 
-#include <stdexcept>
-
 #include <ell/Utils.h>
 
 namespace ell
 {
     template <typename Token>
     struct Node;
+
+    /// Parser class.
+    /// Work on the root node of a Grammar to iterate over a container of (Token *).
+    /// A token must be convertible to bool to know if it is a null-terminator.
+    template <typename Token>
+    struct Parser
+    { };
 
     template <typename Token>
     struct ParserBase
@@ -88,11 +93,11 @@ namespace ell
         /// Redefine your context if needed
         struct Context
         {
-            Context(Parser<Token> * parser)
+            Context(ParserBase * parser)
               : position(parser->position)
             { }
 
-            void restore(Parser<Token> * parser)
+            void restore(ParserBase * parser)
             {
                 parser->position = position;
             }
@@ -179,21 +184,24 @@ namespace ell
         typedef ParserBase<Char> Base;
         using Base::position;
 
-        /// Parse a (new) buffer
         void parse(const Char * position)
         {
             line_number = 1;
             Base::parse(position);
         }
 
-        /// Override this function to use your own exceptions (and put filename)
-        void raise_error(const std::string & msg) const
+        void raise_error(const std::string & msg, int line_number) const
         {
             std::ostringstream oss;
             if (line_number)
                 oss << line_number << ": ";
             oss << "before " << dump_position() << ": " << msg << std::endl;
             throw std::runtime_error(oss.str());
+        }
+
+        void raise_error(const std::string & msg) const
+        {
+            raise_error(msg, line_number);
         }
 
         std::string dump_position() const
@@ -240,19 +248,6 @@ namespace ell
         }
 
         int line_number;
-    };
-
-    /// Parser class.
-    /// Work on the root node of a Grammar to iterate over a container of (Token *).
-    /// A token must be convertible to bool to know if it is a null-terminator.
-    template <typename Token>
-    struct Parser : public ParserBase<Token>
-    {
-        Parser(const Node<Token> * grammar,
-               const Node<Token> * skipper = 0,
-               const Token * begin = 0)
-          : ParserBase<Token>(grammar, skipper, begin)
-        { }
     };
 
     template <>

@@ -175,7 +175,7 @@ namespace ell
         const int CP::*max;
     };
 
-    template <typename Token, typename Child, typename ConcreteParser, typename Var>
+    template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
     struct Action
     { };
     
@@ -231,11 +231,11 @@ namespace ell
         }
     }
 
-    template <typename Token, typename Child, typename ConcreteParser, typename Var>
-    struct Action<Token, Child, ConcreteParser, Var ConcreteParser::*>
-      : public UnaryNode<Token, Action<Token, Child, ConcreteParser, Var ConcreteParser::*>, Child>
+    template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
+    struct Action<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>
+      : public UnaryNode<Token, Action<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child>
     {
-        typedef UnaryNode<Token, Action<Token, Child, ConcreteParser, Var ConcreteParser::*>, Child> Base;
+        typedef UnaryNode<Token, Action<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child> Base;
 
         Action(const Child & target, Var ConcreteParser::*v)
           : Base(target, "action"),
@@ -248,10 +248,14 @@ namespace ell
         {
             ELL_BEGIN_PARSE
             if (parser->flags.action)
-            {
-                match = Base::target.parse(parser, s);
+            {                                         
+                Storage<Value> sa;
+                match = Base::target.parse(parser, sa);
                 if (match)
-                    match = make_action((ConcreteParser *) parser, var, s);
+                {
+                    match = make_action((ConcreteParser *) parser, var, sa);
+                    assign(s, sa);
+                }
             }
             else
                 match = Base::target.parse(parser);

@@ -60,9 +60,9 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
             if (right.parse(parser))
-                parser->restore_pos(sav_pos);
+                sav_pos.restore(parser);
             else
                 match = left.parse(parser, s);
             ELL_END_PARSE
@@ -86,7 +86,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
 
             typename Storage<V>::Unit s1;
             if (left.parse(parser, s1))
@@ -102,13 +102,13 @@ namespace ell
                 else
                 {
                     if (not parser->flags.step_back)
-                        parser->raise_error(right);
+                        parser->mismatch(right);
 
-                    parser->restore_pos(sav_pos);
+                    sav_pos.restore(parser);
                 }
             }
             else
-                parser->restore_pos(sav_pos);
+                sav_pos.restore(parser);
             ELL_END_PARSE
         }
     };
@@ -130,24 +130,23 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
-            T element;
-            s.clear();
+            typename Parser<Token>::Context sav_pos(parser);
             typename Storage<T>::Unit se;
+            s.clear();
 
             while (left.parse(parser, se))
             {
                 s.enqueue(se);
                 match = true;
                 parser->skip();
-                sav_pos = parser->save_pos();
+                sav_pos.restore(parser);
 
                 if (! right.parse(parser))
                     break;
                 parser->skip();
             }
 
-            parser->restore_pos(sav_pos);
+            sav_pos.restore(parser);
             ELL_END_PARSE
         }
     };
@@ -239,11 +238,11 @@ namespace ell
         {
             ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.step_back, true);
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
             match = left.parse(parser, s);
             if (match and right.parse(parser))
             {
-                parser->restore_pos(sav_pos);
+                sav_pos.restore(parser);
                 match = false;
             }
             ELL_END_PARSE

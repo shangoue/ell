@@ -23,6 +23,7 @@
 #include <cwchar>
 #include <map>
 #include <cstdlib>
+#include <stdexcept>
 
 #ifndef ELL_DEBUG
 #define ELL_DEBUG             0

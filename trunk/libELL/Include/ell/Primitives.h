@@ -26,16 +26,11 @@ namespace ell
     {
         using ConcreteNodeBase<Token, ConcreteNode>::parse;
 
-        bool parse(Parser<Token> * parser, Storage<Token> & output) const
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
-            const Token & t = parser->get();
-
-            bool match = ((ConcreteNode *) this)->parse(parser);
-
-            if (match)
-                output = t;
-
-            return match;
+            s.assign(parser->get());
+            return ((ConcreteNode *) this)->parse(parser);
         }
     };
 
@@ -43,6 +38,7 @@ namespace ell
     struct Epsilon : public TokenPrimitiveBase<Token, Epsilon<Token> >
     {
         using TokenPrimitiveBase<Token, Epsilon<Token> >::parse;
+
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
@@ -60,6 +56,7 @@ namespace ell
     struct Any : public TokenPrimitiveBase<Token, Any<Token> >
     {
         using TokenPrimitiveBase<Token, Any<Token> >::parse;
+
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
@@ -81,7 +78,8 @@ namespace ell
     struct EndOfStream : public TokenPrimitiveBase<Token, EndOfStream<Token> >
     {
         using TokenPrimitiveBase<Token, EndOfStream<Token> >::parse;
-        bool parse(Parser<Token> * parser) const
+
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             match = not bool(parser->get());
@@ -102,7 +100,8 @@ namespace ell
         { }
 
         using TokenPrimitiveBase<Token, Charset<Token> >::parse;
-        bool parse(Parser<Token> * parser) const
+
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             const char * p = & set[0];
@@ -136,7 +135,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << '[' << protect<char>(set) << ']';
+            os << '[' << protect(set) << ']';
         }
 
         std::string set;
@@ -150,7 +149,8 @@ namespace ell
         { }
 
         using TokenPrimitiveBase<Token, Character<Token> >::parse;
-        bool parse(Parser<Token> * parser) const
+
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             if (parser->get() == c)
@@ -173,7 +173,8 @@ namespace ell
     struct Range : public TokenPrimitiveBase<Token, Range<Token, C1, C2> >
     {
         using TokenPrimitiveBase<Token, Range<Token, C1, C2> >::parse;
-        bool parse(Parser<Token> * parser) const
+
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             const Token c = parser->get();
@@ -201,7 +202,8 @@ namespace ell
         { }
 
         using ConcreteNodeBase<Token, Error<Token> >::parse;
-        bool parse(Parser<Token> * parser) const
+
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             parser->raise_error(str, parser->line_number);
@@ -210,7 +212,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << "error(\"" << protect<char>(str) << "\")";
+            os << "error(\"" << protect(str) << "\")";
         }
 
     private:
@@ -225,7 +227,8 @@ namespace ell
         { }
 
         using ConcreteNodeBase<Token, IgnoreCaseString<Token> >::parse;
-        bool parse(Parser<Token> * parser) const
+
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
@@ -255,7 +258,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << "icase(\"" << protect<char>(str) << "\")";
+            os << "icase(\"" << protect(str) << "\")";
         }
 
         std::basic_string<Token> str;
@@ -272,10 +275,11 @@ namespace ell
         { }
 
         using ConcreteNodeBase<Token, String<Token> >::parse;
-        bool parse(Parser<Token> * parser) const
+
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
             const Token * p = str.c_str();
             match = true;
             while (* p)
@@ -283,7 +287,7 @@ namespace ell
                 if (! (* p == parser->get()))
                 {
                     match = false;
-                    parser->restore_pos(sav_pos);
+                    sav_pos.restore(parser);
                     break;
                 }
                 parser->next();
@@ -294,7 +298,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << '\"' << protect<Token>(str) << '\"';
+            os << '\"' << protect(str) << '\"';
         }
 
         std::basic_string<Token> str;
@@ -304,7 +308,8 @@ namespace ell
     struct UTF8NonASCII : public ConcreteNodeBase<char, UTF8NonASCII>
     {
         using ConcreteNodeBase<char, UTF8NonASCII>::parse;
-        bool parse(Parser<char> * parser) const
+
+        bool parse(Parser<char> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             Parser<char>::Context sav_pos(parser);

@@ -54,7 +54,7 @@ struct ListTest : public ell::Grammar<char>
             std::cout << "coucou" << std::endl;
         }
 
-        void getValues(std::vector<unsigned long> l)
+        void getValues(const std::vector<unsigned long> & l)
         {
             for (unsigned int i = 0; i < l.size(); ++i)
                 std::cout << l[i] << ", ";

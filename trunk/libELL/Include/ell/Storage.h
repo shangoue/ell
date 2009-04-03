@@ -18,6 +18,7 @@
 
 namespace ell
 {
+    /// Storage class is used to propage output data of matched values through parse calls.
     template <typename T>
     struct Storage
     {
@@ -54,6 +55,25 @@ namespace ell
     D(list)
 
 #   undef D
+
+    template <typename V1, typename V2>
+    void assign(Storage<V1> & v1, const Storage<V2> & v2)
+    {
+        v1.value = v2.value;
+    }
+
+    template <typename V1>
+    void assign(Storage<V1> & v1, const Storage<void> &)
+    {
+        v1.clear();
+    }
+
+    template <typename V2>
+    void assign(Storage<void> &, const Storage<V2> & v2)
+    { }
+
+    inline void assign(Storage<void> &, const Storage<void> &)
+    { }
 }
 
 #endif // INCLUDED_ELL_STORAGE_H
