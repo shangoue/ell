@@ -231,7 +231,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
             const Token * p = & str[0];
             match = true;
             while (* p)
@@ -249,7 +249,7 @@ namespace ell
                 else
                 {
                     match = false;
-                    parser->restore_pos(sav_pos);
+                    sav_pos.restore(parser);
                     break;
                 }
             }

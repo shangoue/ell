@@ -80,9 +80,9 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
             match = Base::target.parse(parser, s);
-            parser->restore_pos(sav_pos);
+            sav_pos.restore(parser);
             ELL_END_PARSE
         }
     };
