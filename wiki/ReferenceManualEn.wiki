@@ -52,7 +52,7 @@ Let's come back to the previous tree, and notice that its representation only su
   * `+`: repeat one or more times
   * `!`: argument is optional
 
-To represent these operators, we will chose a new format for our tree:
+To represent these operators, a new tree format is needed:
 
 {{{
               factor
@@ -66,54 +66,46 @@ To represent these operators, we will chose a new format for our tree:
        expression     ")"
 }}}
 
-TO BE CONTINUED
-
-Avec cette représentation nous pouvons alors représenter les opérateurs
-complexes, comme dans la règle expression où l'étoile est représentée par un
-noeud Répétition paramétré par les nombres minimum et maximum de répétitions
-acceptables (-1 = pas de limite) :
+Complex operator `*` is represented by a binary node called `Repeat| which is parameterized by the minimum and maximum bound of this repetition (-1 as max bound means no limit).
 
 {{{
         expression
             |
-       Agrégation
+       Aggregation
       /          \
-  term       Répétition<0, -1>
+  term         Repeat<0, -1>
                     |
                 Alternative
                  /       \
-        Agrégation     Agrégation
+        Aggregation     Aggregation
           /     \         /      \
        '+'      term   '-'       term
 }}}
 
-Il est intéressant pour le programmeur de bien se représenter les choses de
-cette façon car le parsing consiste simplement à parcourir cette arbre depuis
-la racine en consommant des lexèmes à chaque terminal validé.
 
-Voici à quoi ressemble de notre grammaire une fois traduite en C++ :
+Now, parsing an expression just consists in walking through the tree from root node and consuming tokens each time a primitive is matched.
+
+Here below is the complete grammar translated into C++:
 
 {{{
-  factor = real |
-           ch('(') >> expression >> ch(')') |
-           (ch('-') >> factor) |
-           (ch('+') >> factor);
+  factor = real
+         | ch('(') >> expression >> ch(')')
+         | (ch('-') >> factor)
+         | (ch('+') >> factor);
 
-  term = factor >> *((ch('*') >> factor) |
-                     (ch('/') >> factor) |
-                     (ch('%') >> factor));
+  term = factor >> *( (ch('*') >> factor)
+                    | (ch('/') >> factor)
+                    | (ch('%') >> factor) );
 
-  expression = term >> *((ch('+') >> term) |
-                         (ch('-') >> term));
+  expression = term >> *( (ch('+') >> term)
+                        | (ch('-') >> term) );
 }}}
 
-Étant donné que le C++ ne permet pas de juxtaposer deux objets sans opérateur
-on introduit l'opérateur d'agrégation : '>>', et pour garder l'esprit d'une
-grammaire BNF nous sautons une ligne après chaque opérateur d'alternative. Le
-parenthésage permet de regrouper des règles sans usage de non-terminal.
+To keep the spirit of a BNF grammar, we jump to a new line on introducing an alternative with the `|` operator. We can also use parenthesis to avoid the use of an intermediate rule.
 
-Nous pouvons à présent ajouter des actions sémantiques. Ces dernières seront
-exécutées seulement en cas de validation de la règle avec le flux :
+Notice that the use of the aggregation operator `>>` instead of just juxtaposing elements.
+
+Now, we can add semantic actions. We do that with the `[]` operator. Such actions are executed only when the element on which they apply matches.
 
 {{{
   factor = real [push_number] |
@@ -127,6 +119,8 @@ exécutées seulement en cas de validation de la règle avec le flux :
   expression = term >> *((ch('+') >> term) [add] |
                          (ch('-') >> term) [substract]);
 }}}
+
+TO BE CONTINUED
 
 === Les opérateurs de la grammaire ===
 
