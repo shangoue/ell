@@ -56,7 +56,7 @@ namespace ell
 
         void set_name(const char * n) { name = n; }
 
-        bool parse(Parser<Token> * parser) const
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             match = top->parse(parser);

@@ -20,16 +20,15 @@
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
             int count = 0;
-
             typename Storage<V>::Unit se;
 
             while (count < MIN)
             {
                 if (! target.parse(parser, se))
                 {
-                    parser->restore_pos(sav_pos);
+                    sav_pos.restore(parser);
                     break;
                 }
 

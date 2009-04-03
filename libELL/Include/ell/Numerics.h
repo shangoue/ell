@@ -104,13 +104,8 @@ namespace ell
     {
         using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, MinDigits, MaxDigits> >::parse;
 
-        bool parse(Parser<Token> * parser) const
-        {
-            Sign v;
-            return parse(parser, v);
-        }
-
-        bool parse(Parser<Token> * parser, Sign & out_value) const
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos = parser->save_pos();
@@ -160,7 +155,7 @@ namespace ell
                 else
                 {
                     match = true;
-                    out_value = value * sign;
+                    s.assign(value * sign);
                 }
             }
             ELL_END_PARSE
@@ -180,24 +175,20 @@ namespace ell
         using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >::parse;
         using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >::operator [ ];
 
-        bool parse(Parser<Token> * parser) const
-        {
-            Sign v;
-            return parse(parser, v);
-        }
-
-        bool parse(Parser<Token> * parser, Sign & out_value) const
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & se) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos = parser->save_pos();
+            typename Parser<Token>::Context sav_pos(parser);
 
-            Sign value = 0;
+            Storage<Sign> s;
+            s.value = 0;
             int sign = GetSign<Token, Sign>()(parser);
             int d = GetDigit<Token, Radix>()(parser);
 
             if (d >= 0)
             {
-                value = value * Radix + d;
+                s.value = s.value * Radix + d;
                 parser->next();
                 match = true;
 
@@ -206,15 +197,16 @@ namespace ell
                     d = GetDigit<Token, Radix>()(parser);
                     if (d < 0)
                         break;
-                    value = value * Radix + d;
+                    s.value = s.value * Radix + d;
                     parser->next();
                 }
 
-                out_value = value * sign;
+                s.value = s.value * sign;
+                assign(se, s);
             }
             else
             {
-                parser->restore_pos(sav_pos);
+                sav_pos.restore(parser);
             }
             ELL_END_PARSE
         }
@@ -231,26 +223,19 @@ namespace ell
         using ConcreteNodeBase<Token, Real<Token> >::parse;
         using ConcreteNodeBase<Token, Real<Token> >::operator [ ];
 
-        Real()
-        { }
-
-        bool parse(Parser<Token> * parser) const
-        {
-            double v;
-            return parse(parser, v);
-        }
-
-        bool parse(Parser<Token> * parser, double & out_value) const
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             // No wide string real number parsing implemented
             ELL_BEGIN_PARSE
             char * endptr;
-            double value = strtod(parser->position, & endptr);
+            Storage<double> sd;
+            sd.value = strtod(parser->position, & endptr);
+            assign(s, sd);
 
             if (endptr > parser->position)
             {
                 parser->position = endptr;
-                out_value = value;
                 match = true;
             }
             ELL_END_PARSE
