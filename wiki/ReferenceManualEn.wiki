@@ -22,15 +22,9 @@ Let's take the basic grammar which defines how our mathematic expressions works 
 }}}
 
 
-TO BE CONTINUED
+We will now try to write this grammar simply as C++ code.
 
-L'idée est de pouvoir insérer cette grammaire sous forme de code C++ exécutable.
-
-On peut voir ce graphe comme un ensemble d'arbres syntaxiques, dont les noeuds
-peuvent être soit des primitives (comme INTEGER ou le caractère "(" dans notre
-exemple), soit des liens vers d'autres arbres. Chaque règle de la grammaire
-(aussi appelée non-terminal dans la terminologie BNF) est la définition d'un
-arbre. Par exemple, voici un arbre équivalent à la règle "factor" :
+The definition of each non-terminal (called rule of the grammar) can be represented by an Abstract Syntax Tree, for exemple for the rule `factor`:
 
 {{{
               factor
@@ -41,6 +35,16 @@ arbre. Par exemple, voici un arbre équivalent à la règle "factor" :
          /
        ")"
 }}}
+
+
+The node called `expression` is a link to another tree.
+
+Thus, the whole grammar can be represented by a graph. The nodes of this graph can be either primitives (like INTEGER or `(` character in our exemple), either links to the root of another tree.
+
+The C++ code of the grammar will build such a graph in memory.
+
+
+TO BE CONTINUED
 
 Dans cette arbre, "expression" est un lien vers la règle expression, donc vers
 la racine de l'arbre correspondant à la définition d'une expression.
