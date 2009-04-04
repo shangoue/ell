@@ -1,7 +1,0 @@
-TARGET = libellxml.so
-TARGET_FILES = XmlParser/Source/*.cpp
-
-CFLAGS = -IXmlParser/Include -IlibELL/Include
-LDFLAGS = -lstdc++
-
-include Script/target.mk
