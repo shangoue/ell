@@ -1,7 +1,7 @@
 TARGET = koalang
 TARGET_FILES = KoaLang/Test/*.cpp KoaLang/Source/*.cpp
 
-CFLAGS = -IKoaLang/Include -IlibELL/Include
+CFLAGS = -IKoaLang/Include -IlibELL/Include -ISystem/Include
 LDFLAGS = -lstdc++
 
 include Script/target.mk
