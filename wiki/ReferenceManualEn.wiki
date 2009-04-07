@@ -120,20 +120,17 @@ Now, we can add semantic actions. We do that with the `[]` operator. Such action
                          (ch('-') >> term) [substract]);
 }}}
 
-TO BE CONTINUED
+=== Grammar operators ===
 
-=== Les opérateurs de la grammaire ===
+The table below lists all the operators which can be used to write a grammar. Of course, you can use [http://www.cppreference.com/wiki/operator_precedence C++ operator precedence].
 
-Voici la liste des opérateurs utilisés pour bâtir une grammaire. Leurs
-priorités sont bien-sûr [http://www.cppreference.com/wiki/operator_precedence celles du C++] !
+  * Binary operators
 
-  * opérateurs binaires
-
-|| Nom || Opérateur || Explication ||
-|| Agrégation || `a >> b` || a puis b ||
-|| Alternative || `a | b` || soit a soit b ||
-|| Différence || `a - b` || a mais pas b. Si besoin, on peut implémenter l'opérateur + selon le même modèle ||
-|| Liste || `a % b` || autant de a que possible séparés par b (équivalent à `a >> * (b >> a)`) ||
+|| Name || Notation || Meaning ||
+|| Aggregation || `a >> b` || a followed by b ||
+|| Alternative || `a | b` || a or b ||
+|| Difference || `a - b` || a but not b ||
+|| List || `a % b` || autant de a que possible séparés par b (équivalent à `a >> * (b >> a)`) ||
 || Jusqu'à || `a * b` || succession de a terminée par b (équivalent à `* (a - b) >> b`) ||
 || Association || `a & b` || a ou b dans un ordre quelconque (équivalent à `(a >> b) | (b >> a)`) ||
 
