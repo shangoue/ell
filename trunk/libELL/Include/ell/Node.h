@@ -90,9 +90,14 @@ namespace ell
         {
             const Token * begin = parser->position;
             bool match = ((ConcreteNode *) this)->parse(parser);
-            if (match)
-                s.value.assign(begin, parser->position);
+            s.value.assign(begin, parser->position);
             return match;
+        }
+
+        bool parse(Parser<Token> * parser, Storage<const Token *> & s) const
+        {
+            s.value = parser->position;
+            return ((ConcreteNode *) this)->parse(parser);
         }
 
         //@{

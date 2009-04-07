@@ -77,7 +77,7 @@ namespace ell
         using Base::left;
 
         Aggregation(const Left & left, const Right & right)
-          : Base(left, right, "followed by")
+          : Base(left, right, "")
         { }
 
         using Base::parse;
@@ -121,7 +121,7 @@ namespace ell
         using Base::left;
 
         List(const Left & left, const Right & right)
-          : Base(left, right, "separated by")
+          : Base(left, right, "+ separated by")
         { }
 
         using Base::parse;

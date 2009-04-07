@@ -23,14 +23,17 @@ namespace ell
     template <typename Token, typename ConcreteNode, typename UnaryFlavour>
     struct UnaryNodeBase : public ConcreteNodeBase<Token, ConcreteNode>
     {
+#       if ELL_DEBUG == 1
+        bool must_be_dumped() const { return ELL_DUMP_ACTIONS; }
+#       endif
+
         void describe(std::ostream & os) const
         {
-#           if ELL_DEBUG == 1
-            if (Node<Token>::must_be_dumped())
-                os << Node<Token>::name << '(' << ((UnaryFlavour *) this)->target << ')';
-            else
+#           if ELL_DEBUG == 1 && ELL_DUMP_ACTIONS == 1
+            os << Node<Token>::name << '(' << ((UnaryFlavour *) this)->target << ')';
+#           else
+            os << ((UnaryFlavour *) this)->target;
 #           endif
-                os << ((UnaryFlavour *) this)->target;
         }
     };
 

@@ -103,7 +103,7 @@ namespace ell
                 parser->position = position;
             }
 
-            Token * position;
+            const Token * position;
         };
 
         /// Redefine the way you iterate through tokens if needed
