@@ -108,9 +108,9 @@ Notice that the use of the aggregation operator `>>` instead of just juxtaposing
 Now, we can add semantic actions. We do that with the `[]` operator. Such actions are executed only when the element on which they apply matches.
 
 {{{
-  factor = real [push_number] |
+  factor = real [push] |
            ch('(') >> expression >> ch(')') |
-           (ch('-') >> factor) [do_negate] |
+           (ch('-') >> factor) [negate] |
            (ch('+') >> factor);
 
   term = factor >> *((ch('*') >> factor) [multiply] |
@@ -119,6 +119,10 @@ Now, we can add semantic actions. We do that with the `[]` operator. Such action
   expression = term >> *((ch('+') >> term) [add] |
                          (ch('-') >> term) [substract]);
 }}}
+
+The full working exemple of this calculator is present in the repository at:
+
+http://code.google.com/p/ell/source/browse/trunk/libELL/Test/Calc.h
 
 === Grammar operators ===
 
