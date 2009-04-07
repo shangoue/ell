@@ -135,6 +135,7 @@ The tables below lists all the operators which can be used to write a grammar. O
 || List || `a % b` || one or more a separated by b (equivalent to `a >> * (b >> a)`) ||
 || Bound repetition || `a * b` || zero or more a until b (equivalent to `* (a - b) >> b` but much more efficient) ||
 || Association || `a & b` || a followed or preceded by b (equivalent to `(a >> b) | (b >> a)`) ||
+|| NoSuffix || no_suffix(a, b) || equivalent to `lexeme(a >> (eps - b))` ||
 
   * Unary operators
 
@@ -144,6 +145,7 @@ The tables below lists all the operators which can be used to write a grammar. O
 || `Repeat<0,1>` || `! a` || Optional match ||
 || `Repeat<1,-1>` || `+ a` || One or more repetition ||
 || `Repeat<0,-1>` || `* a` || Zero or more repetition ||
+
 
 *Note:*
 
@@ -174,38 +176,37 @@ struct MyParser : ell::Parser<char>, ell::Grammar<char>
 
 Ell library provides a set of predefined primitives:
 
-|| Primitive || Usage ||
+|| Primitive || Meaning ||
 || eos                  || matches end of stream but does not consume it ||
 || eps                  || always matches, never consumes ||
 || any                  || matches any input token (eos excepted) ||
 || ch(token)            || matches the given token ||
 || str(s)               || matches a string of input tokens ||
+|| error(msg)           || unconditional parsing error generation with custom message ||
 
-For character parsers (ie. when input tokens are a C++ primitive type), some specialized primtives are provided:
+For character parsers (ie. when input tokens are C++ primitives like `char`, `int` or `wchar_t`), some specialized parser primitives are provided:
 
-|| Primitive || Usage ||
+|| Primitive || Meaning ||
 || chset(arg)           || give a charset. Ex: `chset("A-Z_.-")` defines `[A-Z_.-]` ||
 || digit                || `[0-9]` ||
 || range<a, b>          || matches a character in the given range ||
 || lower                || `[a-z]` ||
 || upper                || `[A-Z]` ||
+|| alpha                || `[a-zA-Z_]` ||
 || alnum                || `[a-zA-Z0-9_]` ||
 || blank                || `[ \t\n\r]` ||
-|| ident                || `lexeme([a-zA-Z_]) >> * alnum)` ||
+|| ident                || `lexeme(alpha) >> * alnum)` ||
 || istr(s)              || matches the given string, ignoring case ||
-
-|| error(msg)           || génère une erreur ||
-|| no_suffix(a, b)      || équivalent de `lexeme(a >> (eps - b))` ||
-|| visible_ascii        || caractères visibles du code ASCII-7bit `[!-~]` ||
-|| utf8nonascii         || caractères utf8 valide non ASCII ||
-|| integer              || entier décimal signé ||
-|| real                 || nombre flottant ||
-|| dec                  || nombre décimal non signé (+digit) ||
-|| hex                  || nombre hexadécimal ||
-|| oct                  || nombre octal ||
-|| bin                  || nombre binaire ||
-|| kw(s)                || mot-clé correspondant à la chaîne fournie (équivalent à `no_suffix(str(s), alnum)`) ||
-|| ikw(s)               || mot-clé correspondant à la chaîne fournie, mais en ignorant la casse ||
+|| visible_ascii        || `[!-~]` (visibles ASCII character) ||
+|| utf8nonascii         || valid UTF-8 character outside the ASCII character set ||
+|| signed_dec           || signed decimal integer ||
+|| real                 || flotting point number (`strtod` format) ||
+|| dec                  || decimal integer (`+ digit`) ||
+|| hex                  || hexadecimal integer ||
+|| oct                  || octal integer ||
+|| bin                  || binary integer ||
+|| kw(s)                || keyword (equivalent to `no_suffix(str(s), alnum)`) ||
+|| ikw(s)               || case-insensitive keyword ||
 
 
 === Les directives ===
@@ -218,13 +219,13 @@ de la grammaire sans rien consommer :
   no_consume(a >> b)
 }}}
 
-|| Directive || Usage ||
-|| no_step_back(rule)        || Considère que la grammaire est LL(1), une erreur est donc générée si le sous-arbre de droite d'un opérateur >> ne match pas. La directive lexeme annule l'effet de cette directive (car on considère qu'on entre alors à l'intérieur d'un lexème) ||
-|| no_action(rule)           || N'appelle pas les actions (ie l'opérateur [ ] reste sans effet) ||
-|| no_consume(rule)          || Ne consomme pas ||
-|| lexeme(rule)              || Définition d'un nouveau terminal: annule l'action du skipper et du look-ahead. ||
-|| repeat`<`exact>(rule)       || Répétition exacte ||
-|| repeat`<`min, max>(rule)    || Répétition dans un intervalle ||
+|| Notation || Meaning ||
+|| no_step_back(rule)     || Walk along the grammar in a LL(1) manner ||
+|| no_action(rule)        || Disable all semantic actions (operator[] has no effect) ||
+|| no_consume(rule)       || Do not consume any input tokens ||
+|| lexeme(rule)           || Defines a new primitive by disabling skipper and allowing step-back ||
+|| `repeat<exact>(rule)`   || Exact number of repetition ||
+|| `repeat<min, max>(rule)` || Repetition within a range ||
 || repeat(exact, rule)       || Répétition exacte d'une valeur non connue à la compilation ||
 || repeat(min, max, rule)    || Répétition dans un intervalle de valeur non connu à la compilation ||
 
