@@ -122,33 +122,50 @@ Now, we can add semantic actions. We do that with the `[]` operator. Such action
 
 === Grammar operators ===
 
-The table below lists all the operators which can be used to write a grammar. Of course, you can use [http://www.cppreference.com/wiki/operator_precedence C++ operator precedence].
+The tables below lists all the operators which can be used to write a grammar. Of course, you can use [http://www.cppreference.com/wiki/operator_precedence C++ operator precedence].
 
   * Binary operators
 
 || Name || Notation || Meaning ||
 || Aggregation || `a >> b` || a followed by b ||
 || Alternative || `a | b` || a or b ||
-|| Difference || `a - b` || a but not b ||
-|| List || `a % b` || autant de a que possible séparés par b (équivalent à `a >> * (b >> a)`) ||
-|| Jusqu'à || `a * b` || succession de a terminée par b (équivalent à `* (a - b) >> b`) ||
-|| Association || `a & b` || a ou b dans un ordre quelconque (équivalent à `(a >> b) | (b >> a)`) ||
+|| Difference || `a - b` || a bereft of b ||
+|| List || `a % b` || one or more a separated by b (equivalent to `a >> * (b >> a)`) ||
+|| Bound repetition || `a * b` || zero or more a until b (equivalent to `* (a - b) >> b` but much more efficient) ||
+|| Association || `a & b` || a followed or preceded by b (equivalent to `(a >> b) | (b >> a)`) ||
 
-  * opérateurs sémantique : ceux-ci n'ont un effet que si la règle en paramètre est validée
+  * Unary operators
 
-|| Opérateur || Explication || Note ||
-|| Assignation || `a [& Class::v]` || Assigne la valeur issue du parsing à la variable v membre d'une classe dérivée de Parser. L'instance est celle du parseur utilisé. ||
-|| Appel || `a [& Class::f]` || Appelle la méthode f d'une classe dérivée de Parser. L'instance est celle du parseur utilisé. ||
+|| Name || Notation || Meaning ||
+|| Assignation || `a [& Class::v]` || Assign the result of matching into a variable. ||
+|| Call || `a [& Class::f]` || Call the given member function passing the matching result. ||
+|| `Repeat<0,1>` || `! a` || Optional match ||
+|| `Repeat<1,-1>` || `+ a` || One or more repetition ||
+|| `Repeat<0,-1>` || `* a` || Zero or more repetition ||
 
-  * opérateurs unaires de répétition
+*Note:*
 
-|| Nom || Opérateur || Description ||
-|| Option || `! a` || Matche éventuellement  ||
-|| 1 ou plus || `+ a` || Matche au moins une fois ||
-|| 0 ou plus || `* a` || Matche autant que possible ||
+  These operators have no effect if the rule on which they applied does not match.
+  Passed variables or methods must be member of the Parser class instance used for parsing.
 
-Si vous avez le besoin, ou l'idée d'un autre opérateur, demandez-le moi !
-(samuel.hangouet atgmail. com)
+  The types allowed for the targeted variable depend on the node on which the action operator is applied. For example, the following code parse a list of space-separated unsigned integers, and assign them to a standard set of signed integers:
+
+{{{
+struct MyParser : ell::Parser<char>, ell::Grammar<char>
+{
+    MyParser()
+      : ell::Parser<char>(& rule, & blank)
+    {
+        rule = (+ dec) [& MyParser::list];
+   
+        parse("12 1 9");
+    }
+   
+    ell::Rule<char> rule;
+   
+    std::set<int> list;
+};
+}}}
 
 
 === Les primitives de la grammaire ===
