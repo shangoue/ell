@@ -18,9 +18,12 @@
 #include <cstdlib>
 
 #define ELL_DEBUG 1
-#define ELL_DUMP_NODES 1
+#define ELL_DUMP_NODES 0
+
 #include <ell/Grammar.h>
 #include <ell/Parser.h>
+
+#include "Calc.h"
 
 #define ERROR(f, ...) do { printf("Error parsing %s: " f "\n", buffer , ## __VA_ARGS__); exit(1); } while (0)
 
@@ -79,22 +82,61 @@ struct ListTest : public ell::Grammar<char>
         const char * buffer;
 
 #       define TEST(B, S, F) B; S; F; check(parser, buffer, status, full);
-
         TEST(buffer="1,",   status=true,  full=false);
-        TEST(buffer="2,3",  status=true,  full=true );
+        TEST(buffer="2 , 3",  status=true,  full=true );
         TEST(buffer=",",    status=false, full=false);
         TEST(buffer="4",    status=true,  full=true );
-        TEST(buffer="5,6,", status=true,  full=false);
-
+        TEST(buffer="5 ,6,", status=true,  full=false);
 #       undef TEST
     }
 
     ell::Rule<char> root, other;
 };
 
+struct MyParser : ell::Parser<char>, ell::Grammar<char>
+{
+    MyParser()
+      : ell::Parser<char>(& rule, & blank)
+    {
+        rule = (+ dec) [& MyParser::list];
+   
+        check(* this, "12 1 9", true, true);
+    }
+   
+    ell::Rule<char> rule;
+   
+    std::set<int> list;
+};
+
+struct CalcTest : public Calc
+{
+    CalcTest()
+    {
+#       define TEST(E) test(#E, E)
+        TEST(4/5);
+        TEST(10+3/6-(-3));
+#       undef TEST
+    }
+
+    void test(const char * expr, int r)
+    {
+        printf("Eval %s:\n", expr);
+        int rr = eval(expr);
+        printf("%d\n", rr);
+        if (r != rr)
+        {
+            printf("Expecting %d, get %d\n", r, rr);
+            abort();
+        }
+    }
+};
+
 int main()
 {
     ListTest l;
+    MyParser p;
+    CalcTest c;
+
     printf("Everything is ok.\n");
     return 0;
 }

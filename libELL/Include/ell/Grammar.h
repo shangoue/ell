@@ -17,6 +17,7 @@
 #define INCLUDED_ELL_GRAMMAR_H
 
 #include <ell/Node.h>
+#include <ell/Rule.h>
 
 namespace ell
 {
@@ -59,9 +60,6 @@ namespace ell
         template <typename T>
         Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
 
-        template <const Token C1, const Token C2>
-        Range<Token, C1, C2>                    range() const { return Range<Token, (Token) C1, (Token) C2>(); }
-
         String<Token>                           str(const std::basic_string<Token> & arg) const { return String<Token>(arg); }
     };
 
@@ -99,6 +97,9 @@ namespace ell
         Integer<Token, unsigned long, 2>        bin;
 
         Real<Token>                             real;
+
+        template <const Token C1, const Token C2>
+        Range<Token, C1, C2>                    range() const { return Range<Token, (Token) C1, (Token) C2>(); }
 
         Charset<Token>                          chset(const std::string & set) const { return Charset<Token>(set); }
 
