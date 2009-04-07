@@ -68,6 +68,7 @@ namespace ell
     {
         CharGrammarBase()
           : alnum(chset("a-zA-Z0-9_")),
+            alpha(chset("a-zA-Z_")),
             blank(chset(" \t\n\r")),
             ident(lexeme(chset("a-zA-Z_") >> * alnum))
         { }
@@ -85,7 +86,7 @@ namespace ell
         Range<Token, (Token) '!', (Token) '~'>  visible_ascii;
         UTF8NonASCII                            utf8nonascii;
 
-        Integer<Token, signed long>             signed_decimal;
+        Integer<Token, signed long>             signed_dec;
 
         template <typename Sign, const int Radix, const int MinDigits, const int MaxDigits>
         Integer<Token, Sign, Radix, MinDigits, MaxDigits>
