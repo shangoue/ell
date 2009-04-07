@@ -48,11 +48,15 @@ namespace ell
     template <typename Token, typename Left, typename Right>
     struct Association;
 
+    template <typename Token, typename Left, typename Right>
+    struct NoSuffix;
+
     template <typename Token>
     struct Node
     {
         Node(const char * name = 0)
-          : name(name)
+          : name(name),
+            precedence(0)
         { }
 
         virtual ~Node() { }
@@ -71,10 +75,10 @@ namespace ell
 
         void get_value() { }
 
-    protected:
         virtual void describe(std::ostream & os) const = 0;
 
         const char * name;
+        int precedence;
     };
 
     template <typename Token, typename ConcreteNode>

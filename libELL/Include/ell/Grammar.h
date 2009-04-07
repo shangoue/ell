@@ -28,6 +28,11 @@ namespace ell
         Epsilon<Token>                          eps;
         Any<Token>                              any;
 
+        template <typename T>
+        Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
+
+        String<Token>                           str(const std::basic_string<Token> & arg) const { return String<Token>(arg); }
+
         template <typename P>
         NoAction<Token, P>                      no_action(const P & p) const { return NoAction<Token, P>(p); }
 
@@ -56,11 +61,6 @@ namespace ell
         NoSuffix<Token, P, Suffix>              no_suffix(const P & p, const Suffix & s) const { return NoSuffix<Token, P, Suffix>(p, s); }
 
         Error<Token>                            error(const std::string & msg) const { return Error<Token>(msg); }
-
-        template <typename T>
-        Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
-
-        String<Token>                           str(const std::basic_string<Token> & arg) const { return String<Token>(arg); }
     };
 
     template <typename Token>

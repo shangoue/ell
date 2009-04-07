@@ -112,21 +112,32 @@ struct CalcTest : public Calc
 {
     CalcTest()
     {
-#       define TEST(E) test(#E, E)
+        flags.debug = true;
+
+#       define TEST(E) test(#E, E, true, true)
         TEST(4/5);
         TEST(10+3/6-(-3));
 #       undef TEST
+
+        test("1+A", 1, true, false);
+        test("A", 0, false, false);
     }
 
-    void test(const char * expr, int r)
+    void test(const char * expr, int r, bool ok, bool full)
     {
         printf("Eval %s:\n", expr);
-        int rr = eval(expr);
-        printf("%d\n", rr);
-        if (r != rr)
+
+        check(* this, expr, ok, full);
+
+        if (ok)
         {
-            printf("Expecting %d, get %d\n", r, rr);
-            abort();
+            int rr = pop();
+            printf("%d\n", rr);
+            if (r != rr)
+            {
+                printf("Expecting %d, get %d\n", r, rr);
+                exit(1);
+            }
         }
     }
 };
