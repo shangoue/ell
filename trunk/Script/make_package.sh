@@ -17,6 +17,12 @@ cp --parent COPYING.LESSER $pkg/ || exit 1
 
 make MODE=Release NOPCH=1 || exit 1
 
+# Run non-regression test-suite
+for test in `find GNU_Linux -name *_test`;
+do
+    $test || exit 1
+done
+
 for m in */; do
     if [ -e $m/Include ]; then
         cd $m/Include || exit 1

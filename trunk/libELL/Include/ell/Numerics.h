@@ -174,7 +174,6 @@ namespace ell
       : public ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >
     {
         using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >::parse;
-        using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >::operator [ ];
 
         template <typename V>
         bool parse(Parser<Token> * parser, Storage<V> & se) const
@@ -222,7 +221,6 @@ namespace ell
     struct Real : public ConcreteNodeBase<Token, Real<Token> >
     {
         using ConcreteNodeBase<Token, Real<Token> >::parse;
-        using ConcreteNodeBase<Token, Real<Token> >::operator [ ];
 
         template <typename V>
         bool parse(Parser<Token> * parser, Storage<V> & s) const

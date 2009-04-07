@@ -67,7 +67,7 @@ namespace ell
             oss << "\\0";
         else if (c >= '\a' and c <= '\r')
             oss << '\\' << "abtnvfr"[c - '\a'];
-        else if ((c == '\'') | (c == '"') | (c == '\\') | (c == '!') | (c == '[') | (c == '+') | (c == '{'))
+        else if ((c == '\'') | (c == '"') | (c == '\\'))
             oss << '\\' << (char) c;
         else if ((c > 0 and c < ' ') or (c & 0xFFFFFF80))
             oss << "\\<" << std::hex << c << ">";

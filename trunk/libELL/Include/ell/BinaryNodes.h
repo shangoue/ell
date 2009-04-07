@@ -29,7 +29,7 @@ namespace ell
         using Base::left;
 
         Alternative(const Left & left, const Right & right)
-          : Base(left, right, "or")
+          : Base(left, right, "or", 1)
         { }
 
         using Base::parse;
@@ -44,27 +44,41 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
-    struct Difference : public BinaryNode<Token, Difference<Token, Left, Right>, Left, Right>
+    struct Association : public BinaryNode<Token, Association<Token, Left, Right>, Left, Right>
     {
-        typedef BinaryNode<Token, Difference<Token, Left, Right>, Left, Right> Base;
+        typedef BinaryNode<Token, Association<Token, Left, Right>, Left, Right> Base;
         using Base::right;
         using Base::left;
 
-        Difference(const Left & left, const Right & right)
-          : Base(left, right, "bereft of")
+        Association(const Left & left, const Right & right)
+          : Base(left, right, "followed or preceded by", 2)
         { }
 
         using Base::parse;
-
-        template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        template <typename T>
+        bool parse(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos(parser);
-            if (right.parse(parser))
-                sav_pos.restore(parser);
-            else
-                match = left.parse(parser, s);
+            s.clear();
+            typename Storage<T>::Unit se;
+            if (left.parse(parser, se))
+            {
+                s.enqueue(se);
+                if (right.parse(parser, se))
+                {
+                    s.enqueue(se);
+                    match = true;
+                }
+            }
+            else if (right.parse(parser, se))
+            {
+                s.enqueue(se);
+                if (left.parse(parser, se))
+                {
+                    s.enqueue(se);
+                    match = true;
+                }
+            }
             ELL_END_PARSE
         }
     };
@@ -77,7 +91,7 @@ namespace ell
         using Base::left;
 
         Aggregation(const Left & left, const Right & right)
-          : Base(left, right, "")
+          : Base(left, right, 0, 3)
         { }
 
         using Base::parse;
@@ -114,6 +128,32 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
+    struct Difference : public BinaryNode<Token, Difference<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, Difference<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        Difference(const Left & left, const Right & right)
+          : Base(left, right, "bereft of", 4)
+        { }
+
+        using Base::parse;
+
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        {
+            ELL_BEGIN_PARSE
+            typename Parser<Token>::Context sav_pos(parser);
+            if (right.parse(parser))
+                sav_pos.restore(parser);
+            else
+                match = left.parse(parser, s);
+            ELL_END_PARSE
+        }
+    };
+
+    template <typename Token, typename Left, typename Right>
     struct List : public BinaryNode<Token, List<Token, Left, Right>, Left, Right>
     {
         typedef BinaryNode<Token, List<Token, Left, Right>, Left, Right> Base;
@@ -121,7 +161,7 @@ namespace ell
         using Base::left;
 
         List(const Left & left, const Right & right)
-          : Base(left, right, "+ separated by")
+          : Base(left, right, "+ separated by", 5)
         { }
 
         using Base::parse;
@@ -159,7 +199,7 @@ namespace ell
         using Base::left;
 
         BoundRepetition(const Left & left, const Right & right)
-          : Base(left, right, "until")
+          : Base(left, right, "until", 6)
         { }
 
         using Base::parse;
@@ -182,46 +222,6 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
-    struct Association : public BinaryNode<Token, Association<Token, Left, Right>, Left, Right>
-    {
-        typedef BinaryNode<Token, Association<Token, Left, Right>, Left, Right> Base;
-        using Base::right;
-        using Base::left;
-
-        Association(const Left & left, const Right & right)
-          : Base(left, right, "followed or preceded by")
-        { }
-
-        using Base::parse;
-        template <typename T>
-        bool parse(Parser<Token> * parser, Storage<T> & s) const
-        {
-            ELL_BEGIN_PARSE
-            s.clear();
-            typename Storage<T>::Unit se;
-            if (left.parse(parser, se))
-            {
-                s.enqueue(se);
-                if (right.parse(parser, se))
-                {
-                    s.enqueue(se);
-                    match = true;
-                }
-            }
-            else if (right.parse(parser, se))
-            {
-                s.enqueue(se);
-                if (left.parse(parser, se))
-                {
-                    s.enqueue(se);
-                    match = true;
-                }
-            }
-            ELL_END_PARSE
-        }
-    };
-
-    template <typename Token, typename Left, typename Right>
     struct NoSuffix : public BinaryNode<Token, NoSuffix<Token, Left, Right>, Left, Right>
     {
         typedef BinaryNode<Token, NoSuffix<Token, Left, Right>, Left, Right> Base;
@@ -229,7 +229,7 @@ namespace ell
         using Base::left;
 
         NoSuffix(const Left & left, const Right & right)
-          : Base(left, right, "not followed by")
+          : Base(left, right, "not followed by", 0)
         { }
 
         using Base::parse;

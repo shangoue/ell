@@ -29,7 +29,7 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
         return pop();
     }
    
-private:
+protected:
     int pop()
     {
         int d = stack.top();
