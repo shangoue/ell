@@ -120,9 +120,7 @@ Now, we can add semantic actions. We do that with the `[]` operator. Such action
                          (ch('-') >> term) [substract]);
 }}}
 
-The full working exemple of this calculator is present in the repository at:
-
-http://code.google.com/p/ell/source/browse/trunk/libELL/Test/Calc.h
+The full working exemple of this calculator is present in the repository at http://code.google.com/p/ell/source/browse/trunk/libELL/Test/Calc.h
 
 === Grammar operators ===
 
@@ -172,25 +170,30 @@ struct MyParser : ell::Parser<char>, ell::Grammar<char>
 }}}
 
 
-=== Les primitives de la grammaire ===
+=== Grammar primitives ===
 
-La bibliothèque fournit un ensemble de terminaux de haut niveau :
+Ell library provides a set of predefined primitives:
 
 || Primitive || Usage ||
-|| eos                  || match la fin du flux (caractère nul) ||
-|| eps                  || match toujours, ne consomme rien ||
-|| any                  || match n'importe quel caractère (y compris le EOF) ||
-|| ch(arg)              || match le caractère indiqué ||
+|| eos                  || matches end of stream but does not consume it ||
+|| eps                  || always matches, never consumes ||
+|| any                  || matches any input token (eos excepted) ||
+|| ch(token)            || matches the given token ||
+|| str(s)               || matches a string of input tokens ||
+
+For character parsers (ie. when input tokens are a C++ primitive type), some specialized primtives are provided:
+
+|| Primitive || Usage ||
+|| chset(arg)           || give a charset. Ex: `chset("A-Z_.-")` defines `[A-Z_.-]` ||
 || digit                || `[0-9]` ||
-|| range<a, b>          || caractère ASCII compris entre a et b (compris) ||
+|| range<a, b>          || matches a character in the given range ||
 || lower                || `[a-z]` ||
 || upper                || `[A-Z]` ||
 || alnum                || `[a-zA-Z0-9_]` ||
-|| blank                || caractère invisible (équivalent à `chset(" \t\n\r")`) ||
-|| ident                || équivalent de `lexeme(chset("a-zA-Z_") >> * alnum)` ||
-|| str(arg)             || chaîne de caractère ||
-|| istr(arg)            || chaîne de caractère en ignorant la casse ||
-|| chset(arg)           || un caractère parmi un ensemble ex: "A-Z_.-" ||
+|| blank                || `[ \t\n\r]` ||
+|| ident                || `lexeme([a-zA-Z_]) >> * alnum)` ||
+|| istr(s)              || matches the given string, ignoring case ||
+
 || error(msg)           || génère une erreur ||
 || no_suffix(a, b)      || équivalent de `lexeme(a >> (eps - b))` ||
 || visible_ascii        || caractères visibles du code ASCII-7bit `[!-~]` ||
