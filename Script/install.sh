@@ -1,5 +1,5 @@
 #!/bin/bash
-./Script/make_package.sh
+./Script/make_package.sh || exit 1
 rm Ell-*-src.tar.bz2
 rm ~/Ell* -rf
 tar xjvf Ell-*-dev.tar.bz2 -C ~/

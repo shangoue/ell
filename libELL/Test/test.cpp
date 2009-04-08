@@ -30,6 +30,7 @@
 void check(ell::Parser<char> & parser, const char * buffer, bool status, bool full)
 {
     printf("Parse %s\n", buffer);
+
     try
     {
         parser.parse(buffer);
@@ -37,10 +38,13 @@ void check(ell::Parser<char> & parser, const char * buffer, bool status, bool fu
     catch (std::runtime_error & e)
     {
         if (status)
-            ERROR("%s", e.what());
+            ERROR("  %s", e.what());
+        else
+            printf("  Expected message catched: %s\n", e.what());
     }
+
     if (not full xor bool(parser.get()))
-        ERROR("Expecting %s at %s", (full ? "<EOS>" : "smthg"), parser.position);
+        ERROR("  Expecting %s at %s", (full ? "<EOS>" : "smthg"), parser.position);
 }
 
 struct ListTest : public ell::Grammar<char>
@@ -82,11 +86,11 @@ struct ListTest : public ell::Grammar<char>
         const char * buffer;
 
 #       define TEST(B, S, F) B; S; F; check(parser, buffer, status, full);
-        TEST(buffer="1,",   status=true,  full=false);
+        TEST(buffer="1,",   status=false,  full=false);
         TEST(buffer="2 , 3",  status=true,  full=true );
         TEST(buffer=",",    status=false, full=false);
         TEST(buffer="4",    status=true,  full=true );
-        TEST(buffer="5 ,6,", status=true,  full=false);
+        TEST(buffer="5 ,6,", status=false,  full=false);
 #       undef TEST
     }
 
@@ -114,20 +118,21 @@ struct CalcTest : public Calc
     {
         flags.debug = true;
 
-#       define TEST(E) test(#E, E, true, true)
+#       define TEST(E) test(#E, E, true)
         TEST(4/5);
         TEST(10+3/6-(-3));
 #       undef TEST
 
-        test("1+A", 1, true, false);
-        test("A", 0, false, false);
+        test("1+A", 1, false);
+        test("1 A", 1, false);
+        test("A", 0, false);
     }
 
-    void test(const char * expr, int r, bool ok, bool full)
+    void test(const char * expr, int r, bool ok)
     {
         printf("Eval %s:\n", expr);
 
-        check(* this, expr, ok, full);
+        check(* this, expr, ok, ok);
 
         if (ok)
         {

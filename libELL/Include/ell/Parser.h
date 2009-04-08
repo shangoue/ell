@@ -241,7 +241,7 @@ namespace ell
         {
             if (* position == '\n')
                 ++line_number;
-            ++position;
+            ParserBase<char>::next();
         }
 
         int line_number;
