@@ -13,99 +13,94 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <koalang/Grammar.h>
+#include "Grammar.h"
+#include "Messages.h"
 
 namespace koalang
 {
-    namespace Language
+    Grammar::Grammar()
     {
-        Grammar::Grammar()
-        {
-            top=& (statement * eos_p | error_p(unexp_char_error));
+#       define I & Interpreter
 
-            ident_char=alnum_p | utf8nonascii_p;
+        top = no_step_back( statement * eos
+                          | error(unexp_char_error) );
 
-            number=real_p [& Interpreter::push_number];
+        ident_char = alnum
+                   | utf8nonascii;
 
-            string=ch_p('"') [& Interpreter::push_string];
+        variable = lexeme(+ ident_char - digit) [I::push_variable];
 
-            variable = lexeme_d(+ ident_char - digit_p) [& Interpreter::push_variable];
+        string = ch('"') >> any[I::push_string];
 
-            any=(statement >> ! (statement [& Interpreter::begin_list] >> * statement) [& Interpreter::end_list]) |
-                eps_p [& Interpreter::push_empty];
+        soft_unit = (statement >> ! (statement [I::begin_list] >> * statement) [I::end_list])
+                  | eps [I::push_empty];
 
-            atome=number | string | variable |
-                  ch_p('(') >> any >> ch_p(')') |
-                  ch_p('{') >> any >> ch_p('}') [& Interpreter::push_op<1, SCOPE>];
+        atome = real [I::push_number];
+              | string
+              | variable
+              | ch('(') >> any >> ch(')')
+              | ch('{') >> any >> ch('}') [I::push_op<1, SCOPE>];
 
-            scoped=atome >> * (str_p("..") >> atome [& Interpreter::push_op<2, PARENT>] |
-                               ch_p('.') >> atome [& Interpreter::push_op<2, MEMBER>]);
+        scoped = atome >> * (str("..") >> atome [I::push_op<2, PARENT>] |
+                           ch('.') >> atome [I::push_op<2, MEMBER>]);
 
-            assignable=scoped >> * (ch_p('[') >> scoped >> (str_p("..") >> scoped [& Interpreter::push_op<3, SLICE>] |
-                                                            eps_p [& Interpreter::push_op<2, SELECT>]) >> ch_p(']'));
+        assignable = scoped >> * (ch('[') >> scoped >> (str("..") >> scoped [I::push_op<3, SLICE>] |
+                                                        eps [I::push_op<2, SELECT>]) >> ch(']'));
 
-            unary=ch_p('-') >> unary [& Interpreter::push_op<1, NEG>] |
-                  ch_p('!') >> unary [& Interpreter::push_op<1, NOT>] |
-                  ch_p('#') >> unary [& Interpreter::push_op<1, COUNT>] |
-                  assignable;
+        unary = ch('-') >> unary [I::push_op<1, NEG>] |
+              ch('!') >> unary [I::push_op<1, NOT>] |
+              ch('#') >> unary [I::push_op<1, COUNT>] |
+              assignable;
 
-            product=unary >> * (ch_p('*') >> unary [& Interpreter::push_op<2, MULT>] |
-                                ch_p('/') >> unary [& Interpreter::push_op<2, DIV>] |
-                                ch_p('%') >> unary [& Interpreter::push_op<2, MODULO>]);
+        product = unary >> * (ch('*') >> unary [I::push_op<2, MULT>] |
+                            ch('/') >> unary [I::push_op<2, DIV>] |
+                            ch('%') >> unary [I::push_op<2, MODULO>]);
 
-            expression=product >> * (ch_p('+') >> product [& Interpreter::push_op<2, ADD>] |
-                                     ch_p('-') >> product [& Interpreter::push_op<2, SUB>]);
+        expr = product >> * (ch('+') >> product [I::push_op<2, ADD>] |
+                                 ch('-') >> product [I::push_op<2, SUB>]);
 
-            ordering=expression >> * (str_p("==") >> expression [& Interpreter::push_op<2, EQ>] |
-                                      str_p("!=") >> expression [& Interpreter::push_op<2, NE>] |
-                                      str_p("<=") >> expression [& Interpreter::push_op<2, LE>] |
-                                      str_p(">=") >> expression [& Interpreter::push_op<2, GE>] |
-                                      ch_p('<') >> expression [& Interpreter::push_op<2, LT>] |
-                                      ch_p('>') >> expression [& Interpreter::push_op<2, GT>]);
+        ordering = expr >> * (str("==") >> expr [I::push_op<2, EQ>] |
+                                  str("!=") >> expr [I::push_op<2, NE>] |
+                                  str("<=") >> expr [I::push_op<2, LE>] |
+                                  str(">=") >> expr [I::push_op<2, GE>] |
+                                  ch('<') >> expr [I::push_op<2, LT>] |
+                                  ch('>') >> expr [I::push_op<2, GT>]);
 
-            comparison=ordering >> * (ch_p('&') >> ordering [& Interpreter::push_op<2, AND>] |
-                                      ch_p('|') >> ordering [& Interpreter::push_op<2, OR>] |
-                                      ch_p('^') >> ordering [& Interpreter::push_op<2, XOR>]);
+        comparison = ordering >> * (ch('&') >> ordering [I::push_op<2, AND>] |
+                                  ch('|') >> ordering [I::push_op<2, OR>] |
+                                  ch('^') >> ordering [I::push_op<2, XOR>]);
 
-            assignation=comparison >> ! (ch_p('=') >> comparison [& Interpreter::push_op<2, ASSIGN>]);
+        assignation = comparison >> ! (ch('=') >> comparison [I::push_op<2, ASSIGN>]);
 
-#           define kw_p(str) tk_p(str, ident_char)
+        statement = kw("def") >> variable >> (ch('[') >> any >> ch(']') |
+                                              eps [I::push_empty]) >> ch(':') >> statement [I::push_op<3, DEF>] |
+                    kw("if") >> comparison >> statement >> (kw("else") >> statement |
+                                                            eps [I::push_empty]) [I::push_op<3, IF>] |
+                    kw("for") >> variable >> kw("in") >> assignation >> statement [I::push_op<3, FOREACH>] |
+                    kw("while") >> comparison >> statement [I::push_op<2, WHILE>] |
+                    kw("do") >> statement >> kw("while") >> comparison [I::push_op<2, DOWHILE>] |
+                    kw("break") [I::push_op<0, BREAK>] |
+                    kw("return") >> assignation [I::push_op<1, RETURN>] |
+                    assignation;
+#       undef I
 
-            statement=kw_p("def") >> variable >> (ch_p('[') >> any >> ch_p(']') |
-                                                  eps_p [& Interpreter::push_empty]) >> ch_p(':') >> statement [& Interpreter::push_op<3, DEF>] |
-                      kw_p("if") >> comparison >> statement >> (kw_p("else") >> statement |
-                                                                eps_p [& Interpreter::push_nothing]) [& Interpreter::push_op<3, IF>] |
-                      kw_p("for") >> variable >> kw_p("in") >> assignation >> statement [& Interpreter::push_op<3, FOREACH>] |
-                      kw_p("while") >> comparison >> statement [& Interpreter::push_op<2, WHILE>] |
-                      kw_p("do") >> statement >> kw_p("while") >> comparison [& Interpreter::push_op<2, DOWHILE>] |
-                      kw_p("break") [& Interpreter::push_op<0, BREAK>] |
-                      kw_p("return") >> assignation [& Interpreter::push_op<1, RETURN>] |
-                      assignation;
-
-            block_comment=str_p("/'") >> ((block_comment | range_p(1, 255)) * str_p("'/"));
-
-            skipper=chset_p(" \n\t\r") |
-                    ch_p('\'') >> range_p(1, 255) * (ch_p('\n') | check_d(eos_p)) |
-                    block_comment;
-
-            KOALANG_PARSER_NAME_RULE(number)
-            KOALANG_PARSER_NAME_RULE(string)
-            KOALANG_PARSER_NAME_RULE(variable)
-            KOALANG_PARSER_NAME_RULE(any)
-            KOALANG_PARSER_NAME_RULE(atome)
-            KOALANG_PARSER_NAME_RULE(scoped)
-            KOALANG_PARSER_NAME_RULE(assignation)
-            KOALANG_PARSER_NAME_RULE(unary)
-            KOALANG_PARSER_NAME_RULE(product)
-            KOALANG_PARSER_NAME_RULE(expression)
-            KOALANG_PARSER_NAME_RULE(ordering)
-            KOALANG_PARSER_NAME_RULE(comparison)
-            KOALANG_PARSER_NAME_RULE(assignation)
-            KOALANG_PARSER_NAME_RULE(statement)
-
-            KOALANG_PARSER_TRANSPARENT_RULE(ident_char)
-            KOALANG_PARSER_NAME_RULE(skipper)
-            KOALANG_PARSER_TRANSPARENT_RULE(block_comment)
-        }
+        ELL_NAME_RULE(number)
+        ELL_NAME_RULE(string)
+        ELL_NAME_RULE(variable)
+        ELL_NAME_RULE(any)
+        ELL_NAME_RULE(atome)
+        ELL_NAME_RULE(scoped)
+        ELL_NAME_RULE(assignation)
+        ELL_NAME_RULE(unary)
+        ELL_NAME_RULE(product)
+        ELL_NAME_RULE(expr)
+        ELL_NAME_RULE(ordering)
+        ELL_NAME_RULE(comparison)
+        ELL_NAME_RULE(assignation)
+        ELL_NAME_RULE(statement)
+        ELL_NAME_RULE(skipper)
+        ELL_TRANSPARENT_RULE(ident_char)
+        ELL_TRANSPARENT_RULE(block_comment)
+    }
     } // Language namespace
 }
