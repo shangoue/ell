@@ -13,14 +13,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "System/String.h"
-#include "System/Exception.h"
+#include <system/String.h>
+#include <system/Exception.h>
 
 #include <iostream>
 
 using namespace std;
 
-namespace System
+namespace system
 {
     void replace_char(std::string &s, char ch1, char ch2)
     {

@@ -25,7 +25,7 @@ namespace koalang
 {
     template <typename T>
     struct CppFunc;
-#   include "koalang/Binding.h"
+#   include <koalang/Binding.h>
 }
 #   undef NUM
 #   undef COMMA
@@ -107,7 +107,7 @@ namespace koalang
 #       define NUM 1
 #       define LST(mac) mac(0)
 #   endif
-#   include "koalang/Binding.h"
+#   include <koalang/Binding.h>
 #endif
 #endif // NUM
 #endif //__KOALANG_BINDING_H__

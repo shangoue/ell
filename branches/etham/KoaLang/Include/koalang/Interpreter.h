@@ -16,9 +16,9 @@
 #ifndef __KOALANG_INTERPRETER__
 #define __KOALANG_INTERPRETER__
 
-#include "parser/Parser.h"
-#include "koalang/Types.h"
-#include "koalang/Operators.h"
+#include <ell/Parser.h>
+#include <koalang/Types.h>
+#include <koalang/Operators.h>
 
 namespace koalang
 {

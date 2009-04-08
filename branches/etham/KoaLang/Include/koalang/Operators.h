@@ -15,9 +15,9 @@
 
 #ifndef __KOALANG_OPERATORS__
 #define __KOALANG_OPERATORS__
-#include "koalang/Types.h"
-#include "koalang/Messages.h"
-#include "koalang/Defs.h"
+#include <koalang/Types.h>
+#include <koalang/Messages.h>
+#include <koalang/Defs.h>
 namespace koalang
 {
     struct BaseOperator : public Abstract

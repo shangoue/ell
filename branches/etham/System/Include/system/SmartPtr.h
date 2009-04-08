@@ -16,9 +16,9 @@
 #ifndef __SIMPLE_SYSTEM_SMARTPTR_H__
 #define __SIMPLE_SYSTEM_SMARTPTR_H__
 
-#include "System/Exception.h"
+#include "system/Exception.h"
 
-namespace System
+namespace system
 {
     /// Smart pointer exception
     DeclareError(SmartPtrError);

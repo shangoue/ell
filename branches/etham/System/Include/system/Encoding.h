@@ -16,12 +16,12 @@
 #ifndef __SIMPLE_SYSTEM_ENCODING_H__
 #define __SIMPLE_SYSTEM_ENCODING_H__
 
-#include "System/Exception.h"
-#include "System/String.h"
+#include <system/Exception.h>
+#include <system/String.h>
 
 #include <wchar.h>
 
-namespace System
+namespace system
 {
     DeclareError(ConversionError);
 

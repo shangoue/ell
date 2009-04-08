@@ -16,11 +16,11 @@
 #ifndef __SIMPLE_SYSTEM_STRING_H__
 #define __SIMPLE_SYSTEM_STRING_H__
 
-#include "System/Exception.h"
+#include <system/Exception.h>
 #include <vector>
 #include <cstdarg>
 
-namespace System
+namespace system
 {
     /// Convert just one hexadecimal digit into an integer
     /// Return -& if the parameter is not an hexadecimal digit

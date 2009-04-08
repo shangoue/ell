@@ -16,9 +16,9 @@
 #ifndef __KOALANG_TYPES_H__
 #define __KOALANG_TYPES_H__
 
-#include "koalang/AbstractTypes.h"
-#include "koalang/Messages.h"
-#include "koalang/Dictionary.h"
+#include <koalang/AbstractTypes.h>
+#include <koalang/Messages.h>
+#include <koalang/Dictionary.h>
 
 namespace koalang
 {

@@ -16,7 +16,7 @@
 #ifndef __SIMPLE_SYSTEM_EXCEPTION_H__
 #define __SIMPLE_SYSTEM_EXCEPTION_H__
 
-#include "System/String.h"
+#include <system/String.h>
 #include <string>
 
 #define RaiseError(ErrorName, msg, ...)              \
@@ -45,7 +45,7 @@ struct ErrorName : public System::Error      \
 #   define Abort(...) \
     do { RaiseError(System::SystemError, "Aborted: ", __VA_ARGS__); } while (0)
 
-namespace System
+namespace system
 {
     struct Error : public std::exception
     {

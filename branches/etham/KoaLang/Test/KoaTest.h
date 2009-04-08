@@ -16,10 +16,10 @@
 #ifndef __KOATEST_H__
 #define __KOATEST_H__
 
-#include <System/Command.h>
+#include <system/Command.h>
 
-#include <KoaLang/Grammar.h>
-#include <KoaLang/Interpreter.h>
+#include <koalang/Grammar.h>
+#include <koalang/Interpreter.h>
 
 struct KoaTest : public KoaLang::System::Command
 {

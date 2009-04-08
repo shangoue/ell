@@ -16,7 +16,7 @@
 #ifndef __KOALANG_GRAMMAR_H__
 #define __KOALANG_GRAMMAR_H__
 
-#include "parser/Parser.h"
+#include <ell/Parser.h>
 
 namespace koalang
 {
