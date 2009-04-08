@@ -5,7 +5,7 @@
 struct Calc : ell::Parser<char>, ell::Grammar<char>
 {
     Calc()
-      : ell::Parser<char>(& expression, & blank)
+      : ell::Parser<char>(& root, & blank)
     {
         factor = dec [& Calc::push] |
                  ch('(') >> expression >> ch(')') |
@@ -18,41 +18,44 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
         expression = term >> *((ch('+') >> term) [& Calc::add] |
                                (ch('-') >> term) [& Calc::substract]);
 
+        root = no_step_back(expression >> eos);
+
         ELL_NAME_RULE(factor)
         ELL_NAME_RULE(term)
         ELL_NAME_RULE(expression)
+        ELL_NAME_RULE(root)
     }
 
-    int eval(const char * expr)
+    double eval(const char * expr)
     {
         parse(expr);
         return pop();
     }
    
 protected:
-    int pop()
+    double pop()
     {
-        int d = stack.top();
+        double d = stack.top();
         stack.pop();
         return d;
     }
 
-    void push(int d)
+    void push(double d)
     {
         stack.push(d);
     }
 
     void negate()
     {
-        int a = pop();
+        double a = pop();
         push(- a);
     }
 
 #   define BINARY(name, op)     \
     void name()                 \
     {                           \
-        int b = pop();          \
-        int a = pop();          \
+        double b = pop();       \
+        double a = pop();       \
         push(a op b);           \
     }
 
@@ -62,6 +65,6 @@ protected:
     BINARY(substract, -)
 #   undef BINARY
 
-    ell::Rule<char> factor, term, expression;
-    std::stack<int> stack;
+    ell::Rule<char> factor, term, expression, root;
+    std::stack<double> stack;
 };

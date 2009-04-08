@@ -183,6 +183,8 @@ namespace ell
 
                 if (! right.parse(parser))
                     break;
+
+                match = false;
                 parser->skip();
             }
 
@@ -229,7 +231,7 @@ namespace ell
         using Base::left;
 
         NoSuffix(const Left & left, const Right & right)
-          : Base(left, right, "not followed by", 0)
+          : Base(left, right, "not followed by", 1)
         { }
 
         using Base::parse;

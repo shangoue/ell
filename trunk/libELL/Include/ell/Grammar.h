@@ -24,7 +24,7 @@ namespace ell
     template <typename Token>
     struct GrammarBase
     {
-        EndOfStream<Token>                      eos;
+        EndOfStream<Token>                      end;
         Epsilon<Token>                          eps;
         Any<Token>                              any;
 
@@ -67,8 +67,8 @@ namespace ell
     struct CharGrammarBase : public GrammarBase<Token>
     {
         CharGrammarBase()
-          : alnum(chset("a-zA-Z0-9_")),
-            alpha(chset("a-zA-Z_")),
+          : alpha(chset("a-zA-Z_")),
+            alnum(chset("a-zA-Z0-9_")),
             blank(chset(" \t\n\r")),
             ident(lexeme(chset("a-zA-Z_") >> * alnum))
         { }
@@ -76,6 +76,7 @@ namespace ell
         Range<Token, (Token) '0', (Token) '9'>  digit;
         Range<Token, (Token) 'A', (Token) 'Z'>  upper;
         Range<Token, (Token) 'a', (Token) 'z'>  lower;
+        Charset<Token>                          alpha;
         Charset<Token>                          alnum;
 
         Charset<Token>                          blank;

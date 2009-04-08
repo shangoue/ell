@@ -88,7 +88,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << "<EOS>";
+            os << "end";
         }
     };
 
