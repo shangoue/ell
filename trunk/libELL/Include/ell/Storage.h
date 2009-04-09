@@ -73,7 +73,7 @@ namespace ell
     }
 
     template <typename V2>
-    void assign(Storage<void> &, const Storage<V2> & v2)
+    void assign(Storage<void> &, const Storage<V2> &)
     { }
 
     inline void assign(Storage<void> &, const Storage<void> &)

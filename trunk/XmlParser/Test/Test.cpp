@@ -15,6 +15,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 
 #include <ell/XmlParser.h>
 

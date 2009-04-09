@@ -14,6 +14,7 @@
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>

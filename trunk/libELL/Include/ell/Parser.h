@@ -139,29 +139,31 @@ namespace ell
             }
         }
 
+#       if ELL_DEBUG == 1
         void begin_of_parsing(const Node<Token> * node)
         {
-#           if ELL_DEBUG == 1
             if (flags.debug && node->must_be_dumped())
             {
                 std::cout << std::string(++flags.level, ' ');
                 std::cout << "\\ " << * node << ": \t"
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
-#           endif
         }
 
         void end_of_parsing(const Node<Token> * node, bool match)
         {
-#           if ELL_DEBUG == 1
             if (flags.debug && node->must_be_dumped())
             {
                 std::cout << std::string(flags.level--, ' ');
                 std::cout << (match ? '/' : '#') << ' ' << * node << ": \t"
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
-#           endif
         }
+#       else
+        void begin_of_parsing(const Node<Token> *) { }
+
+        void end_of_parsing(const Node<Token> *, bool) { }
+#       endif
 
         Flags flags;
         const Token * position;
@@ -214,7 +216,7 @@ namespace ell
             }
             s += "\"";
             if (s.size() == 2)
-                return "<EOS>";
+                return "end";
             if (* p)
                 s += "...";
             return s;

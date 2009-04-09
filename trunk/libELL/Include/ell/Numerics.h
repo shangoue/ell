@@ -16,9 +16,11 @@
 #ifndef INCLUDED_ELL_NUMERICS_H
 #define INCLUDED_ELL_NUMERICS_H
 
-#include <cstdlib>
 #include <ell/Node.h>
 #include <ell/Parser.h>
+
+// Only pick this from stdlib
+extern "C" double strtod(const char *nptr, char **endptr) throw ();
 
 namespace ell
 {
