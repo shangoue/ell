@@ -218,14 +218,14 @@ namespace ell
         }
 
         template <typename CP>
-        bool make_action(CP * parser, void(CP::*method)(), Storage<void> & s)
+        bool make_action(CP * parser, void(CP::*method)(), Storage<void> &)
         { 
             (parser->*method)();
             return true;
         }
 
         template <typename CP>
-        bool make_action(CP * parser, bool(CP::*method)(), Storage<void> & s)
+        bool make_action(CP * parser, bool(CP::*method)(), Storage<void> &)
         { 
             return (parser->*method)();
         }

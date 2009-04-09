@@ -16,6 +16,7 @@
 #ifndef INCLUDED_ELL_UTILS_H
 #define INCLUDED_ELL_UTILS_H
 
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <cwchar>
