@@ -122,62 +122,13 @@ Now, we can add semantic actions. We do that with the `[]` operator. Such action
 
 The full working exemple of this calculator is present in the repository at http://code.google.com/p/ell/source/browse/trunk/libELL/Test/Calc.h
 
-=== Grammar operators ===
-
-The tables below lists all the operators which can be used to write a grammar. Of course, you can use [http://www.cppreference.com/wiki/operator_precedence C++ operator precedence].
-
-  * Binary operators
-
-|| Name || Notation || Meaning ||
-|| Aggregation || `a >> b` || a followed by b ||
-|| Alternative || `a | b` || a or b ||
-|| Difference || `a - b` || a bereft of b ||
-|| List || `a % b` || one or more a separated by b (equivalent to `a >> * (b >> a)`) ||
-|| Bound repetition || `a * b` || zero or more a until b (equivalent to `* (a - b) >> b` but much more efficient) ||
-|| Association || `a & b` || a followed or preceded by b (equivalent to `(a >> b) | (b >> a)`) ||
-|| NoSuffix || no_suffix(a, b) || equivalent to `lexeme(a >> (eps - b))` ||
-
-  * Unary operators
-
-|| Name || Notation || Meaning ||
-|| Assignation || `a [& Class::v]` || Assign the result of matching into a variable. ||
-|| Call || `a [& Class::f]` || Call the given member function passing the matching result. ||
-|| `Repeat<0,1>` || `! a` || Optional match ||
-|| `Repeat<1,-1>` || `+ a` || One or more repetition ||
-|| `Repeat<0,-1>` || `* a` || Zero or more repetition ||
-
-
-*Note:*
-
-  These operators have no effect if the rule on which they applied does not match.
-  Passed variables or methods must be member of the Parser class instance used for parsing.
-
-  The types allowed for the targeted variable depend on the node on which the action operator is applied. For example, the following code parse a list of space-separated unsigned integers, and assign them to a standard set of signed integers:
-
-{{{
-struct MyParser : ell::Parser<char>, ell::Grammar<char>
-{
-    MyParser()
-      : ell::Parser<char>(& rule, & blank)
-    {
-        rule = (+ dec) [& MyParser::list];
-   
-        parse("12 1 9");
-    }
-   
-    ell::Rule<char> rule;
-   
-    std::set<int> list;
-};
-}}}
-
 
 === Grammar primitives ===
 
 Ell library provides a set of predefined primitives:
 
 || Primitive || Meaning ||
-|| eos                  || matches end of stream but does not consume it ||
+|| end                  || matches the end of the input ||
 || eps                  || always matches, never consumes ||
 || any                  || matches any input token (eos excepted) ||
 || ch(token)            || matches the given token ||
@@ -209,27 +160,65 @@ For character parsers (ie. when input tokens are C++ primitives like `char`, `in
 || ikw(s)               || case-insensitive keyword ||
 
 
-=== Les directives ===
+=== Grammar operators ===
 
-Une directive s'emploie en parenthésant une expression pour en modifier
-l'interprétation. Par exemple, pour indiquer au parseur de matcher une branche
-de la grammaire sans rien consommer :
+The tables below lists all the operators which can be used to write a grammar. Of course, you can use [http://www.cppreference.com/wiki/operator_precedence C++ operator precedence].
 
-{{{
-  no_consume(a >> b)
-}}}
+  * Binary operators
+
+|| Name || Notation || Meaning ||
+|| Aggregation || `a >> b` || a followed by b ||
+|| Alternative || `a | b` || a or b ||
+|| Difference || `a - b` || a bereft of b ||
+|| List || `a % b` || one or more a separated by b (equivalent to `a >> * (b >> a)`) ||
+|| Bound repetition || `a * b` || zero or more a until b (equivalent to `* (a - b) >> b` but much more efficient) ||
+|| Association || `a & b` || a followed or preceded by b (equivalent to `(a >> b) | (b >> a)`) ||
+|| NoSuffix || no_suffix(a, b) || equivalent to `lexeme(a >> (eps - b))` ||
+
+  * Unary operators
 
 || Notation || Meaning ||
-|| no_step_back(rule)     || Walk along the grammar in a LL(1) manner ||
-|| no_action(rule)        || Disable all semantic actions (operator[] has no effect) ||
-|| no_consume(rule)       || Do not consume any input tokens ||
-|| lexeme(rule)           || Defines a new primitive by disabling skipper and allowing step-back ||
-|| `repeat<exact>(rule)`   || Exact number of repetition ||
+|| `! a` || Optional match ||
+|| `+ a` || One or more repetition ||
+|| `* a` || Zero or more repetition ||
+|| `no_step_back(rule)` || Walk along the grammar in a LL(1) manner ||
+|| `no_action(rule)` || Disable all semantic actions (operator[] has no effect) ||
+|| `no_consume(rule)` || Do not consume any input tokens ||
+|| `lexeme(rule)` || Defines a new primitive by disabling skipper and allowing step-back ||
+|| `repeat<exact>(rule)` || Exact number of repetition ||
 || `repeat<min, max>(rule)` || Repetition within a range ||
-|| repeat(exact, rule)       || Répétition exacte d'une valeur non connue à la compilation ||
-|| repeat(min, max, rule)    || Répétition dans un intervalle de valeur non connu à la compilation ||
+|| `repeat(& Class::exact, rule)` || Exact repetition resolved at run-time ||
+|| `repeat(& Class::min, &Class::max, rule)` || Range repetition resolved at run-time ||
+|| `a [& Class::v]` || Assign the result of matching into a variable. ||
+|| `a [& Class::f]` || Call the given member function passing the matching result. ||
 
-== Le parseur ==
+*Note:*
+
+  Last two operators are called semantic operators. They have no effect if the rule on which they applied does not match. The variables or methods passed in argument must be members of the Parser class instance used for parsing.
+
+  The types which are allowed for variables or method arguments targetted by the semantic action depend on the node on which the action operator is applied.
+
+  For example, the code below parses a list of space-separated unsigned integers, and assign them into a standard set of signed integers. The repetition operator (`+`) allows to target a STL container : without such a repetition, the compiler would issue an error when trying to resolve the `[ ]` operator.
+
+{{{
+struct MyParser : ell::Parser<char>, ell::Grammar<char>
+{
+    MyParser()
+      : ell::Parser<char>(& rule, & blank)
+    {
+        rule = (+ dec) [& MyParser::list];
+   
+        parse("12 1 9");
+    }
+   
+    ell::Rule<char> rule;
+   
+    std::set<int> list;
+};
+}}}
+
+
+== The Parser class ==
 
 
 === Paramètres ===
