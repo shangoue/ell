@@ -18,7 +18,7 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
         expression = term >> *((ch('+') >> term) [& Calc::add] |
                                (ch('-') >> term) [& Calc::substract]);
 
-        root = no_step_back(expression >> eos);
+        root = no_step_back(expression >> end);
 
         ELL_NAME_RULE(factor)
         ELL_NAME_RULE(term)

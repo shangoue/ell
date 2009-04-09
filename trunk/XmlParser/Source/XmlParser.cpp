@@ -55,10 +55,10 @@ namespace ell
     XmlGrammar::XmlGrammar()
     {
         document = no_step_back(+ (element |
-                                comment |
-                                cdata |
-                                pi |
-                                data) >> eos [& XmlParser::on_end_of_file]);
+                                   comment |
+                                   cdata |
+                                   pi |
+                                   data) >> end [& XmlParser::on_end_of_file]);
 
         element = str("</") >> ident [& XmlParser::on_end_double] >> ch('>') |
                   lexeme(ch('<') >> ident [& XmlParser::element_name])
