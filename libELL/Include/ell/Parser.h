@@ -113,7 +113,7 @@ namespace ell
         }
 
         /// Redefine this for custom dump
-        std::string dump_position()
+        std::string dump_position() const
         {
             std::ostringstream oss;
             oss << * position;
