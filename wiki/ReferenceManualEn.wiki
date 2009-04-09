@@ -164,31 +164,22 @@ For character parsers (ie. when input tokens are C++ primitives like `char`, `in
 
 The tables below lists all the operators which can be used to write a grammar. Of course, you can use [http://www.cppreference.com/wiki/operator_precedence C++ operator precedence].
 
-  * Binary operators
+==== Binary operators ====
 
 || Name || Notation || Meaning ||
-|| Aggregation || `a >> b` || a followed by b ||
+|| Agreggation || `a >> b` || a followed by b ||
 || Alternative || `a | b` || a or b ||
 || Difference || `a - b` || a bereft of b ||
-|| List || `a % b` || one or more a separated by b (equivalent to `a >> * (b >> a)`) ||
+|| List with separator || `a % b` || one or more a separated by b (equivalent to `a >> * (b >> a)`) ||
 || Bound repetition || `a * b` || zero or more a until b (equivalent to `* (a - b) >> b` but much more efficient) ||
 || Association || `a & b` || a followed or preceded by b (equivalent to `(a >> b) | (b >> a)`) ||
-|| NoSuffix || no_suffix(a, b) || equivalent to `lexeme(a >> (eps - b))` ||
 
-  * Unary operators
+==== Unary operators ====
 
 || Notation || Meaning ||
 || `! a` || Optional match ||
 || `+ a` || One or more repetition ||
 || `* a` || Zero or more repetition ||
-|| `no_step_back(rule)` || Walk along the grammar in a LL(1) manner ||
-|| `no_action(rule)` || Disable all semantic actions (operator[] has no effect) ||
-|| `no_consume(rule)` || Do not consume any input tokens ||
-|| `lexeme(rule)` || Defines a new primitive by disabling skipper and allowing step-back ||
-|| `repeat<exact>(rule)` || Exact number of repetition ||
-|| `repeat<min, max>(rule)` || Repetition within a range ||
-|| `repeat(& Class::exact, rule)` || Exact repetition resolved at run-time ||
-|| `repeat(& Class::min, &Class::max, rule)` || Range repetition resolved at run-time ||
 || `a [& Class::v]` || Assign the result of matching into a variable. ||
 || `a [& Class::f]` || Call the given member function passing the matching result. ||
 
@@ -217,11 +208,25 @@ struct MyParser : ell::Parser<char>, ell::Grammar<char>
 };
 }}}
 
+=== Grammar directives ===
+
+In addition to primitives and operators, you can use the following methods in your grammar:
+
+|| Notation || Meaning ||
+|| `repeat<exact>(rule)` || Exact number of repetition ||
+|| `repeat<min, max>(rule)` || Repetition within a range ||
+|| `repeat(& Class::exact, rule)` || Exact repetition resolved at run-time ||
+|| `repeat(& Class::min, &Class::max, rule)` || Range repetition resolved at run-time ||
+|| `no_step_back(rule)` || Walk along the grammar in a LL(1) manner ||
+|| `no_action(rule)` || Disable all semantic actions (operator[] has no effect) ||
+|| `no_consume(rule)` || Do not consume any input tokens ||
+|| `lexeme(rule)` || Defines a new primitive by disabling skipper and allowing step-back ||
+|| no_suffix(a, b) || equivalent to `lexeme(a >> (eps - b))` ||
+
 
 == The Parser class ==
 
-
-=== Paramètres ===
+=== Parameters ===
 
 L'objet Parser contient toutes les données nécessaires à l'analyse d'un flux
 guidé par le parcourt d'une grammaire.  Typiquement, on instancie un parseur à
@@ -259,162 +264,7 @@ La classe Parser permet de surcharger la méthode appelée lorsqu'on rencontre
 une erreur de parsing (par défaut, une exception std::runtime_error est
 générée).
 
-= Tutoriel =
-
-Voyons un exemple sur un cas non trivial. Nous allons écrire une grammaire qui
-détecte si un mot est un palindrome (ie un mot qui possède une symétrie dans
-l'ordre de ses caractères).
-
-Prenons tout d'abord le soin d'écrire une grammaire sans équivoque :
-
-  palindrome : ALPHA palindrome SAME_ALPHA | ALPHA SAME_ALPHA | ALPHA
-
-Bien-sûr, la primitive SAME_ALPHA n'existe pas, il faut utiliser des appels à
-des fonctions pour tester que le caractère est le même. C'est donc une
-grammaire contextuelle.
-
-Tenant pour acquis que nous avons une pile (FIFO) à notre disposition :
-  * 'push' va mettre le caractère lu dans cette pile
-  * 'checkpop' va vérifier que le caractère lu est le même caractère que celui au sommet de la pile, et retirer ce dernier seulement si c'est bien le cas. Dans le cas contraire, cette fonction renverra false, faisant échouer la règle courante, et l'on passera à la ligne suivante de l'alternative
-  * 'pop' va simplement retirer le caractère du sommet de la pile
-
-Compétons donc la grammaire :
-
-{{{
-    palindrome : ALPHA [push] palindrome ALPHA [checkpop] |
-                 ALPHA ALPHA [checkpop] |
-                 ALPHA [pop]
-}}}
-
-L'opérateur [] indique une action à effectuer seulement si l'argument (situé
-devant) a été matché.
-
-Voilà pour la théorie. Maintenant, construisons une classe Grammaire. Sa seule
-contrainte est de définir le type token_t permettant l'emploi des primitives de
-la bibliothèque (lexèmes prédéfinis, opérateurs et directives détaillés dans
-les tableaux précédents, voir Grammar.h).
-
-{{{
-    #include <ell/Grammar.h>
-   
-    class PalinGram : public ell::Grammar<char>
-    {
-    public:
-}}}
-
-La traduction de la grammaire sous forme C++ sera introduite dans le
-constructeur.  A noter que 'push', 'checkpop' et 'pop' sont données en tant
-qu'adresses de fonctions membres d'une autre classe.
-
-Nous avons ajouté une règle permettant de vérifier que la fin du mot est
-atteinte (eos pour End Of Stream), avant de signaler qu'un palindrome a été
-trouvé avec la méthode printmsg.
-
-Les macros ELL_NAME_RULE ont pour effet de personnaliser le dump en mode
-debug des tentatives du parser pour matcher les règles fournies en argument
-(très utile pour débugger).
-
-Voici ce que cela donne :
-
-{{{
-      PalinGram()
-      {
-          palindrome = (souspalindrome >> eos) [& PalinParser::printmsg];
-
-          souspalindrome = alpha [& PalinParser::push] >> souspalindrome >> alpha [& PalinParser::checkpop] |
-                           alpha >> alpha [& PalinParser::checkpop] |
-                           alpha [& PalinParser::pop];
-
-          ELL_NAME_RULE(palindrome);
-          ELL_NAME_RULE(souspalindrome);
-      }
-
-  private:
-      ell::Rule<char> palindrome, souspalindrome;
-  };
-}}}
-
-Les primitives (terminaux ou directives prédéfines) sont définies dans <Parser/Grammar.h>.
-
-Et maintenant, le parseur.  Pour plus de faciliter, nous créons un typedef du
-type de la class parente.  Dans l'appel au constructeur de la class parente,
-nous ne fournissons pas de skipper, car l'analyse est faite au niveau lexème.
-On peut voir notre grammaire comme un lexeur qui recherche les lexèmes
-palindromes.
-
-{{{
-class PalinParser : public ell::Parser<char>
-{
-public
-    PalinParser()
-      : ell::Parser(& grammar.palindrome, NULL, NULL)
-    { }
-
-    // Override this for custom error management
-    void raise_error(const string & msg, int line_number) const
-    {
-      ...
-    }
-
-private:
-    static PalinGram grammar;
-
-    stack<string> st;
-
-    void push(const std::string & s)
-    {
-        st.push(s);
-    }
-
-    bool checkpop(const std::string & s2)
-    {
-        string s1=st.top();
-        if (s1 == s2)
-        {
-            printf("%s == %s", s1.c_str(), s2.c_str());
-            st.pop();
-        }
-        else
-        {
-            printf("%s != %s", s1.c_str(), s2.c_str());
-            // Will be popped by the pop function
-        }
-
-        return (s1 == s2);
-    }
-
-    void pop()
-    {
-        st.pop();
-    }
-
-    void printmsg(const std::string & s)
-    {
-        std::cout << s << " est un palindrome!" << std::endl;
-    }
-};
-}}}
-
-Afin de bien souligner la différence entre parseur et grammaire, nous avons
-écrit deux classes séparées, et la grammaire est introduite comme un membre
-statique de note classe, mais il était tout à fait possible de fusionner
-grammaire et parseur.
-
-Maintenant, nous pouvons parser via cette grammaire :
-
-{{{
-int main()
-{
-    PalinParser p;
-    p.parse("Bonjour");
-    p.parse("kayak");
-    p.parse("KaaK");
-
-    return 0;
-}
-}}}
-
-Et voilà.
+== A full exemple ==
 
 Pour bien comprendre comment fonctionne le parseur, il est conseillé de jouer
 avec les macros ELL_DEBUG, ELL_DUMP_NODES et ELL_DUMP_SKIPPER définies dans le fichier
