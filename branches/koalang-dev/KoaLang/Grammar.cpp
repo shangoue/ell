@@ -22,11 +22,19 @@ namespace koalang
     {
 #       define I & Interpreter
 
-        top = no_step_back( statement * eos
-                          | error(unexp_char_error) );
+        top = no_step_back(* statement) >> ( eos
+                                           | error(unexp_char_error) );
 
-        ident_char = alnum
-                   | utf8nonascii;
+        statement = kw("def") >> variable >> (ch('[') >> any >> ch(']') |
+                                              eps [I::push_empty]) >> ch(':') >> statement [I::push_op<3, DEF>] |
+                    kw("if") >> comparison >> statement >> (kw("else") >> statement |
+                                                            eps [I::push_empty]) [I::push_op<3, IF>] |
+                    kw("for") >> variable >> kw("in") >> assignation >> statement [I::push_op<3, FOREACH>] |
+                    kw("while") >> comparison >> statement [I::push_op<2, WHILE>] |
+                    kw("do") >> statement >> kw("while") >> comparison [I::push_op<2, DOWHILE>] |
+                    kw("break") [I::push_op<0, BREAK>] |
+                    kw("return") >> assignation [I::push_op<1, RETURN>] |
+                    assignation;
 
         variable = lexeme(+ ident_char - digit) [I::push_variable];
 
@@ -71,17 +79,6 @@ namespace koalang
                                   ch('^') >> ordering [I::push_op<2, XOR>]);
 
         assignation = comparison >> ! (ch('=') >> comparison [I::push_op<2, ASSIGN>]);
-
-        statement = kw("def") >> variable >> (ch('[') >> any >> ch(']') |
-                                              eps [I::push_empty]) >> ch(':') >> statement [I::push_op<3, DEF>] |
-                    kw("if") >> comparison >> statement >> (kw("else") >> statement |
-                                                            eps [I::push_empty]) [I::push_op<3, IF>] |
-                    kw("for") >> variable >> kw("in") >> assignation >> statement [I::push_op<3, FOREACH>] |
-                    kw("while") >> comparison >> statement [I::push_op<2, WHILE>] |
-                    kw("do") >> statement >> kw("while") >> comparison [I::push_op<2, DOWHILE>] |
-                    kw("break") [I::push_op<0, BREAK>] |
-                    kw("return") >> assignation [I::push_op<1, RETURN>] |
-                    assignation;
 #       undef I
 
         ELL_NAME_RULE(number)
@@ -98,9 +95,6 @@ namespace koalang
         ELL_NAME_RULE(comparison)
         ELL_NAME_RULE(assignation)
         ELL_NAME_RULE(statement)
-        ELL_NAME_RULE(skipper)
-        ELL_TRANSPARENT_RULE(ident_char)
-        ELL_TRANSPARENT_RULE(block_comment)
     }
     } // Language namespace
 }
