@@ -26,6 +26,7 @@ namespace ell
     template <typename T>
     struct Storage
     {
+        Storage() : value() { }
         T value;
         typedef Storage<void> Unit;
         void enqueue(const Unit &) { }
