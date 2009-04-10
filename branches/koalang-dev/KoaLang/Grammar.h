@@ -19,8 +19,8 @@ namespace koalang
 {
     struct Lex
     {
-        Lex()
-          : type(END)
+        Lex(Type type = END)
+          : type(type)
         { }
 
         Lex(double n)
@@ -32,6 +32,22 @@ namespace koalang
           : type(type),
             s(begin, end)
         { }
+
+        Lex(const char * s, Type type)
+          : type(type),
+            s(s)
+        { }
+
+        bool operator == (const Lex & other) const
+        {
+            if (type != other.type)
+                return false;
+
+            if (type == OP)
+                return (s == other.s);
+            else
+                return true;
+        }
 
         operator bool () { return type != END; }
 
@@ -59,34 +75,30 @@ namespace koalang
                           | ident
                           | real [L::push_number]
                           | string
-                          | op);
-
-            ident_char = alnum | utf8nonascii;
+                          | op );
 
             keyword = (( str("break") | str("def")
                        | str("do")    | str("else")
                        | str("for")   | str("if")
                        | str("in")    | str("return")
-                       | str("while")) >> eps - ident_char) [L::push<OP>];
+                       | str("while") ) >> eps - alnum) [L::push<OP>];
 
-            ident = (+ ident_char - digit) [L::push<IDENT>];
+            string = ch('\"') [L::push_string] >> string_char * ch('\"');
+                   | ch('\'') [L::push_string] >> string_char * ch('\'');
 
-            string = ch('\"') [L::push_string] >> string_content * ch('\"')
-                   | ch('\'') [L::push_string] >> string_content * ch('\'');
-
-            string_content = ch('\\') >> any [L::push_escaped_code]
-                           | any [L::push_char];
+            string_char = ch('\\') >> (            integer(unsigned,  8, 1, 3) [L::push_char]
+                                      | ch('x') >> integer(unsigned, 16, 1, 2) [L::push_char]
+                                      | ch('u') >> integer(unsigned, 16, 4, 4) [L::push_char]
+                                      | ch('U') >> integer(unsigned, 16, 8, 8) [L::push_char]
+                                      | any [L::push_escaped_code] )
+                        | any [L::push_char] - ch('\n');
 
             op = ( repeat<1,2>(ch('.'))
                  | chset("-!#*/%+<>&|^=") >> ! ch('=')
                  | chset("[](){}:")) [L::push<OP>];
-
-            skipper = blank
-                    | ch('\'') >> any * (ch('\n') | eos)
-                    | block_comment;
-
-            block_comment = str("/'") >> (block_comment | any) * str("'/");
         }
+
+        ell::Rule<char> top, keyword, string, string_char, op;
 
         void push_number(double n)
         {
@@ -121,7 +133,6 @@ namespace koalang
             case 'v': r = '\v'; break;
             case 'f': r = '\f'; break;
             case 'r': r = '\r'; break;
-            case '0': r = '\0'; break;
             }
             push_char(r);
         }
@@ -133,7 +144,15 @@ namespace koalang
     {
         Grammar();
 
-        ell::Rule<Lex> top,
-                       statement,
+        Character<Lex> op(const char * op)
+        {
+            return Character<Lex>(Lex(op, Lex::OP));
+        }
+
+        Character<Lex> number, string, identifier;
+
+        ell::Rule<Lex> top, statement, assignation, expression,
+                       order, sum, product, unary, selection,
+                       call, scoped, atome;
     };
 }

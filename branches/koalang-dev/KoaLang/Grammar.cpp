@@ -19,82 +19,77 @@
 namespace koalang
 {
     Grammar::Grammar()
+      : number(Lex(Lex::NUM)),
+        string(Lex(Lex::STR)),
+        identifier(Lex(Lex::IDENT))
     {
 #       define I & Interpreter
 
-        top = no_step_back(* statement) >> ( eos
+        top = no_step_back(* statement) >> ( end
                                            | error(unexp_char_error) );
 
-        statement = kw("def") >> variable >> (ch('[') >> any >> ch(']') |
-                                              eps [I::push_empty]) >> ch(':') >> statement [I::push_op<3, DEF>] |
-                    kw("if") >> comparison >> statement >> (kw("else") >> statement |
-                                                            eps [I::push_empty]) [I::push_op<3, IF>] |
-                    kw("for") >> variable >> kw("in") >> assignation >> statement [I::push_op<3, FOREACH>] |
-                    kw("while") >> comparison >> statement [I::push_op<2, WHILE>] |
-                    kw("do") >> statement >> kw("while") >> comparison [I::push_op<2, DOWHILE>] |
-                    kw("break") [I::push_op<0, BREAK>] |
-                    kw("return") >> assignation [I::push_op<1, RETURN>] |
-                    assignation;
+        statement = op("(") >> + statement >> op(")")
+                  | op('{') >> + statement >> op('}')
+                  | op("def") >> identifier >> (op("<") >> * identifier >> op(">") >> op(":") >> statement
+                  | op("if") >> expression >> statement >> ! (op("else") >> statement)
+                  | op("for") >> identifier >> op("in") >> expression >> statement
+                  | op("while") >> expression >> statement
+                  | op("do") >> statement >> op("while") >> expression
+                  | op("break")
+                  | op("return") >> expression
+                  | assignation;
 
-        variable = lexeme(+ ident_char - digit) [I::push_variable];
+        assignation = expression >> op("=") >> statement;
 
-        string = ch('"') >> any[I::push_string];
+        expression = order >> * ( op("&") >> order
+                                | op("|") >> order
+                                | op("^") >> order );
 
-        soft_unit = (statement >> ! (statement [I::begin_list] >> * statement) [I::end_list])
-                  | eps [I::push_empty];
+        order = sum >> * ( op("==") >> sum
+                         | op("!=") >> sum
+                         | op("<=") >> sum
+                         | op(">=") >> sum
+                         | op("<") >> sum
+                         | op(">") >> sum );
 
-        atome = real [I::push_number];
+        sum = product >> * ( op("+") >> product
+                           | op("-") >> product );
+
+        product = unary >> * ( op("*") >> unary
+                             | op("/") >> unary
+                             | op("%") >> unary );
+
+        unary = op("-") >> unary
+              | op("!") >> unary
+              | op("#") >> unary
+              | selection;
+
+        selection = call >> * (op("[") >> expression >> op("]"));
+
+        call = scoped >> * (op("<") >> * expression >> op(">"));
+
+        scoped = atome >> * ( op("..") >> atome
+                            | op(".") >> atome );
+
+        atome = op("(") >> + statement >> op(")")
+              | op('{') >> + statement >> op('}')
+              | number
               | string
-              | variable
-              | ch('(') >> any >> ch(')')
-              | ch('{') >> any >> ch('}') [I::push_op<1, SCOPE>];
+              | identifier;
 
-        scoped = atome >> * (str("..") >> atome [I::push_op<2, PARENT>] |
-                           ch('.') >> atome [I::push_op<2, MEMBER>]);
-
-        assignable = scoped >> * (ch('[') >> scoped >> (str("..") >> scoped [I::push_op<3, SLICE>] |
-                                                        eps [I::push_op<2, SELECT>]) >> ch(']'));
-
-        unary = ch('-') >> unary [I::push_op<1, NEG>] |
-              ch('!') >> unary [I::push_op<1, NOT>] |
-              ch('#') >> unary [I::push_op<1, COUNT>] |
-              assignable;
-
-        product = unary >> * (ch('*') >> unary [I::push_op<2, MULT>] |
-                            ch('/') >> unary [I::push_op<2, DIV>] |
-                            ch('%') >> unary [I::push_op<2, MODULO>]);
-
-        expr = product >> * (ch('+') >> product [I::push_op<2, ADD>] |
-                                 ch('-') >> product [I::push_op<2, SUB>]);
-
-        ordering = expr >> * (str("==") >> expr [I::push_op<2, EQ>] |
-                                  str("!=") >> expr [I::push_op<2, NE>] |
-                                  str("<=") >> expr [I::push_op<2, LE>] |
-                                  str(">=") >> expr [I::push_op<2, GE>] |
-                                  ch('<') >> expr [I::push_op<2, LT>] |
-                                  ch('>') >> expr [I::push_op<2, GT>]);
-
-        comparison = ordering >> * (ch('&') >> ordering [I::push_op<2, AND>] |
-                                  ch('|') >> ordering [I::push_op<2, OR>] |
-                                  ch('^') >> ordering [I::push_op<2, XOR>]);
-
-        assignation = comparison >> ! (ch('=') >> comparison [I::push_op<2, ASSIGN>]);
 #       undef I
 
-        ELL_NAME_RULE(number)
-        ELL_NAME_RULE(string)
-        ELL_NAME_RULE(variable)
-        ELL_NAME_RULE(any)
-        ELL_NAME_RULE(atome)
-        ELL_NAME_RULE(scoped)
-        ELL_NAME_RULE(assignation)
-        ELL_NAME_RULE(unary)
-        ELL_NAME_RULE(product)
-        ELL_NAME_RULE(expr)
-        ELL_NAME_RULE(ordering)
-        ELL_NAME_RULE(comparison)
-        ELL_NAME_RULE(assignation)
+        ELL_NAME_RULE(top)
         ELL_NAME_RULE(statement)
+        ELL_NAME_RULE(assignation)
+        ELL_NAME_RULE(expression)
+        ELL_NAME_RULE(order)
+        ELL_NAME_RULE(sum)
+        ELL_NAME_RULE(product)
+        ELL_NAME_RULE(unary)
+        ELL_NAME_RULE(selection)
+        ELL_NAME_RULE(call)
+        ELL_NAME_RULE(scoped)
+        ELL_NAME_RULE(atome)
     }
-    } // Language namespace
 }
