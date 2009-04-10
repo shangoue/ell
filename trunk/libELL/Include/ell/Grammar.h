@@ -24,6 +24,8 @@ namespace ell
     template <typename Token>
     struct GrammarBase
     {
+        virtual ~GrammarBase() { }
+
         EndOfStream<Token>                      end;
         Epsilon<Token>                          eps;
         Any<Token>                              any;
