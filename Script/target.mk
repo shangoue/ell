@@ -44,6 +44,7 @@ CFLAGS += -Wbrief
 else
 COMPILER = LANG=C g++
 CFLAGS += -Winvalid-pch -Wall -pipe -Wno-parentheses
+CFLAGS += -Woverloaded-virtual
 endif
 
 ifeq ($(NOPCH),)

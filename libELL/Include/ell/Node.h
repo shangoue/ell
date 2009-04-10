@@ -93,7 +93,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<std::basic_string<Token> > & s) const
         {
             const Token * begin = parser->position;
-            bool match = ((ConcreteNode *) this)->parse(parser);
+            bool match = parse(parser);
             s.value.assign(begin, parser->position);
             return match;
         }
@@ -101,7 +101,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<const Token *> & s) const
         {
             s.value = parser->position;
-            return ((ConcreteNode *) this)->parse(parser);
+            return parse(parser);
         }
 
         //@{
