@@ -98,7 +98,7 @@ namespace ell
 
         bool parse(Parser<Token> * parser, Storage<const Token *> & s) const
         {
-            s.value = parser->position;
+            s.value = & * parser->position;
             return parse(parser);
         }
 
