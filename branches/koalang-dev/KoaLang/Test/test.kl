@@ -1,0 +1,32 @@
+test1:
+{
+    "Définition et surcharge d'opérateurs"
+    "0\n1\n2\n"
+
+    func<a>:
+    {
+        print a
+        return a + 1
+    }
+
+    func:
+    {
+        print 0
+        return 1
+    }
+
+    func func func
+}
+
+
+test2:
+{
+    "Définition de constantes, et overriding"
+    "!"
+
+    a = 1
+    b : 1
+
+    a = 2
+    b = 2
+}
