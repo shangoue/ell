@@ -55,8 +55,7 @@ namespace ell
     struct Node
     {
         Node(const char * name = 0)
-          : name(name),
-            precedence(0)
+          : name(name)
         { }
 
         virtual ~Node() { }
@@ -78,7 +77,6 @@ namespace ell
         virtual void describe(std::ostream & os) const = 0;
 
         const char * name;
-        int precedence;
     };
 
     template <typename Token, typename ConcreteNode>

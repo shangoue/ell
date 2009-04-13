@@ -182,7 +182,7 @@ namespace ell
 
         bool end()
         {
-            return * position != 0;
+            return * position == 0;
         }
 
         int line_number;

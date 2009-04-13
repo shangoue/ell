@@ -29,7 +29,7 @@ namespace ell
         using Base::left;
 
         Alternative(const Left & left, const Right & right)
-          : Base(left, right, "or", 1)
+          : Base(left, right, "or")
         { }
 
         using Base::parse;
@@ -51,7 +51,7 @@ namespace ell
         using Base::left;
 
         Association(const Left & left, const Right & right)
-          : Base(left, right, "followed or preceded by", 2)
+          : Base(left, right, "followed or preceded by")
         { }
 
         using Base::parse;
@@ -91,7 +91,7 @@ namespace ell
         using Base::left;
 
         Aggregation(const Left & left, const Right & right)
-          : Base(left, right, 0, 3)
+          : Base(left, right, 0)
         { }
 
         using Base::parse;
@@ -135,7 +135,7 @@ namespace ell
         using Base::left;
 
         Difference(const Left & left, const Right & right)
-          : Base(left, right, "bereft of", 4)
+          : Base(left, right, "but not")
         { }
 
         using Base::parse;
@@ -161,7 +161,7 @@ namespace ell
         using Base::left;
 
         List(const Left & left, const Right & right)
-          : Base(left, right, "+ separated by", 5)
+          : Base(left, right, "separated by")
         { }
 
         using Base::parse;
@@ -201,7 +201,7 @@ namespace ell
         using Base::left;
 
         BoundRepetition(const Left & left, const Right & right)
-          : Base(left, right, "until", 6)
+          : Base(left, right, "until")
         { }
 
         using Base::parse;
@@ -231,7 +231,7 @@ namespace ell
         using Base::left;
 
         NoSuffix(const Left & left, const Right & right)
-          : Base(left, right, "not followed by", 1)
+          : Base(left, right, "not followed by")
         { }
 
         using Base::parse;

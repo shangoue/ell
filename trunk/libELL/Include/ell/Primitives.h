@@ -50,7 +50,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << "eps";
+            os << "epsilon";
         }
     };
 
@@ -72,7 +72,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            os << ".";
+            os << "any";
         }
     };
 
@@ -169,16 +169,10 @@ namespace ell
     };
 
 	template <>
-    inline void Character<char>::describe(std::ostream & os) const
-    {
-        os << '\'' << protect_char(c) << '\'';
-    }
+    inline void Character<char>::describe(std::ostream & os) const { os << protect_char(c); }
 
     template <>
-    inline void Character<wchar_t>::describe(std::ostream & os) const
-    {
-        os << '\'' << protect_char(c) << '\'';
-    }
+    inline void Character<wchar_t>::describe(std::ostream & os) const { os << protect_char(c); }
 
     template <typename Token, const Token C1, const Token C2>
     struct Range : public TokenPrimitiveBase<Token, Range<Token, C1, C2> >
