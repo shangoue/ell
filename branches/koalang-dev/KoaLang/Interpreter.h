@@ -26,7 +26,8 @@ namespace koalang
         Interpreter()
           : ell::Parser<Lex>(& grammar.top)
         {
-            stack = new List;
+            root_scope = new Map;
+            stack = new Block;
         }
 
         void parse(const char * buffer, const char * file = "<stdin>")
@@ -41,10 +42,37 @@ namespace koalang
         template <typename Object>
         void push(const Lex & lex)
         {
-            stack->children.push_back(new Object(lex));
+            stack->value.push_back(new Object(lex));
         }
 
-        List * stack;
+        template <typename Object>
+        void binary(const Lex * name)
+        {
+            Object * op = new Object;
+            op->right = pop();
+            op->left = pop();
+            op->name = name->s;
+            push(op);
+        }
+
+        void define()
+        {
+            //TODO
+        }
+
+        bool is_defined(const Lex * name)
+        {
+            // TODO
+            pop();
+            return false;
+        }
+
+        Object * push(Object * o) { stack->value.push_back(o); return o; }
+        Object * pop() { Object * o = stack->value.back(); stack->value.pop_back(); return o; }
+
+        Lex op;
+        Map * root_scope;
+        Block * stack;
     };
 }
 #endif // __KOALANG_INTERPRETER__

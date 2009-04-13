@@ -18,31 +18,63 @@
 
 namespace koalang
 {
+    struct Map;
+
     struct Object
     {
         virtual ~Object() { }
 
-        virtual const Object * eval() const { return this; }
+        virtual Object * eval(Map * context) = 0;
 
         virtual void describe(std::ostream & os) const = 0;
 
         template <typename Type>
         bool is() { return dynamic_cast<Type *>(this); }
 
+        template <typename Type>
+        Type & to()
+        {
+            if (is<Type>())
+                return * (Type *) this;
+            throw std::runtime_error("Type error");
+        }
+
         friend std::ostream & operator << (std::ostream & os, const Object & obj)
         {
             obj.describe(os);
             return os;
         }
+
+        //TODO: add location information for backtrace
     };
+
+    typedef std::vector<Object *> ObjectList;
+    inline std::ostream & operator << (std::ostream & os, const ObjectList & l)
+    {
+        for (ObjectList::const_iterator i = l.begin(); i != l.end(); ++i)
+            os << ' ' << **i << ' ';
+        return os;
+    }
+
+    typedef std::map<std::string, Object *> ObjectMap;
+    inline std::ostream & operator << (std::ostream & os, const ObjectMap & l)
+    {
+        for (ObjectMap::const_iterator i = l.begin(); i != l.end(); ++i)
+            os << ' ' << i->first << ": " << *i->second << ' ';
+        return os;
+    }
 
     struct Real : public Object
     {
-        Real(double v)
-          : value(v)
+        Real(double real)
+          : value(real)
         { }
 
         void describe(std::ostream & os) const { os << value; }
+
+        Real * eval(Map * context) { return this; }
+
+        operator double () const { return value; }
 
         double value;
     };
@@ -55,7 +87,45 @@ namespace koalang
 
         void describe(std::ostream & os) const { os << value; }
 
-        const std::string value;
+        Object * eval(Map * context) { return this; }
+
+        std::string value;
+    };
+
+    struct List : public Object
+    {
+        void describe(std::ostream & os) const { os << '(' << value << ')'; }
+
+        Object * eval(Map * context) { return this; }
+
+        ObjectList value;
+    };
+
+    struct Map : public Object
+    {
+        Map(Map * parent = 0)
+          : parent(parent)
+        { }
+
+        Object * look_up(const std::string & name) const
+        {
+            ObjectMap::const_iterator i = value.find(name);
+            if (i == value.end())
+            {
+                if (parent)
+                    return parent->look_up(name);
+                else
+                    throw std::runtime_error("Lookup error");
+            }
+            return i->second;
+        }
+
+        Map * eval(Map * context) { return this; }
+
+        void describe(std::ostream & os) const { os << '{' << value << '}'; }
+
+        ObjectMap value;
+        Map * parent;
     };
 
     struct Variable : public String
@@ -63,30 +133,26 @@ namespace koalang
         Variable(const std::string & s)
           : String(s)
         { }
-    };
 
-    struct List : public Object
-    {
-        void describe(std::ostream & os, const char * braces = "()") const
+        Object * eval(Map * context)
         {
-            os << braces[0];
-            for (std::vector<Object *>::const_iterator i = children.begin();
-                 i != children.end();
-                 ++i)
-                os << ' ' << **i << ' ';
-            os << braces[1];
+            return context->look_up(value);
         }
     };
 
     struct Block : public List
     {
-        void describe(std::ostream & os) const { List::describe(os, "{}"); }
+        Map * eval(Map * context)
+        {
+            Map * locals = new Map(context);
+            for (ObjectList::const_iterator i = value.begin(); i != value.end(); ++i)
+                (* i)->eval(locals);
+            return locals;
+        }
+
+        void describe(std::ostream & os) const { os << '{' << value << '}'; }
     };
 
-    struct Map : public Object
-    {
-        std::map<std::string, Object *> value;
-    };
 }
 
 #endif //__KOALANG_TYPES_H__

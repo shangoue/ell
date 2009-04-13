@@ -65,9 +65,9 @@ namespace koalang
             {
             case END:   os << "end"; break;
             case NL:    os << "newline"; break;
-            case NUM:   os << l.n; break;
-            case STR:   os << '\"' << ell::protect(l.s) << '\"'; break;
-            case IDENT: os << '`' << l.s << '`'; break;
+            case NUM:   os << "number"; break;
+            case STR:   os << "string"; break;
+            case IDENT: os << "identifier"; break;
             case OP:    os << l.s; break;
             }
             return os;
@@ -209,13 +209,14 @@ namespace ell
 
         bool end()
         {
-            return position->type != Lex::END;
+            return position->type == Lex::END;
         }
 
         std::string dump_position() const
         {
             std::ostringstream os;
-            os << * position;
+            for (std::vector<Lex>::const_iterator i = position; i->type != Lex::END; ++i)
+                os << * i << ' ';
             return os.str();
         }
 
@@ -237,9 +238,9 @@ namespace koalang
 
         ell::Character<Lex> number, string, identifier, newline;
 
-        ell::Rule<Lex> top, statement, definition, assignation, expression,
+        ell::Rule<Lex> top, statement, function, expression,
                        order, sum, product, unary, selection,
-                       call, scoped, atome;
+                       scoped, atome;
     };
 }
 

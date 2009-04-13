@@ -18,16 +18,18 @@ int main()
 
     while ((line = readline(prompt)))
     {
-        try
-        {
+        //try
+        //{
             ki.parse(line);
-            std::cout << * ki.stack->eval() << '\n';
-        }
-        catch (std::runtime_error & e)
-        {
-            std::cerr << e.what() << '\n';
-            continue;
-        }
+            std::cout << * ki.stack << '\n';
+            std::cout << * ki.root_scope << '\n';
+            std::cout << * ki.stack->eval(ki.root_scope) << '\n';
+        //}
+        //catch (std::runtime_error & e)
+        //{
+        //    std::cerr << e.what() << '\n';
+        //    continue;
+        //}
         add_history(line);
         free(line);
     }

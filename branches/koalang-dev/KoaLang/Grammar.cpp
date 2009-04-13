@@ -15,6 +15,7 @@
 
 #include "Grammar.h"
 #include "Interpreter.h"
+#include "Operators.h"
 
 namespace koalang
 {
@@ -23,7 +24,7 @@ namespace koalang
     {
         top = * lexeme( keyword
                       | ident [& Lexer::push<Lex::IDENT>]
-                      | real [& Lexer::push_number]
+                      | dec [& Lexer::push_number]
                       | string
                       | op
                       | + ch('\n') [& Lexer::newline]);
@@ -86,11 +87,13 @@ namespace koalang
                     | op("do")
                     | op("break")
                     | op("return") >> expression
-                    | scoped [is_operator] >> * expression
+                    | function >> * expression
                     | expression >> ( op(":") >> expression [I::define]
-                                    | op("=") >> expression [I::push<ASSIGN, 2>]
-                                    | * expression >> scoped [is_operator] >> * expression )
+                                    | (op("=") >> expression) [I::binary<Assign>]
+                                    | * expression >> (function | error("Useless expression")) >> * expression )
                     ) >> ! newline;
+
+        function = scoped [I::is_defined];
 
         expression = order >> * ( op("and") >> order
                                 | op("or") >> order
@@ -103,8 +106,8 @@ namespace koalang
                          | op("<") >> sum
                          | op(">") >> sum );
 
-        sum = product >> * ( op("+") >> product [I::push<ADD, 2>]
-                           | op("-") >> product [I::push<SUB, 2>]);
+        sum = product >> * ( op("+") >> product [I::binary<Add>]
+                           | op("-") >> product);
 
         product = unary >> * ( op("*") >> unary
                              | op("/") >> unary
@@ -133,13 +136,13 @@ namespace koalang
         top.set_name(0);
 
         ELL_NAME_RULE(statement)
+        ELL_NAME_RULE(function)
         ELL_NAME_RULE(expression)
         ELL_NAME_RULE(order)
         ELL_NAME_RULE(sum)
         ELL_NAME_RULE(product)
         ELL_NAME_RULE(unary)
         ELL_NAME_RULE(selection)
-        ELL_NAME_RULE(call)
         ELL_NAME_RULE(scoped)
         ELL_NAME_RULE(atome)
     }

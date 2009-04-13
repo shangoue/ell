@@ -28,7 +28,7 @@ namespace koalang
     struct BinaryOperator : public Operator
     {
         // TODO: manage priority when unparsing
-        void describe(std::ostream & os)
+        void describe(std::ostream & os) const
         {
             os << * left << ' ' << name << ' ' << * right;
         }
@@ -36,17 +36,21 @@ namespace koalang
         Object * left, * right;
     };
 
+    struct Assign : public BinaryOperator
+    {
+        Object * eval(Map * context)
+        {
+            return context->value[left->to<Variable>().value] = right->eval(context);
+        }
+    };
+
     struct Add : public BinaryOperator
     {
         Object * eval(Map * context)
         {
-            if (left->is<Real>)
-                return new Real((Real *) left + right->to<Real>());
-
+            return new Real(left->eval(context)->to<Real>() + right->eval(context)->to<Real>());
         }
     };
-
-         
 }
 
 #endif //__KOALANG_OPERATORS_H__
