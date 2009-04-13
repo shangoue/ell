@@ -37,6 +37,7 @@
 #endif
 
 #define ELL_NAME_RULE(arg) arg.set_name(#arg);
+#define ELL_TRANSPARENT_RULE(arg) arg.set_name(0);
 
 #if ELL_DEBUG == 1
 # define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);

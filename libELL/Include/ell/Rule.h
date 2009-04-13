@@ -33,7 +33,7 @@ namespace ell
         Rule()
           : top(0)
         {
-            Node<Token>::name = "<anonymous>";
+            name = "<anonymous>";
         }
 
         virtual ~Rule()
@@ -77,7 +77,7 @@ namespace ell
         }
 
 #       if ELL_DEBUG == 1
-        bool must_be_dumped() const { return true; }
+        bool must_be_dumped() const { return name != 0; }
 #       endif
 
     private:
