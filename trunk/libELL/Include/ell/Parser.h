@@ -16,7 +16,6 @@
 #ifndef INCLUDED_ELL_PARSER_H
 #define INCLUDED_ELL_PARSER_H
 
-#include <stdexcept>
 #include <ell/Utils.h>
 
 namespace ell
@@ -24,37 +23,22 @@ namespace ell
     template <typename Token>
     struct Node;
 
-    /// Parser class.
-    /// Work on the root node of a Grammar to iterate over a container of (Token *).
-    /// A token must be convertible to bool to know if it is a null-terminator.
     template <typename Token>
-    struct Parser
-    { };
+    struct Parser;
 
+    /// Every parser should extends this class
     template <typename Token>
     struct ParserBase
     {
-        ParserBase(const Node<Token> * grammar,
-                   const Node<Token> * skipper = 0,
-                   const Token * begin = 0)
-          : position(begin),
-            grammar(grammar),
-            skipper(skipper)
+        ParserBase(const Node<Token> * grammar)
+          : grammar(grammar)
         { }
 
         virtual ~ParserBase() { }
 
-        /// Parse a (new) buffer
-        void parse(const Token * position_)
-        {
-            position = position_;
-            parse();
-        }
-
-        /// Go on parsing the current buffer
         void parse()
         {
-            skip();
+            ((Parser<Token> *) this)->skip();
             if (not grammar->parse((Parser<Token> *) this))
                 mismatch(* grammar);
         }
@@ -80,64 +64,13 @@ namespace ell
 #               endif
             { }
 
-            //@{
-            /// To be modified only through ModifyFlag class
             bool step_back;
             bool action;
 #           if ELL_DEBUG == 1
             bool debug;
             int level;
 #           endif
-            //@}
         };
-
-        /// Redefine your context if needed
-        struct Context
-        {
-            Context(ParserBase * parser)
-              : position(parser->position)
-            { }
-
-            void restore(ParserBase * parser)
-            {
-                parser->position = position;
-            }
-
-            const Token * position;
-        };
-
-        /// Redefine the way you iterate through tokens if needed
-        void next()
-        { 
-            ++position;
-        }
-
-        /// Redefine this for custom dump
-        std::string dump_position() const
-        {
-            std::ostringstream oss;
-            oss << * position;
-            return oss.str();
-        }
-
-        const Token & get()
-        {
-            return * position;
-        }
-
-        void skip()
-        {
-            if (skipper)
-            {
-#               if ELL_DEBUG == 1 && ELL_DUMP_SKIPPER != 1
-                SafeModify<> md(flags.debug, false);
-#               endif
-                SafeModify<const Node<Token> *> ms(skipper, 0);
-
-                while (ms.sav->parse((Parser<Token> *) this))
-                    ;
-            }
-        }
 
 #       if ELL_DEBUG == 1
         void begin_of_parsing(const Node<Token> * node)
@@ -159,36 +92,44 @@ namespace ell
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
         }
-#       else
-        void begin_of_parsing(const Node<Token> *) { }
-
-        void end_of_parsing(const Node<Token> *, bool) { }
 #       endif
 
         Flags flags;
-        const Token * position;
         const Node<Token> * grammar;
-        const Node<Token> * skipper;
     };
 
+    /// You will have to write an explicit specialization of this class
+    /// if you do not parse a buffer of characters.
     template <typename Char>
-    struct StringParser : public ParserBase<Char>
+    struct Parser : public ParserBase<Char>
     {
-        StringParser(const Node<Char> * grammar,
-                     const Node<Char> * skipper = 0,
-                     const Char * begin = 0)
-          : ParserBase<Char>(grammar, skipper, begin)
+        Parser(const Node<Char> * grammar,
+               const Node<Char> * skipper = 0)
+          : ParserBase<Char>(grammar),
+            line_number(1),
+            position(0),
+            skipper(skipper)
+        { }
+
+        void parse(const Char * buffer)
         {
+            position = buffer;
             line_number = 1;
+            ParserBase<Char>::parse();
         }
 
-        typedef ParserBase<Char> Base;
-        using Base::position;
-
-        void parse(const Char * position)
+        void skip()
         {
-            line_number = 1;
-            Base::parse(position);
+            if (skipper)
+            {
+#               if ELL_DEBUG == 1 && ELL_DUMP_SKIPPER != 1
+                SafeModify<> md(ParserBase<Char>::flags.debug, false);
+#               endif
+                SafeModify<const Node<Char> *> ms(skipper, 0);
+
+                while (ms.sav->parse((Parser<Char> *) this))
+                    ;
+            }
         }
 
         void raise_error(const std::string & msg, int line_number) const
@@ -200,36 +141,24 @@ namespace ell
             throw std::runtime_error(oss.str());
         }
 
+        std::string dump_position() const
+        {
+            return ell::dump_position(position);
+        }
+
         void raise_error(const std::string & msg) const
         {
             raise_error(msg, line_number);
         }
 
-        std::string dump_position() const
-        {
-            std::string s = "\"";
-            const Char * p = position;
-            while (* p and p - position < 31)
-            {
-                s += protect_char(* p);
-                ++p;
-            }
-            s += "\"";
-            if (s.size() == 2)
-                return "end";
-            if (* p)
-                s += "...";
-            return s;
-        }
-
         struct Context
         {
-            Context(StringParser<Char> * parser)
+            Context(Parser<Char> * parser)
               : line_number(parser->line_number),
                 position(parser->position)
             { }
 
-            void restore(StringParser<Char> * parser)
+            void restore(Parser<Char> * parser)
             {
                 parser->line_number = line_number;
                 parser->position = position;
@@ -243,30 +172,22 @@ namespace ell
         {
             if (* position == '\n')
                 ++line_number;
-            ParserBase<char>::next();
+            ++position;
+        }
+
+        Char get()
+        {
+            return * position;
+        }
+
+        bool end()
+        {
+            return * position != 0;
         }
 
         int line_number;
-    };
-
-    template <>
-    struct Parser<char> : public StringParser<char>
-    {
-        Parser(const Node<char> * grammar,
-               const Node<char> * skipper = 0,
-               const char * begin = 0)
-          : StringParser<char>(grammar, skipper, begin)
-        { }
-    };
-
-    template <>
-    struct Parser<wchar_t> : public StringParser<wchar_t>
-    { 
-        Parser(const Node<wchar_t> * grammar,
-               const Node<wchar_t> * skipper = 0,
-               const wchar_t * begin = 0)
-          : StringParser<wchar_t>(grammar, skipper, begin)
-        { }
+        const Char * position;
+        const Node<Char> * skipper;
     };
 }
 

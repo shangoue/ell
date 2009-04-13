@@ -33,8 +33,6 @@ namespace ell
         template <typename T>
         Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
 
-        String<Token>                           str(const std::basic_string<Token> & arg) const { return String<Token>(arg); }
-
         template <typename P>
         NoAction<Token, P>                      no_action(const P & p) const { return NoAction<Token, P>(p); }
 
@@ -106,6 +104,8 @@ namespace ell
         Range<Token, C1, C2>                    range() const { return Range<Token, (Token) C1, (Token) C2>(); }
 
         Charset<Token>                          chset(const std::string & set) const { return Charset<Token>(set); }
+
+        String<Token>                           str(const std::basic_string<Token> & arg) const { return String<Token>(arg); }
 
         IgnoreCaseString<Token>                 istr(const std::basic_string<Token> & arg) const { return IgnoreCaseString<Token>(arg); }
 

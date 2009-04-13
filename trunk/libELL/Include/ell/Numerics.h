@@ -108,20 +108,21 @@ namespace ell
         using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, MinDigits, MaxDigits> >::parse;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool parse(Parser<Token> * parser, Storage<V> & se) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
 
             int digit_nb = 0;
-            Sign value = 0;
-            int sign = GetSign<Token, Sign>(parser);
+            Storage<Sign> s;
+            s.value = 0;
+            int sign = GetSign<Token, Sign>()(parser);
             int d = 0;
 
             // Check mandatory digits
             while (digit_nb < MinDigits)
             {
-                d = GetDigit<Token, Radix>(parser);
+                d = GetDigit<Token, Radix>()(parser);
 
                 if (d < 0)
                 {
@@ -129,7 +130,7 @@ namespace ell
                     break;
                 }
 
-                value = value * Radix + d;
+                s.value = s.value * Radix + d;
                 ++digit_nb;
                 parser->next();
             }
@@ -139,14 +140,14 @@ namespace ell
                 // Check optional digits
                 while (1)
                 {
-                    d = GetDigit<Token, Radix>(parser);
+                    d = GetDigit<Token, Radix>()(parser);
 
                     if (d < 0)
                         break;
                     if (digit_nb >= MaxDigits)
                         break;
 
-                    value = value * Radix + d;
+                    s.value = s.value * Radix + d;
                     ++digit_nb;
                     parser->next();
                 }
@@ -158,7 +159,8 @@ namespace ell
                 else
                 {
                     match = true;
-                    s.assign(value * sign);
+                    s.value *= sign;
+                    assign(se, s);
                 }
             }
             ELL_END_PARSE
@@ -203,7 +205,7 @@ namespace ell
                     parser->next();
                 }
 
-                s.value = s.value * sign;
+                s.value *= sign;
                 assign(se, s);
             }
             else
