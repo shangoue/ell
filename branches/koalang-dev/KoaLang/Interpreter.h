@@ -16,41 +16,33 @@
 #ifndef __KOALANG_INTERPRETER__
 #define __KOALANG_INTERPRETER__
 
-#include <ell/Parser.h>
+#include "Grammar.h"
+#include "Types.h"
 
 namespace koalang
 {
-    struct Grammar;
-    struct Abstract;
-    struct Object;
-
-    struct Interpreter : public ell::Parser<char>
+    struct Interpreter : public ell::Parser<Lex>
     {
-        Interpreter(Grammar &);
-
-        void push_number(double);
-        void push_string();
-        void push_variable(const char *);
-        void push_empty();
-        void begin_list();
-        void end_list();
-
-        template <const int NbArgs, const int Op>
-        void push_op()
+        Interpreter()
+          : ell::Parser<Lex>(& grammar.top)
         {
-            Operator<Op> * n=new Operator<Op>;
-            for(int i=0; i < NbArgs; i++)
-            {
-                n->params[NbArgs - 1 - i]=pop();
-            }
-            push(n);
+            stack = new List;
         }
 
-        Object * root_context;
+        void parse(const char * buffer, const char * file = "<stdin>")
+        {
+            lexer.parse(buffer);
+            ell::Parser<Lex>::parse(file, lexer.lexemes);
+        }
 
-    private:
-        void push(Abstract * n);
-        Abstract * pop();
+        Lexer lexer;
+        Grammar grammar;
+
+        template <typename Object>
+        void push(const Lex & lex)
+        {
+            stack->children.push_back(new Object(lex));
+        }
 
         List * stack;
     };

@@ -13,6 +13,28 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#define DEF(a,b,c) const char * a##_##b=c;
+#ifndef INCLUDED_COMMON_HEADERS_H
+#define INCLUDED_COMMON_HEADERS_H
 
-#include "koalang/Messages.h"
+// Standard headers
+#include <set>
+#include <map>
+#include <list>
+#include <vector>
+#include <deque>
+#include <algorithm>
+#include <functional>
+#include <limits>
+#include <iostream>
+#include <iomanip>
+#include <exception>
+#include <string>
+#include <sstream>
+#include <locale>
+
+#include <cstdarg>
+#include <ctime>
+#include <cmath>
+#include <cstdlib>
+
+#endif // INCLUDED_COMMON_HEADERS_H

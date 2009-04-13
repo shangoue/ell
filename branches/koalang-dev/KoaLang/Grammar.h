@@ -13,30 +13,65 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef __KOALANG_GRAMMAR__
+#define __KOALANG_GRAMMAR__
+
 #include <ell/Grammar.h>
 
 namespace koalang
 {
     struct Lex
     {
-        Lex(Type type = END)
-          : type(type)
+        enum Type
+        {
+            END,
+            NL,
+            NUM, // TODO: diff real from int
+            STR,
+            IDENT,
+            OP
+        } type;
+
+        Lex(Type type = END, int line = 0)
+          : type(type),
+            line(line)
         { }
 
-        Lex(double n)
+        Lex(double n, int line = 0)
           : type(NUM),
-            n(n)
+            n(n),
+            line(line)
         { }
 
-        Lex(const char * begin, const char * end, Type type)
+        Lex(const char * begin, const char * end, Type type, int line = 0)
           : type(type),
-            s(begin, end)
+            s(begin, end),
+            line(line)
         { }
 
-        Lex(const char * s, Type type)
+        Lex(const char * s, Type type, int line = 0)
           : type(type),
-            s(s)
+            s(s),
+            line(line)
         { }
+
+        operator double () const { return n; }
+
+        operator const std::string & () const { return s; }
+
+        friend std::ostream & operator << (std::ostream & os, const Lex & l)
+        {
+            switch (l.type)
+            {
+            case END:   os << "end"; break;
+            case NL:    os << "newline"; break;
+            case NUM:   os << l.n; break;
+            case STR:   os << '\"' << ell::protect(l.s) << '\"'; break;
+            case IDENT: os << '`' << l.s << '`'; break;
+            case OP:    os << l.s; break;
+            }
+            return os;
+        }
 
         bool operator == (const Lex & other) const
         {
@@ -49,110 +84,163 @@ namespace koalang
                 return true;
         }
 
-        operator bool () { return type != END; }
-
-        enum Type
-        {
-            END,
-            NUM,
-            STR,
-            IDENT,
-            OP
-        } type;
-
-        union
-        {
-            double n;
-            std::string s;
-        };
+        double n;
+        std::string s;
+        int line;
     };
 
-    struct Lexer : public ell::Grammar<char>, public ell::Parser<char>
+    struct Lexer : public ell::Grammar<char>,
+                   public ell::Parser<char>
     {
-        Lexer()
+        Lexer();
+
+        void parse(const char * buffer)
         {
-            top = * lexeme( keyword
-                          | ident
-                          | real [L::push_number]
-                          | string
-                          | op );
+            lexemes.clear();
+            ell::Parser<char>::parse(buffer);
+            lexemes.push_back(Lex());
+        }
 
-            keyword = (( str("break") | str("def")
-                       | str("do")    | str("else")
-                       | str("for")   | str("if")
-                       | str("in")    | str("return")
-                       | str("while") ) >> eps - alnum) [L::push<OP>];
+        void push_number(double n) { lexemes.push_back(Lex(n, line_number)); }
 
-            string = ch('\"') [L::push_string] >> string_char * ch('\"');
-                   | ch('\'') [L::push_string] >> string_char * ch('\'');
+        template <const Lex::Type T>
+        void push(const char * begin) { lexemes.push_back(Lex(begin, position, T, line_number)); }
 
-            string_char = ch('\\') >> (            integer(unsigned,  8, 1, 3) [L::push_char]
-                                      | ch('x') >> integer(unsigned, 16, 1, 2) [L::push_char]
-                                      | ch('u') >> integer(unsigned, 16, 4, 4) [L::push_char]
-                                      | ch('U') >> integer(unsigned, 16, 8, 8) [L::push_char]
-                                      | any [L::push_escaped_code] )
-                        | any [L::push_char] - ch('\n');
+        void push_string() { lexemes.push_back(Lex(Lex::STR, line_number)); }
 
-            op = ( repeat<1,2>(ch('.'))
-                 | chset("-!#*/%+<>&|^=") >> ! ch('=')
-                 | chset("[](){}:")) [L::push<OP>];
+        void push_char(char c) { lexemes.end()->s += c; }
+
+        template <const char C>
+        void push_char() { lexemes.end()->s += C; }
+
+        void open(const char * brace)
+        {
+            nesting.push_back(lexemes.size());
+            lexemes.push_back(Lex(brace, position, Lex::OP, line_number));
+        }
+
+        void close(const char * brace)
+        {
+            Lex * last = 0;
+            if (not nesting.empty())
+            {
+                last = & lexemes[nesting.back()];
+                if (((last->s[0] == '(') & (* brace == ')')) |
+                    ((last->s[0] == '{') & (* brace == '}')) |
+                    ((last->s[0] == '[') & (* brace == ']')))
+                {
+                    nesting.pop_back();
+                    lexemes.push_back(Lex(brace, position, Lex::OP, line_number));
+                    return;
+                }
+            }
+
+            std::ostringstream oss;
+            oss << "Unexpected '" << * brace << "'";
+            if (last)
+                oss << " while '" << last->s[0] << "' openned on line " << last->line;
+            raise_error(oss.str());
+        }
+
+        void newline()
+        {
+            if (nesting.empty() or lexemes[nesting.back()].s[0] == '{')
+                lexemes.push_back(Lex(Lex::NL, line_number));
         }
 
         ell::Rule<char> top, keyword, string, string_char, op;
-
-        void push_number(double n)
-        {
-            output += Lex(n);
-        }
-
-        template <const int T>
-        void push(const char * begin)
-        {
-            output += Lex(begin, position, T);
-        }
-
-        void push_string()
-        {
-            output += Lex(position, position, STR);
-        }
-
-        void push_char(char c)
-        {
-            output.end()->s += c;
-        }
-
-        void push_escaped_code(char c)
-        {
-            char r = c;
-            switch (c)
-            {
-            case 'a': r = '\a'; break;
-            case 'b': r = '\b'; break;
-            case 't': r = '\t'; break;
-            case 'n': r = '\n'; break;
-            case 'v': r = '\v'; break;
-            case 'f': r = '\f'; break;
-            case 'r': r = '\r'; break;
-            }
-            push_char(r);
-        }
-
-        std::basic_string<Lex> output;
+        std::vector<Lex> lexemes;
+        std::vector<int> nesting;
     };
+}
 
+namespace ell
+{
+    using namespace koalang;
+
+    template <>
+    struct Parser<Lex> : public ParserBase<Lex>
+    {
+        Parser(const Node<Lex> * grammar)
+          : ParserBase<Lex>(grammar)
+        { }
+
+        void parse(const std::string & filename, const std::vector<Lex> lexemes)
+        {
+            file = filename;
+            position = lexemes.begin();
+            ParserBase<Lex>::parse();
+        }
+
+        void skip()
+        { }
+
+        void raise_error(const std::string & msg) const
+        {
+            std::ostringstream oss;
+            oss << file << ":" << position->line << ": ";
+            oss << "before " << * position << ": " << msg << std::endl;
+            throw std::runtime_error(oss.str());
+        }
+
+        struct Context
+        {
+            Context(Parser<Lex> * parser)
+              : position(parser->position)
+            { }
+
+            void restore(Parser<Lex> * parser)
+            {
+                parser->position = position;
+            }
+
+            std::vector<Lex>::const_iterator position;
+        };
+
+        void next()
+        {
+            ++position;
+        }
+
+        Lex get()
+        {
+            return * position;
+        }
+
+        bool end()
+        {
+            return position->type != Lex::END;
+        }
+
+        std::string dump_position() const
+        {
+            std::ostringstream os;
+            os << * position;
+            return os.str();
+        }
+
+        std::vector<Lex>::const_iterator position;
+        std::string file;
+    };
+}
+
+namespace koalang
+{
     struct Grammar : public ell::Grammar<Lex>
     {
         Grammar();
 
-        Character<Lex> op(const char * op)
+        ell::Character<Lex> op(const char * op)
         {
-            return Character<Lex>(Lex(op, Lex::OP));
+            return ell::Character<Lex>(Lex(op, Lex::OP));
         }
 
-        Character<Lex> number, string, identifier;
+        ell::Character<Lex> number, string, identifier, newline;
 
-        ell::Rule<Lex> top, statement, assignation, expression,
+        ell::Rule<Lex> top, statement, definition, assignation, expression,
                        order, sum, product, unary, selection,
                        call, scoped, atome;
     };
 }
+
+#endif // __KOALANG_GRAMMAR__
