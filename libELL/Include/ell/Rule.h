@@ -36,7 +36,12 @@ namespace ell
             Node<Token>::name = "<anonymous>";
         }
 
-        virtual ~Rule() { clean(); }
+        virtual ~Rule()
+        {
+            if (not top)
+                throw std::runtime_error("Rule not used");
+            clean();
+        }
 
         void clean()
         {

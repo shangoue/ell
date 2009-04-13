@@ -19,6 +19,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <stdexcept>
 #include <cwchar>
 
 #ifndef ELL_DEBUG
@@ -37,8 +38,13 @@
 
 #define ELL_NAME_RULE(arg) arg.set_name(#arg);
 
-#define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
-#define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;
+#if ELL_DEBUG == 1
+# define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
+# define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;
+#else
+# define ELL_BEGIN_PARSE bool match = false;
+# define ELL_END_PARSE   return match;
+#endif
 
 namespace ell
 {
@@ -102,6 +108,24 @@ namespace ell
         for (unsigned int i = 0; i < s.size(); ++i)
             oss << protect_char(s[i]);
         return oss.str();
+    }
+
+    template <typename Char>
+    std::string dump_position(const Char * position)
+    {
+        std::string s = "\"";
+        const Char * p = position;
+        while (* p and p - position < 31)
+        {
+            s += protect_char(* p);
+            ++p;
+        }
+        s += "\"";
+        if (s.size() == 2)
+            return "end";
+        if (* p)
+            s += "...";
+        return s;
     }
     //@}
 }

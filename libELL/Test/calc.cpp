@@ -42,7 +42,7 @@ int main()
         }
         catch (std::runtime_error & e)
         {
-            fprintf(stderr, e.what());
+            fprintf(stderr, "%s\n", e.what());
             continue;
         }
         printf("= %lf\n", r);

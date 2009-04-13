@@ -29,15 +29,17 @@ namespace ell
         template <typename V>
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
-            s.assign(parser->get());
+            Storage<Token> si;
+            si.value = parser->get();
+            assign(s, si);
             return ((ConcreteNode *) this)->parse(parser);
         }
     };
 
     template <typename Token>
-    struct Epsilon : public TokenPrimitiveBase<Token, Epsilon<Token> >
+    struct Epsilon : public ConcreteNodeBase<Token, Epsilon<Token> >
     {
-        using TokenPrimitiveBase<Token, Epsilon<Token> >::parse;
+        using ConcreteNodeBase<Token, Epsilon<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
@@ -60,7 +62,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
-            if (bool(parser->get()))
+            if (not parser->end())
             {
                 match = true;
                 parser->next();
@@ -82,7 +84,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
-            match = not bool(parser->get());
+            match = parser->end();
             ELL_END_PARSE
         }
 
@@ -145,7 +147,7 @@ namespace ell
     struct Character : public TokenPrimitiveBase<Token, Character<Token> >
     {
         Character(const Token _c)
-            : c(_c)
+          : c(_c)
         { }
 
         using TokenPrimitiveBase<Token, Character<Token> >::parse;
@@ -161,13 +163,22 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
-        {
-            os << '\'' << protect_char(c) << '\'';
-        }
+        void describe(std::ostream & os) const { os << c; }
 
         const Token c;
     };
+
+	template <>
+    inline void Character<char>::describe(std::ostream & os) const
+    {
+        os << '\'' << protect_char(c) << '\'';
+    }
+
+    template <>
+    inline void Character<wchar_t>::describe(std::ostream & os) const
+    {
+        os << '\'' << protect_char(c) << '\'';
+    }
 
     template <typename Token, const Token C1, const Token C2>
     struct Range : public TokenPrimitiveBase<Token, Range<Token, C1, C2> >
@@ -223,7 +234,7 @@ namespace ell
     struct IgnoreCaseString : public ConcreteNodeBase<Token, IgnoreCaseString<Token> >
     {
         IgnoreCaseString(const std::basic_string<Token> & s)
-            : str(s)
+          : str(s)
         { }
 
         using ConcreteNodeBase<Token, IgnoreCaseString<Token> >::parse;
@@ -240,8 +251,8 @@ namespace ell
                 const wchar_t gc = parser->get();
 
                 if (c == gc
-                    || (c >= 'A' && c <= 'Z' && c + 32 == gc)
-                    || (c >= 'a' && c <= 'z' && c - 32 == gc))
+                    or (c >= 'A' and c <= 'Z' and c + 32 == gc)
+                    or (c >= 'a' and c <= 'z' and c - 32 == gc))
                 {
                     parser->next();
                     ++p;
@@ -271,7 +282,7 @@ namespace ell
     struct String : public ConcreteNodeBase<Token, String<Token> >
     {
         String(const std::basic_string<Token> & s)
-            : str(s)
+          : str(s)
         { }
 
         using ConcreteNodeBase<Token, String<Token> >::parse;
