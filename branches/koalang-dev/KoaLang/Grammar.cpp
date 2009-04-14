@@ -77,27 +77,27 @@ namespace koalang
         newline(Lex(Lex::NL))
     {
 #       define I & Interpreter
-        top = no_step_back(! newline >> * statement >> end);
+        top = no_step_back(* statement >> end);
 
-        statement = ( op("if") >> expression
-                    | op("else") >> statement
-                    | op("for") >> expression
-                    | op("in") >> expression
-                    | op("while") >> expression
-                    | op("do")
-                    | op("break")
-                    | op("return") >> expression
-                    | function >> * expression
-                    | expression >> ( op(":") >> expression [I::define]
-                                    | (op("=") >> expression) [I::binary<Assign>]
-                                    | * expression >> (function | error("Useless expression")) >> * expression )
-                    ) >> ! newline;
+        statement = op("if") >> expression
+                  | op("else") >> statement
+                  | op("for") >> expression
+                  | op("in") >> expression
+                  | op("while") >> expression
+                  | op("do")
+                  | op("break")
+                  | op("return") >> expression
+                  | assignation;
 
-        function = scoped [I::is_defined];
+        assignation = expression >> ! ( op(":") >> expression [I::define]
+                                      | op("=") >> expression [I::binary<Assign>] );
 
-        expression = order >> * ( op("and") >> order
-                                | op("or") >> order
-                                | op("xor") >> order );
+        expression = lexeme(no_step_back( scoped [I::is_defined] >> * logical
+                                        | + logical >> ! (scoped [I::is_defined] >> * logical) ));
+
+        logical = order >> * ( op("and") >> order
+                             | op("or") >> order
+                             | op("xor") >> order );
 
         order = sum >> * ( op("==") >> sum
                          | op("!=") >> sum
@@ -134,10 +134,10 @@ namespace koalang
 #       undef I
 
         top.set_name(0);
-
         ELL_NAME_RULE(statement)
-        ELL_NAME_RULE(function)
+        ELL_NAME_RULE(assignation)
         ELL_NAME_RULE(expression)
+        ELL_NAME_RULE(logical)
         ELL_NAME_RULE(order)
         ELL_NAME_RULE(sum)
         ELL_NAME_RULE(product)

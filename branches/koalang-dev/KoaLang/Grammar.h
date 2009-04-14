@@ -161,8 +161,8 @@ namespace ell
     template <>
     struct Parser<Lex> : public ParserBase<Lex>
     {
-        Parser(const Node<Lex> * grammar)
-          : ParserBase<Lex>(grammar)
+        Parser(const Node<Lex> * grammar, const Node<Lex> * skipper)
+          : ParserBase<Lex>(grammar, skipper)
         { }
 
         void parse(const std::string & filename, const std::vector<Lex> & lexemes)
@@ -171,9 +171,6 @@ namespace ell
             position = lexemes.begin();
             ParserBase<Lex>::parse();
         }
-
-        void skip()
-        { }
 
         void raise_error(const std::string & msg) const
         {
@@ -238,8 +235,8 @@ namespace koalang
 
         ell::Character<Lex> number, string, identifier, newline;
 
-        ell::Rule<Lex> top, statement, function, expression,
-                       order, sum, product, unary, selection,
+        ell::Rule<Lex> top, statement, assignation, expression,
+                       logical, order, sum, product, unary, selection,
                        scoped, atome;
     };
 }

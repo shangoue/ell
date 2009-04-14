@@ -24,7 +24,7 @@ namespace koalang
     struct Interpreter : public ell::Parser<Lex>
     {
         Interpreter()
-          : ell::Parser<Lex>(& grammar.top)
+          : ell::Parser<Lex>(& grammar.top, & grammar.newline)
         {
             root_scope = new Map;
             stack = new Block;
