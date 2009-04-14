@@ -165,7 +165,7 @@ namespace ell
           : ParserBase<Lex>(grammar)
         { }
 
-        void parse(const std::string & filename, const std::vector<Lex> lexemes)
+        void parse(const std::string & filename, const std::vector<Lex> & lexemes)
         {
             file = filename;
             position = lexemes.begin();
@@ -179,7 +179,7 @@ namespace ell
         {
             std::ostringstream oss;
             oss << file << ":" << position->line << ": ";
-            oss << "before " << * position << ": " << msg << std::endl;
+            oss << "before " << dump_position() << ": " << msg << std::endl;
             throw std::runtime_error(oss.str());
         }
 

@@ -24,9 +24,9 @@ namespace koalang
     {
         top = * lexeme( keyword
                       | ident [& Lexer::push<Lex::IDENT>]
-                      | dec [& Lexer::push_number]
                       | string
                       | op
+                      | real [& Lexer::push_number]
                       | + ch('\n') [& Lexer::newline]);
 
         keyword = (( str("break")
