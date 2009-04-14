@@ -30,8 +30,9 @@ namespace ell
     template <typename Token>
     struct ParserBase
     {
-        ParserBase(const Node<Token> * grammar)
-          : grammar(grammar)
+        ParserBase(const Node<Token> * grammar, const Node<Token> * skipper = 0)
+          : grammar(grammar),
+            skipper(skipper)
         { }
 
         virtual ~ParserBase() { }
@@ -41,6 +42,20 @@ namespace ell
             ((Parser<Token> *) this)->skip();
             if (not grammar->parse((Parser<Token> *) this))
                 mismatch(* grammar);
+        }
+
+        void skip()
+        {
+            if (skipper)
+            {
+#               if ELL_DEBUG == 1 && ELL_DUMP_SKIPPER != 1
+                SafeModify<> md(flags.debug, false);
+#               endif
+                SafeModify<const Node<Token> *> ms(skipper, 0);
+
+                while (ms.sav->parse((Parser<Token> *) this))
+                    ;
+            }
         }
 
         void mismatch(const Node<Token> & mismatch) const
@@ -96,6 +111,7 @@ namespace ell
 
         Flags flags;
         const Node<Token> * grammar;
+        const Node<Token> * skipper;
     };
 
     /// You will have to write an explicit specialization of this class
@@ -105,10 +121,9 @@ namespace ell
     {
         Parser(const Node<Char> * grammar,
                const Node<Char> * skipper = 0)
-          : ParserBase<Char>(grammar),
+          : ParserBase<Char>(grammar, skipper),
             line_number(1),
-            position(0),
-            skipper(skipper)
+            position(0)
         { }
 
         void parse(const Char * buffer)
@@ -116,20 +131,6 @@ namespace ell
             position = buffer;
             line_number = 1;
             ParserBase<Char>::parse();
-        }
-
-        void skip()
-        {
-            if (skipper)
-            {
-#               if ELL_DEBUG == 1 && ELL_DUMP_SKIPPER != 1
-                SafeModify<> md(ParserBase<Char>::flags.debug, false);
-#               endif
-                SafeModify<const Node<Char> *> ms(skipper, 0);
-
-                while (ms.sav->parse((Parser<Char> *) this))
-                    ;
-            }
         }
 
         void raise_error(const std::string & msg, int line_number) const
@@ -187,7 +188,6 @@ namespace ell
 
         int line_number;
         const Char * position;
-        const Node<Char> * skipper;
     };
 }
 
