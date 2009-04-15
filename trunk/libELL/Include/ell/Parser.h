@@ -108,8 +108,8 @@ namespace ell
             }
         }
 #       else
-        void begin_of_parsing(const Node<Token> * node) { }
-        void end_of_parsing(const Node<Token> * node, bool match) { }
+        void begin_of_parsing(const Node<Token> *) { }
+        void end_of_parsing(const Node<Token> *, bool) { }
 #       endif
 
         Flags flags;
