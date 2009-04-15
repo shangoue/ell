@@ -107,6 +107,9 @@ namespace ell
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
         }
+#       else
+        void begin_of_parsing(const Node<Token> * node) { }
+        void end_of_parsing(const Node<Token> * node, bool match) { }
 #       endif
 
         Flags flags;
