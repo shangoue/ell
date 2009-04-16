@@ -1,7 +1,66 @@
-test1:
+BasicTypes:
 {
-    "Définition et surcharge d'opérateurs"
-    "0\n1\n2\n"
+    "KoaLang is very basic:'
+    a=112
+    print a + 3 / 5
+
+    "This will print 112.60. Every numbers are double-precision floating point"
+
+    "Strings can be written like C strings, but the use of single quotes is permit":
+    s = 'hello, world'
+    print s
+}
+
+Exceptions:
+{
+    Accessing an unkown variable
+}
+
+AssignationAndScopes:
+{
+    "Assigning a variable is quite common:"
+    var = 1
+
+    "var is created in current scope if necessary, and the assigned a value of one."
+    "The following will print 2:"
+    var = 1
+    var = 2
+    print var
+
+    "A scope is the part of a program where the set of visible variables is the same"
+    "A local scope can be introduced with the use of curly brackets { }":
+    {
+        local = 1
+    }
+    "The following code will produce an error
+    if ? print local
+        print "Error catched with the ? operator"
+    else
+        ! "Unexpected error"
+
+    "For exemple:"
+    var = 1
+    print var "Will print 1"
+    {
+        print var "Will print 1"
+        var = 2
+        print var "Will print 2"
+    }
+    print var "Will print 1 again: variable within
+
+
+
+    "And with the definition operator:"
+    b: 1
+
+
+    "Definition operator will fail if the variable already exists in current scope"
+}
+
+Operators:
+{
+    "Definition et surcharge d'opérateurs"
+    '0\n1\n2\n'
 
     func<a>:
     {
@@ -18,15 +77,36 @@ test1:
     func func func
 }
 
-
-test2:
+POOA:
 {
-    "Définition de constantes, et overriding"
-    "!"
+    "Programmation objet orientée aspects"
 
-    a = 1
-    b : 1
+    "Il est possible de placer dans un bloc des variables non assignées:"
+    Légumes = { Radis: 3  Concombre: 5  Orties: 12 }
 
-    a = 2
-    b = 2
+    for (key value) in Légumes
+    (
+        @@[key]:
+        {
+            "Define data members:"
+            number: 0
+            name: '<unknown>'
+
+            "Define an accessor:"
+            get_name<>: name
+
+            "<> is optional to define a operator without args:"
+            get_number: number
+        }
+
+        "Set class members, notice than @@[key@ refer to a block, not a map:"
+        @@[key].number = value
+        @@[key].name = key
+
+    )
+
+    Radis: Legume +
+    {
+        name = 'Radis'
+    }
 }

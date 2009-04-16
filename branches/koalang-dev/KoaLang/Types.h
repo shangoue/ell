@@ -45,7 +45,7 @@ namespace koalang
             return os;
         }
 
-        //TODO: add location information for backtrace
+        //TODO: add location information for back-trace
     };
 
     typedef std::vector<Object *> ObjectList;

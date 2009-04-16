@@ -92,6 +92,7 @@ namespace koalang
         assignation = expression >> ! ( op(":") >> expression [I::define]
                                       | op("=") >> expression [I::binary<Assign>] );
 
+        // TODO: use no_skipper
         expression = lexeme(no_step_back( scoped [I::is_defined] >> * logical
                                         | + logical >> ! (scoped [I::is_defined] >> * logical) ));
 
@@ -127,6 +128,7 @@ namespace koalang
         atome = op("(") >> * statement >> op(")")
               | op("{") >> * statement >> op("}")
               | op("<") >> * identifier >> op(">")
+              | op("`") >> * identifier >> op("`")
               | number [I::push<Real>]
               | string [I::push<String>]
               | identifier [I::push<Variable>]
