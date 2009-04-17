@@ -40,6 +40,9 @@ namespace ell
         NoStepBack<Token, P>                    no_step_back(const P & p) const { return NoStepBack<Token, P>(p); }
 
         template <typename P>
+        LookAhead<Token, P>                     look_ahead(const P & p) const { return LookAhead<Token, P>(p); }
+
+        template <typename P>
         NoConsume<Token, P>                     no_consume(const P & p) const { return NoConsume<Token, P>(p); }
 
         template <typename P>
