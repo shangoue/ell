@@ -65,6 +65,27 @@ namespace ell
         }
     };
 
+    /// Enable look-ahead: allow stepping back when evaluating a branch of the grammar
+    template <typename Token, typename Child>
+    struct LookAhead : public UnaryNode<Token, LookAhead<Token, Child>, Child>
+    {
+        typedef UnaryNode<Token, LookAhead<Token, Child>, Child> Base;
+
+        LookAhead(const Child & target)
+          : Base(target, "look_ahead")
+        { }
+
+        using Base::parse;
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        {
+            ELL_BEGIN_PARSE
+            SafeModify<> m1(parser->flags.step_back, true);
+            match = Base::target.parse(parser, s);
+            ELL_END_PARSE
+        }
+    };
+
     /// Match without consuming any token
     template <typename Token, typename Child>
     struct NoConsume : public UnaryNode<Token, NoConsume<Token, Child>, Child>
