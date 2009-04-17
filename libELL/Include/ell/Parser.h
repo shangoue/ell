@@ -30,7 +30,7 @@ namespace ell
     template <typename Token>
     struct ParserBase
     {
-        ParserBase(const Node<Token> * grammar, const Node<Token> * skipper)
+        ParserBase(const Node<Token> * grammar, const Node<Token> * skipper = 0)
           : grammar(grammar),
             skipper(skipper)
         { }
@@ -46,7 +46,7 @@ namespace ell
 
         void skip()
         {
-            if (flags.skip)
+            if (flags.skip & skipper)
             {
 #               if ELL_DEBUG == 1 && ELL_DUMP_SKIPPER != 1
                 SafeModify<> md(flags.debug, false);
@@ -126,7 +126,7 @@ namespace ell
     struct Parser : public ParserBase<Char>
     {
         Parser(const Node<Char> * grammar,
-               const Node<Char> * skipper)
+               const Node<Char> * skipper = 0)
           : ParserBase<Char>(grammar, skipper),
             line_number(1),
             position(0)
