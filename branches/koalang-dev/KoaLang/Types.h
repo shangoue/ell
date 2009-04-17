@@ -96,7 +96,12 @@ namespace koalang
     {
         void describe(std::ostream & os) const { os << '(' << value << ')'; }
 
-        Object * eval(Map * context) { return this; }
+        Object * eval(Map * context)
+        {
+            for (ObjectList::const_iterator i = value.begin(); i != value.end(); ++i)
+                (* i)->eval(context);
+            return this;
+        }
 
         ObjectList value;
     };
@@ -145,8 +150,7 @@ namespace koalang
         Map * eval(Map * context)
         {
             Map * locals = new Map(context);
-            for (ObjectList::const_iterator i = value.begin(); i != value.end(); ++i)
-                (* i)->eval(locals);
+            List::eval(locals);
             return locals;
         }
 

@@ -19,6 +19,85 @@
 #include "Grammar.h"
 #include "Types.h"
 
+namespace ell
+{
+    using namespace koalang;
+
+    template <>
+    struct Parser<Lex> : public ParserBase<Lex>
+    {
+        Parser(const Node<Lex> * grammar, const Node<Lex> * skipper)
+          : ParserBase<Lex>(grammar, skipper)
+        { }
+
+        void parse(const std::string & filename, const std::vector<Lex> & lexemes)
+        {
+            file = filename;
+            position = lexemes.begin();
+            ParserBase<Lex>::parse();
+        }
+
+        void raise_error(const std::string & msg) const
+        {
+            std::ostringstream oss;
+            oss << file << ":" << position->line << ": ";
+            oss << "before " << dump_position() << ": " << msg << std::endl;
+            throw std::runtime_error(oss.str());
+        }
+
+        struct Context
+        {
+            Context(Parser<Lex> * parser)
+              : position(parser->position)
+            { }
+
+            void restore(Parser<Lex> * parser)
+            {
+                parser->position = position;
+            }
+
+            std::vector<Lex>::const_iterator position;
+        };
+
+        void next()
+        {
+            ++position;
+        }
+
+        Lex get()
+        {
+            return * position;
+        }
+
+        bool end()
+        {
+            return position->type == Lex::END;
+        }
+
+        std::string dump_position() const
+        {
+            std::ostringstream os;
+            for (std::vector<Lex>::const_iterator i = position; i->type != Lex::END; ++i)
+            {
+                switch (i->type)
+                {
+                case Lex::END:   os << "end"; break;
+                case Lex::NL:    os << "newline"; break;
+                case Lex::NUM:   os << i->n; break;
+                case Lex::STR:   os << '"' << i->s << '"'; break;
+                case Lex::IDENT:
+                case Lex::OP:    os << i->s; break;
+                }
+                os << ' ';
+            }
+            return os.str();
+        }
+
+        std::vector<Lex>::const_iterator position;
+        std::string file;
+    };
+}
+
 namespace koalang
 {
     struct Interpreter : public ell::Parser<Lex>
@@ -51,6 +130,15 @@ namespace koalang
             Object * op = new Object;
             op->right = pop();
             op->left = pop();
+            op->name = name->s;
+            push(op);
+        }
+
+        template <typename Object>
+        void unary(const Lex * name)
+        {
+            Object * op = new Object;
+            op->target = pop();
             op->name = name->s;
             push(op);
         }

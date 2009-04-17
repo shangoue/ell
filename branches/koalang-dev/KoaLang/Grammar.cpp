@@ -19,57 +19,6 @@
 
 namespace koalang
 {
-    Lexer::Lexer()
-      : ell::Parser<char>(& top, & blank)
-    {
-        top = * lexeme( keyword
-                      | ident [& Lexer::push<Lex::IDENT>]
-                      | string
-                      | op
-                      | real [& Lexer::push_number]
-                      | + ch('\n') [& Lexer::newline]);
-
-        keyword = (( str("break")
-                   | str("do")    | str("else")
-                   | str("for")   | str("if")
-                   | str("in")    | str("return")
-                   | str("xor")   | str("or")
-                   | str("and")   | str("while") ) >> eps - alnum) [& Lexer::push<Lex::OP>];
-
-        string = ch('\"') [& Lexer::push_string] >> string_char * ch('\"')
-               | ch('\'') [& Lexer::push_string] >> string_char * ch('\'');
-
-        string_char = ch('\\') >> ( ch('a') [& Lexer::push_char<'\a'>]
-                                  | ch('b') [& Lexer::push_char<'\b'>]
-                                  | ch('t') [& Lexer::push_char<'\t'>]
-                                  | ch('n') [& Lexer::push_char<'\n'>]
-                                  | ch('v') [& Lexer::push_char<'\v'>]
-                                  | ch('f') [& Lexer::push_char<'\f'>]
-                                  | ch('r') [& Lexer::push_char<'\r'>])
-                                  |            integer<unsigned long,  8, 1, 3>() [& Lexer::push_char]
-                                  | ch('x') >> integer<unsigned long, 16, 1, 2>() [& Lexer::push_char]
-                                  | ch('u') >> integer<unsigned long, 16, 4, 4>() [& Lexer::push_char]
-                                  | ch('U') >> integer<unsigned long, 16, 8, 8>() [& Lexer::push_char]
-                    | any [& Lexer::push_char] - ch('\n');
-
-        op = ( chset("-!#*/%+<>=") >> ! ch('=')
-             | chset("[({") [& Lexer::open]
-             | chset("])}") [& Lexer::close]
-             | ch('.') >> ! ch('.')
-             | ch('@') >> ! ch('@')
-             | ch(':')
-             ) [& Lexer::push<Lex::OP>];
-
-        blank = chset(" \t\r");
-
-        top.set_name(0);
-        string_char.set_name(0);
-
-        op.set_name("operator");
-        keyword.set_name("keyword");
-        string.set_name("string");
-    }
-
     Grammar::Grammar()
       : number(Lex(Lex::NUM)),
         string(Lex(Lex::STR)),
@@ -77,7 +26,7 @@ namespace koalang
         newline(Lex(Lex::NL))
     {
 #       define I & Interpreter
-        top = no_step_back(* statement >> end);
+        top = no_look_ahead(* statement >> end);
 
         statement = op("if") >> expression
                   | op("else") >> statement
@@ -87,14 +36,15 @@ namespace koalang
                   | op("do")
                   | op("break")
                   | op("return") >> expression
+                  | (op("print") >> expression) [I::unary<Print>]
                   | assignation;
 
         assignation = expression >> ! ( op(":") >> expression [I::define]
-                                      | op("=") >> expression [I::binary<Assign>] );
+                                      | (op("=") >> expression) [I::binary<Assign>] );
 
         // TODO: use no_skipper
-        expression = lexeme(no_step_back( scoped [I::is_defined] >> * logical
-                                        | + logical >> ! (scoped [I::is_defined] >> * logical) ));
+        expression = no_skip( scoped [I::is_defined] >> * logical
+                            | + logical >> ! (scoped [I::is_defined] >> * logical) );
 
         logical = order >> * ( op("and") >> order
                              | op("or") >> order
@@ -107,7 +57,7 @@ namespace koalang
                          | op("<") >> sum
                          | op(">") >> sum );
 
-        sum = product >> * ( op("+") >> product [I::binary<Add>]
+        sum = product >> * ( (op("+") >> product) [I::binary<Add>]
                            | op("-") >> product);
 
         product = unary >> * ( op("*") >> unary
@@ -125,8 +75,8 @@ namespace koalang
         scoped = atome >> * ( op("..") >> atome
                             | op(".") >> atome );
 
-        atome = op("(") >> * statement >> op(")")
-              | op("{") >> * statement >> op("}")
+        atome = op("(") >> skip(* statement) >> op(")")
+              | op("{") >> skip(* statement) >> op("}")
               | op("<") >> * identifier >> op(">")
               | op("`") >> * identifier >> op("`")
               | number [I::push<Real>]

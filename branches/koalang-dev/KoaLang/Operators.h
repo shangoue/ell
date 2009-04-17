@@ -33,7 +33,18 @@ namespace koalang
             os << * left << ' ' << name << ' ' << * right;
         }
 
-        Object * left, * right;
+        Object * left,
+               * right;
+    };
+
+    struct UnaryOperator : public Operator
+    {
+        void describe(std::ostream & os) const
+        {
+            os << name << ' ' << * target;
+        }
+
+        Object * target;
     };
 
     struct Assign : public BinaryOperator
@@ -49,6 +60,15 @@ namespace koalang
         Object * eval(Map * context)
         {
             return new Real(left->eval(context)->to<Real>() + right->eval(context)->to<Real>());
+        }
+    };
+
+    struct Print : public UnaryOperator
+    {
+        Object * eval(Map * context)
+        {
+            std::cout << * (target->eval(context)) << std::endl;
+            return new List;
         }
     };
 }

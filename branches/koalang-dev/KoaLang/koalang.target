@@ -1,5 +1,5 @@
 TARGET = koalang
-TARGET_FILES = $(addprefix KoaLang/,Grammar.cpp main.cpp)
+TARGET_FILES = KoaLang/*.cpp
 
 CFLAGS = -I. -IlibELL/Include -DELL_DEBUG=1 -DDUMP_NODES=1
 LDFLAGS = -lstdc++ -lreadline -lhistory
