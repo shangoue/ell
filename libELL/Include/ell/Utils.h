@@ -42,6 +42,12 @@
 # define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
 # define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;
 
+# define ELL_PARSER_FLAGS           \
+    ELL_FLAG(look_ahead, LookAhead) \
+    ELL_FLAG(consume, Consume)      \
+    ELL_FLAG(action, Action)        \
+    ELL_FLAG(skip, Skip)            \
+
 namespace ell
 {
     /// Exception-safe temporary modification
