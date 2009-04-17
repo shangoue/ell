@@ -239,7 +239,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
-            SafeModify<> m1(parser->flags.step_back, true);
+            SafeModify<> m1(parser->flags.look_ahead, true);
             typename Parser<Token>::Context sav_pos(parser);
             match = left.parse(parser, s);
             if (match and right.parse(parser))
