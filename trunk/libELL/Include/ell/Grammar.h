@@ -29,21 +29,20 @@ namespace ell
         EndOfStream<Token>                      end;
         Epsilon<Token>                          eps;
         Any<Token>                              any;
+        Nop<Token>                              nop;
 
         template <typename T>
         Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
 
-        template <typename P>
-        NoAction<Token, P>                      no_action(const P & p) const { return NoAction<Token, P>(p); }
+#       define ELL_FLAG(FLAG, CLASS)                                                                                        \
+        template <typename P>                                                                                               \
+        CLASS##FlagMod<Token, P, true>          FLAG(const P & p) const { return CLASS##FlagMod<Token, P, true>(p); }       \
+                                                                                                                            \
+        template <typename P>                                                                                               \
+        CLASS##FlagMod<Token, P, false>         no_##FLAG(const P & p) const { return CLASS##FlagMod<Token, P, false>(p); } \
 
-        template <typename P>
-        NoStepBack<Token, P>                    no_step_back(const P & p) const { return NoStepBack<Token, P>(p); }
-
-        template <typename P>
-        LookAhead<Token, P>                     look_ahead(const P & p) const { return LookAhead<Token, P>(p); }
-
-        template <typename P>
-        NoConsume<Token, P>                     no_consume(const P & p) const { return NoConsume<Token, P>(p); }
+        ELL_PARSER_FLAGS
+#       undef ELL_FLAG
 
         template <typename P>
         Lexeme<Token, P>                        lexeme(const P & p) const { return Lexeme<Token, P>(p); }

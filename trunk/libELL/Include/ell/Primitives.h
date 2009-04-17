@@ -40,7 +40,6 @@ namespace ell
     struct Epsilon : public ConcreteNodeBase<Token, Epsilon<Token> >
     {
         using ConcreteNodeBase<Token, Epsilon<Token> >::parse;
-
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
@@ -48,10 +47,20 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        void describe(std::ostream & os) const { os << "epsilon"; }
+    };
+
+    template <typename Token>
+    struct Nop : public ConcreteNodeBase<Token, Nop<Token> >
+    {
+        using ConcreteNodeBase<Token, Nop<Token> >::parse;
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
-            os << "epsilon";
+            ELL_BEGIN_PARSE
+            ELL_END_PARSE
         }
+
+        void describe(std::ostream & os) const { os << "nop"; }
     };
 
     template <typename Token>

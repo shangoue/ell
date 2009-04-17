@@ -21,92 +21,31 @@
 
 namespace ell
 {
-    /// Disable any nested semantic action
-    template <typename Token, typename Child>
-    struct NoAction : public UnaryNode<Token, NoAction<Token, Child>, Child>
-    {
-        typedef UnaryNode<Token, NoAction<Token, Child>, Child> Base;
-
-        NoAction(const Child & target)
-          : Base(target, "no_action")
-        { }
-
-        using Base::parse;
-
-        template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
-        {
-            ELL_BEGIN_PARSE
-            SafeModify<> m1(parser->flags.action, false);
-            /// Propagating storage is useless
-            match = Base::target.parse(parser);
-            ELL_END_PARSE
-        }
+#   define ELL_FLAG(FLAG, NAME)                                                  \
+    template <typename Token, typename Child, const bool NV>                     \
+    struct NAME ## FlagMod                                                       \
+      : public UnaryNode<Token, NAME ## FlagMod<Token, Child, NV>, Child>        \
+    {                                                                            \
+        typedef UnaryNode<Token, NAME ## FlagMod<Token, Child, NV>, Child> Base; \
+                                                                                 \
+        NAME ## FlagMod(const Child & target)                                    \
+          : Base(target, NV ? #FLAG : "no_" #FLAG)                               \
+        { }                                                                      \
+                                                                                 \
+        using Base::parse;                                                       \
+                                                                                 \
+        template <typename V>                                                    \
+        bool parse(Parser<Token> * parser, Storage<V> & s) const                 \
+        {                                                                        \
+            ELL_BEGIN_PARSE                                                      \
+            SafeModify<> m1(parser->flags.FLAG, NV);                             \
+            match = Base::target.parse(parser, s);                               \
+            ELL_END_PARSE                                                        \
+        }                                                                        \
     };
 
-    /// Forbid stepping back when evaluating a branch of the grammar, which is equivalent to consider it as LL(1)
-    template <typename Token, typename Child>
-    struct NoStepBack : public UnaryNode<Token, NoStepBack<Token, Child>, Child>
-    {
-        typedef UnaryNode<Token, NoStepBack<Token, Child>, Child> Base;
-
-        NoStepBack(const Child & target)
-          : Base(target, "no_step_back")
-        { }
-
-        using Base::parse;
-        template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
-        {
-            ELL_BEGIN_PARSE
-            SafeModify<> m1(parser->flags.step_back, false);
-            match = Base::target.parse(parser, s);
-            ELL_END_PARSE
-        }
-    };
-
-    /// Enable look-ahead: allow stepping back when evaluating a branch of the grammar
-    template <typename Token, typename Child>
-    struct LookAhead : public UnaryNode<Token, LookAhead<Token, Child>, Child>
-    {
-        typedef UnaryNode<Token, LookAhead<Token, Child>, Child> Base;
-
-        LookAhead(const Child & target)
-          : Base(target, "look_ahead")
-        { }
-
-        using Base::parse;
-        template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
-        {
-            ELL_BEGIN_PARSE
-            SafeModify<> m1(parser->flags.step_back, true);
-            match = Base::target.parse(parser, s);
-            ELL_END_PARSE
-        }
-    };
-
-    /// Match without consuming any token
-    template <typename Token, typename Child>
-    struct NoConsume : public UnaryNode<Token, NoConsume<Token, Child>, Child>
-    {
-        typedef UnaryNode<Token, NoConsume<Token, Child>, Child> Base;
-
-        NoConsume(const Child & target)
-          : Base(target, "no_consume")
-        { }
-
-        using Base::parse;
-        template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
-        {
-            ELL_BEGIN_PARSE
-            typename Parser<Token>::Context sav_pos(parser);
-            match = Base::target.parse(parser, s);
-            sav_pos.restore(parser);
-            ELL_END_PARSE
-        }
-    };
+    ELL_PARSER_FLAGS
+#   undef ELL_FLAG
 
     /// This class allows to define a new grammar terminator.
     /// When parsing parsing through its children, skipper is disabled and stepping back allowed.
@@ -124,8 +63,8 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            SafeModify<> m1(parser->flags.step_back, true);
-            SafeModify<const Node<Token> *> m2(parser->skipper, 0);
+            SafeModify<> m1(parser->flags.look_ahead, true);
+            SafeModify<> m2(parser->flags.skip, false);
             match = Base::target.parse(parser, s);
             ELL_END_PARSE
         }

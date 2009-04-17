@@ -7,6 +7,8 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
     Calc()
       : ell::Parser<char>(& root, & blank)
     {
+        flags.look_ahead = false;
+
         factor = dec [& Calc::push] |
                  ch('(') >> expression >> ch(')') |
                  (ch('-') >> factor) [& Calc::negate] |
@@ -18,7 +20,7 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
         expression = term >> *((ch('+') >> term) [& Calc::add] |
                                (ch('-') >> term) [& Calc::substract]);
 
-        root = no_step_back(expression >> ell::Grammar<char>::end);
+        root = expression >> ell::Grammar<char>::end;
 
         ELL_NAME_RULE(factor)
         ELL_NAME_RULE(term)

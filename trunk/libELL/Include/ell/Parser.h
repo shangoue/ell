@@ -30,7 +30,7 @@ namespace ell
     template <typename Token>
     struct ParserBase
     {
-        ParserBase(const Node<Token> * grammar, const Node<Token> * skipper = 0)
+        ParserBase(const Node<Token> * grammar, const Node<Token> * skipper)
           : grammar(grammar),
             skipper(skipper)
         { }
@@ -46,14 +46,14 @@ namespace ell
 
         void skip()
         {
-            if (skipper)
+            if (flags.skip)
             {
 #               if ELL_DEBUG == 1 && ELL_DUMP_SKIPPER != 1
                 SafeModify<> md(flags.debug, false);
 #               endif
-                SafeModify<const Node<Token> *> ms(skipper, 0);
+                SafeModify<> ms(flags.skip, false);
 
-                while (ms.sav->parse((Parser<Token> *) this))
+                while (skipper->parse((Parser<Token> *) this))
                     ;
             }
         }
@@ -71,16 +71,19 @@ namespace ell
         struct Flags
         {
             Flags()
-              : step_back(true)
-              , action(true)
-#               if ELL_DEBUG == 1
-              , debug(false)
-              , level(0)
-#               endif
-            { }
+#           if ELL_DEBUG == 1
+              : debug(false) , level(0)
+#           endif
+            {
+#               define ELL_FLAG(FLAG, N) FLAG = true;
+                ELL_PARSER_FLAGS
+#               undef ELL_FLAG
+            }
 
-            bool step_back;
-            bool action;
+#           define ELL_FLAG(FLAG, N) bool FLAG;
+            ELL_PARSER_FLAGS
+#           undef ELL_FLAG
+
 #           if ELL_DEBUG == 1
             bool debug;
             int level;
@@ -123,7 +126,7 @@ namespace ell
     struct Parser : public ParserBase<Char>
     {
         Parser(const Node<Char> * grammar,
-               const Node<Char> * skipper = 0)
+               const Node<Char> * skipper)
           : ParserBase<Char>(grammar, skipper),
             line_number(1),
             position(0)

@@ -115,7 +115,7 @@ namespace ell
                 }
                 else
                 {
-                    if (not parser->flags.step_back)
+                    if (not parser->flags.look_ahead)
                         parser->mismatch(right);
 
                     sav_pos.restore(parser);
