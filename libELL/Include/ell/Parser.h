@@ -46,7 +46,7 @@ namespace ell
 
         void skip()
         {
-            if (flags.skip & skipper)
+            if (flags.skip & (bool) skipper)
             {
 #               if ELL_DEBUG == 1 && ELL_DUMP_SKIPPER != 1
                 SafeModify<> md(flags.debug, false);
