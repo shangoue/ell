@@ -49,12 +49,37 @@ namespace koalang
 
     struct Assign : public BinaryOperator
     {
-        Object * eval(Map * context)
+        Object * eval(Map * context) { return assign(left, right, context); }
+
+        static Object * assign(Object * left, Object * right, Map * context)
         {
             if (left->is<Variable>())
             {
                 return context->value[left->to<Variable>().value] = right->eval(context);
             }
+            else if (left->is<List>())
+            {
+                List * left_list = (List *) left;
+                List * right_list = right->to<List>();
+                List * result = new List;
+
+                ObjectList::iterator l = left_list->value.begin(),
+                                     r = right_list->value.begin();
+                while (l != left_list->value.end())
+                {
+                    if (r == right_list->value.end())
+                        throw std::runtime_error("Left list too small for assignment");
+                    result->value.push_back(assign(* l, * r, context));
+                }
+
+                if (r != right_list->value.end())
+                    throw std::runtime_error("Left list too big for assignment");
+                return result;
+            }
+            else
+                throw std::runtime_error("Not assignable");
+
+        }
     };
 
     struct Call : public Assign
@@ -67,13 +92,8 @@ namespace koalang
         Object * eval(Map * context)
         {
             Map parameters(context);
-            Assign a;
-            a.left = function->left;
-            a.right = left;
-            a.eval(& parameters);
-            a.left = function->right;
-            a.right = right;
-            a.eval(& parameters);
+            Assign::assign(function->left, left, parameters);
+            Assign::assign(function->right, right, parameters);
             return function->body->eval(parameters);
         }
 
