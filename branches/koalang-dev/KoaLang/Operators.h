@@ -25,23 +25,14 @@ namespace koalang
         std::string name;
     };
 
-    struct Call : public Operator
+    struct UnaryOperator : public Operator
     {
         void describe(std::ostream & os) const
         {
-            os << '(' << * left << ' ' << name << ' ' << * right << ')';
+            os << name << ' ' << * target;
         }
 
-        Object * eval(Map * context)
-        {
-            Map * parameters = new Map(context);
-            assign(function->left, left, parameters);
-            assign(function->right, right, parameters);
-            return function->body->eval(parameters);
-        }
-
-        List * left, * right;
-        Function * function;
+        Object * target;
     };
 
     struct BinaryOperator : public Operator
@@ -55,23 +46,41 @@ namespace koalang
         Object * left, * right;
     };
 
-    struct UnaryOperator : public Operator
-    {
-        void describe(std::ostream & os) const
-        {
-            os << name << ' ' << * target;
-        }
-
-        Object * target;
-    };
 
     struct Assign : public BinaryOperator
     {
         Object * eval(Map * context)
         {
-            return context->value[left->to<Variable>().value] = right->eval(context);
-        }
+            if (left->is<Variable>())
+            {
+                return context->value[left->to<Variable>().value] = right->eval(context);
+            }
     };
+
+    struct Call : public Assign
+    {
+        void describe(std::ostream & os) const
+        {
+            os << '(' << * left << ' ' << name << ' ' << * right << ')';
+        }
+
+        Object * eval(Map * context)
+        {
+            Map parameters(context);
+            Assign a;
+            a.left = function->left;
+            a.right = left;
+            a.eval(& parameters);
+            a.left = function->right;
+            a.right = right;
+            a.eval(& parameters);
+            return function->body->eval(parameters);
+        }
+
+        List * left, * right;
+        Function * function;
+    };
+
 
     struct Add : public BinaryOperator
     {
