@@ -28,16 +28,16 @@ namespace koalang
 #       define I & Interpreter
         top = no_look_ahead(* statement >> end);
 
-        statement = op("if") >> expression
-                  | op("else") >> statement
-                  | op("for") >> expression
-                  | op("in") >> expression
-                  | op("while") >> expression
-                  | op("do")
-                  | op("break")
-                  | op("return") >> expression
-                  | (op("print") >> expression) [I::unary<Print>]
-                  | assignation;
+        statement = skip( op("if") >> expression
+                        | op("else") >> statement
+                        | op("for") >> expression
+                        | op("in") >> expression
+                        | op("while") >> expression
+                        | op("do")
+                        | op("break")
+                        | op("return") >> expression
+                        | (op("print") >> expression) [I::unary<Print>]
+                        | assignation );
 
         assignation = expression >> ! ( op(":") >> expression [I::define]
                                       | (op("=") >> expression) [I::binary<Assign>] );
@@ -75,13 +75,15 @@ namespace koalang
         scoped = atome >> * ( op("..") >> atome
                             | op(".") >> atome );
 
-        atome = op("(") >> skip(* statement) >> op(")")
-              | op("{") >> skip(* statement) >> op("}")
-              | op("<") >> * identifier >> op(">")
+        formal_parameters = op("<") >> * identifier >> op(">");
+
+        atome = op("(") >> * statement >> op(")")
+              | op("{") >> * statement >> op("}")
+              | formal_parameters >> identifier >> ! formal_parameters
               | op("`") >> * identifier >> op("`")
               | number [I::push<Real>]
               | string [I::push<String>]
-              | identifier [I::push<Variable>]
+              | identifier [I::push<Variable>] >> ! formal_parameters
               | op("@@");
 #       undef I
 

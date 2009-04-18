@@ -157,6 +157,18 @@ namespace koalang
         void describe(std::ostream & os) const { os << '{' << value << '}'; }
     };
 
+    struct Function : public Object
+    {
+        Object * eval(Map * context) { return this; }
+
+        void describe(std::ostream & os) const
+        {
+            os << "( <" << * left << "> <" << * right << "> )";
+        }
+
+        List * left, * right;
+        Object * body;
+    };
 }
 
 #endif //__KOALANG_TYPES_H__

@@ -25,16 +25,34 @@ namespace koalang
         std::string name;
     };
 
+    struct Call : public Operator
+    {
+        void describe(std::ostream & os) const
+        {
+            os << '(' << * left << ' ' << name << ' ' << * right << ')';
+        }
+
+        Object * eval(Map * context)
+        {
+            Map * parameters = new Map(context);
+            assign(function->left, left, parameters);
+            assign(function->right, right, parameters);
+            return function->body->eval(parameters);
+        }
+
+        List * left, * right;
+        Function * function;
+    };
+
     struct BinaryOperator : public Operator
     {
         // TODO: manage priority when unparsing
         void describe(std::ostream & os) const
         {
-            os << * left << ' ' << name << ' ' << * right;
+            os << '(' << * left << ' ' << name << ' ' << * right << ')';
         }
 
-        Object * left,
-               * right;
+        Object * left, * right;
     };
 
     struct UnaryOperator : public Operator
