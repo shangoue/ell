@@ -55,7 +55,7 @@ namespace koalang
         {
             if (left->is<Variable>())
             {
-                return context->value[left->to<Variable>().value] = right->eval(context);
+                return context->value[left->to<Variable>()->value] = right->eval(context);
             }
             else if (left->is<List>())
             {
@@ -92,12 +92,11 @@ namespace koalang
         Object * eval(Map * context)
         {
             Map parameters(context);
-            Assign::assign(function->left, left, parameters);
-            Assign::assign(function->right, right, parameters);
-            return function->body->eval(parameters);
+            Assign::assign(function->left, left, & parameters);
+            Assign::assign(function->right, right, & parameters);
+            return function->body->eval(& parameters);
         }
 
-        List * left, * right;
         Function * function;
     };
 
@@ -106,7 +105,7 @@ namespace koalang
     {
         Object * eval(Map * context)
         {
-            return new Real(left->eval(context)->to<Real>() + right->eval(context)->to<Real>());
+            return new Real(left->eval(context)->to<Real>()->value + right->eval(context)->to<Real>()->value);
         }
     };
 

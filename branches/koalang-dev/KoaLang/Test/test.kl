@@ -110,3 +110,18 @@ POOA:
         name = 'Radis'
     }
 }
+
+scoping:
+{
+    scope:
+    {
+        class <name>:
+        {
+            name = name
+            getName: name
+        }
+    }
+
+    object = scope.class "toto"
+    print object.getName
+}

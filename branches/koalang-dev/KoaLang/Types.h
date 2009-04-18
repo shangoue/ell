@@ -32,10 +32,10 @@ namespace koalang
         bool is() { return dynamic_cast<Type *>(this); }
 
         template <typename Type>
-        Type & to()
+        Type * to()
         {
             if (is<Type>())
-                return * (Type *) this;
+                return (Type *) this;
             throw std::runtime_error("Type error");
         }
 
@@ -73,8 +73,6 @@ namespace koalang
         void describe(std::ostream & os) const { os << value; }
 
         Real * eval(Map * context) { return this; }
-
-        operator double () const { return value; }
 
         double value;
     };
