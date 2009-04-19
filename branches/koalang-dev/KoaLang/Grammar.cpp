@@ -75,15 +75,15 @@ namespace koalang
         scoped = atome >> * ( op("..") >> atome
                             | op(".") >> atome );
 
-        formal_parameters = op("<") >> * identifier >> op(">");
+        parameters = op("<") >> * identifier >> op(">");
 
         atome = op("(") >> * statement >> op(")")
               | op("{") >> * statement >> op("}")
-              | formal_parameters >> identifier >> ! formal_parameters
+              | parameters >> identifier >> ! parameters
+              | identifier [I::push<Variable>] >> ! parameters
               | op("`") >> * identifier >> op("`")
               | number [I::push<Real>]
               | string [I::push<String>]
-              | identifier [I::push<Variable>] >> ! formal_parameters
               | op("@@");
 #       undef I
 
@@ -98,6 +98,7 @@ namespace koalang
         ELL_NAME_RULE(unary)
         ELL_NAME_RULE(selection)
         ELL_NAME_RULE(scoped)
+        ELL_NAME_RULE(parameters)
         ELL_NAME_RULE(atome)
     }
 }
