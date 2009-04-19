@@ -91,49 +91,13 @@ namespace koalang
 
         void push_string() { lexemes.push_back(Lex(Lex::STR, line_number)); }
 
-        void push_char(char c) { lexemes.end()->s += c; }
+        void push_char(char c) { lexemes.back().s += c; }
 
         template <const char C>
-        void push_char() { lexemes.end()->s += C; }
+        void push_char() { lexemes.back().s += C; }
 
-        void open(const char * brace)
-        {
-            nesting.push_back(lexemes.size());
-            lexemes.push_back(Lex(brace, position, Lex::OP, line_number));
-        }
-
-        void close(const char * brace)
-        {
-            Lex * last = 0;
-            if (not nesting.empty())
-            {
-                last = & lexemes[nesting.back()];
-                if (((last->s[0] == '(') & (* brace == ')')) |
-                    ((last->s[0] == '{') & (* brace == '}')) |
-                    ((last->s[0] == '[') & (* brace == ']')))
-                {
-                    nesting.pop_back();
-                    lexemes.push_back(Lex(brace, position, Lex::OP, line_number));
-                    return;
-                }
-            }
-
-            std::ostringstream oss;
-            oss << "Unexpected '" << * brace << "'";
-            if (last)
-                oss << " while '" << last->s[0] << "' openned on line " << last->line;
-            raise_error(oss.str());
-        }
-
-        void newline()
-        {
-            if (nesting.empty() or lexemes[nesting.back()].s[0] == '{')
-                lexemes.push_back(Lex(Lex::NL, line_number));
-        }
-
-        ell::Rule<char> top, keyword, string, string_char, op;
+        ell::Rule<char> top, keyword, string, string_char, op, blank;
         std::vector<Lex> lexemes;
-        std::vector<int> nesting;
     };
 }
 

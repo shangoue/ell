@@ -25,7 +25,7 @@ namespace koalang
                       | string
                       | op
                       | real [& Lexer::push_number]
-                      | + ch('\n') [& Lexer::newline]);
+                      | + ch('\n') [& Lexer::push<Lex::NL>]);
 
         keyword = (( str("break") | str("print")
                    | str("do")    | str("else")
@@ -34,8 +34,7 @@ namespace koalang
                    | str("xor")   | str("or")
                    | str("and")   | str("while") ) >> eps - alnum) [& Lexer::push<Lex::OP>];
 
-        string = ch('\"') [& Lexer::push_string] >> string_char * ch('\"')
-               | ch('\'') [& Lexer::push_string] >> string_char * ch('\'');
+        string = ch('\'') [& Lexer::push_string] >> string_char * ch('\'');
 
         string_char = ch('\\') >> ( ch('a') [& Lexer::push_char<'\a'>]
                                   | ch('b') [& Lexer::push_char<'\b'>]
@@ -51,14 +50,13 @@ namespace koalang
                     | any [& Lexer::push_char] - ch('\n');
 
         op = ( chset("-!#*/%+<>=") >> ! ch('=')
-             | chset("[({") [& Lexer::open]
-             | chset("])}") [& Lexer::close]
+             | chset("[({:])}")
              | ch('.') >> ! ch('.')
              | ch('@') >> ! ch('@')
-             | ch(':')
              ) [& Lexer::push<Lex::OP>];
 
-        blank = chset(" \t\r");
+        blank = chset(" \t\r") 
+              | (ch('\"') >> any * ch('\n')) [& Lexer::push<Lex::NL>];
 
         top.set_name(0);
         string_char.set_name(0);

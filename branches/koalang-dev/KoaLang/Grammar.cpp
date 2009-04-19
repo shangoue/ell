@@ -37,10 +37,12 @@ namespace koalang
                         | op("break")
                         | op("return") >> expression
                         | (op("print") >> expression) [I::unary<Print>]
+                        | look_ahead(! parameters >> identifier >> ! parameters >> op(":")) >> expression
                         | assignation );
 
-        assignation = expression >> ! ( op(":") >> expression [I::define]
-                                      | (op("=") >> expression) [I::binary<Assign>] );
+        parameters = op("<") >> * identifier >> op(">");
+
+        assignation = expression >> ! (op("=") >> expression) [I::binary<Assign>];
 
         // TODO: use no_skipper
         expression = no_skip( scoped [I::is_defined] >> * logical
@@ -75,12 +77,9 @@ namespace koalang
         scoped = atome >> * ( op("..") >> atome
                             | op(".") >> atome );
 
-        parameters = op("<") >> * identifier >> op(">");
-
         atome = op("(") >> * statement >> op(")")
               | op("{") >> * statement >> op("}")
-              | parameters >> identifier >> ! parameters
-              | identifier [I::push<Variable>] >> ! parameters
+              | identifier [I::push<Variable>]
               | op("`") >> * identifier >> op("`")
               | number [I::push<Real>]
               | string [I::push<String>]

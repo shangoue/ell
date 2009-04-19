@@ -26,15 +26,25 @@ namespace ell
     template <>
     struct Parser<Lex> : public ParserBase<Lex>
     {
-        Parser(const Node<Lex> * grammar, const Node<Lex> * skipper)
-          : ParserBase<Lex>(grammar, skipper)
-        { }
+        Parser()
+          : ParserBase<Lex>(& grammar.top, & grammar.newline)
+        {
+            root_scope = new Map;
+            stack = new Block;
+        }
 
-        void parse(const std::string & filename, const std::vector<Lex> & lexemes)
+        void parse(const char * buffer, const char * filename)
         {
             file = filename;
-            position = lexemes.begin();
+            lexer.parse(buffer);
+            position = lexer.lexemes.begin();
             ParserBase<Lex>::parse();
+
+            std::cout << "stack: " << * stack << '\n';
+            std::cout << "root scope: " << * root_scope << '\n';
+            std::cout << "eval: \n";
+            koalang::Object * v = stack->eval(root_scope);
+            std::cout << "result: " << * v << '\n';
         }
 
         void raise_error(const std::string & msg) const
@@ -48,31 +58,25 @@ namespace ell
         struct Context
         {
             Context(Parser<Lex> * parser)
-              : position(parser->position)
+              : position(parser->position),
+                stack_size(parser->stack->value.size())
             { }
 
             void restore(Parser<Lex> * parser)
             {
                 parser->position = position;
+                parser->stack->value.resize(stack_size);
             }
 
             std::vector<Lex>::const_iterator position;
+            size_t stack_size;
         };
 
-        void next()
-        {
-            ++position;
-        }
+        void next() { ++position; }
 
-        Lex get()
-        {
-            return * position;
-        }
+        Lex get() { return * position; }
 
-        bool end()
-        {
-            return position->type == Lex::END;
-        }
+        bool end() { return position->type == Lex::END; }
 
         std::string dump_position() const
         {
@@ -92,31 +96,6 @@ namespace ell
             }
             return os.str();
         }
-
-        std::vector<Lex>::const_iterator position;
-        std::string file;
-    };
-}
-
-namespace koalang
-{
-    struct Interpreter : public ell::Parser<Lex>
-    {
-        Interpreter()
-          : ell::Parser<Lex>(& grammar.top, & grammar.newline)
-        {
-            root_scope = new Map;
-            stack = new Block;
-        }
-
-        void parse(const char * buffer, const char * file = "<stdin>")
-        {
-            lexer.parse(buffer);
-            ell::Parser<Lex>::parse(file, lexer.lexemes);
-        }
-
-        Lexer lexer;
-        Grammar grammar;
 
         template <typename Object>
         void push(const Lex & lex)
@@ -143,11 +122,6 @@ namespace koalang
             push(op);
         }
 
-        void define()
-        {
-            //TODO
-        }
-
         bool is_defined(const Lex * name)
         {
             // TODO
@@ -155,12 +129,28 @@ namespace koalang
             return false;
         }
 
-        Object * push(Object * o) { stack->value.push_back(o); return o; }
-        Object * pop() { Object * o = stack->value.back(); stack->value.pop_back(); return o; }
+        void push(Object * o) { stack->value.push_back(o); }
 
-        Lex op;
+        Object * pop()
+        {
+            Object * o = stack->value.back();
+            stack->value.pop_back();
+            return o;
+        }
+
+        std::vector<Lex>::const_iterator position;
+        std::string file;
+
+        Lexer lexer;
+        koalang::Grammar grammar;
+
         Map * root_scope;
         Block * stack;
     };
+}
+
+namespace koalang
+{
+    typedef ell::Parser<Lex> Interpreter;
 }
 #endif // __KOALANG_INTERPRETER__

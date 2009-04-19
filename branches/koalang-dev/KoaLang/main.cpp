@@ -6,32 +6,43 @@
 
 #include "Interpreter.h"
 
-int main()
+int main(int argc, const char ** argv)
 {
     koalang::Interpreter ki;
-    ki.flags.debug = true;
 
-    const char * prompt = "> ";
-    char * line;
-
-    using_history();
-
-    while ((line = readline(prompt)))
+    if (argc == 2)
     {
-        //try
-        //{
-            ki.parse(line);
-            std::cout << * ki.stack << '\n';
-            std::cout << * ki.root_scope << '\n';
-            std::cout << * ki.stack->eval(ki.root_scope) << '\n';
-        //}
-        //catch (std::runtime_error & e)
-        //{
-        //    std::cerr << e.what() << '\n';
-        //    continue;
-        //}
-        add_history(line);
-        free(line);
+        FILE * f = fopen(argv[1], "rb");
+        fseek(f, 0, SEEK_END);
+        long l = ftell(f);
+        rewind(f);
+        char * buffer = new char[l + 1];
+        if (fread(buffer, l, 1, f) != 1)
+            throw std::runtime_error("error reading file");
+        buffer[l] = '\0';
+        fclose(f);
+        ki.parse(buffer, argv[1]);
+        delete buffer;
+    }
+    else
+    {
+        const char * prompt = "> ";
+        char * line;
+        using_history();
+
+        while ((line = readline(prompt)))
+        {
+            try
+            {
+                ki.parse(line, "<stdin>");
+            }
+            catch (std::runtime_error & e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+            add_history(line);
+            free(line);
+        }
     }
 
     return 0;
