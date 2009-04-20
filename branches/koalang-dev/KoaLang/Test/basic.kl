@@ -1,0 +1,11 @@
+" Basic Types
+" KoaLang is very intuitive:
+
+a = 112
+print a + 3 / 5
+
+" This will print 112.60. Every numbers are double-precision floating point.
+
+" KoaLang has dynamic typing:
+a = 'hello, world'
+print a
