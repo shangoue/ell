@@ -112,6 +112,32 @@ struct MyParser : ell::Parser<char>, ell::Grammar<char>
     std::set<int> list;
 };
 
+struct ActionChainTest : ell::Parser<char>, ell::Grammar<char>
+{
+    ActionChainTest()
+      : ell::Parser<char>(& top)
+    {
+        top = real [& ActionChainTest::f1][& ActionChainTest::f2];
+
+        buffer = "21.4";
+        check(* this, buffer, true, true);
+    }
+
+    /// Chained actions must be compatible
+    void f1(double)
+    {
+    }
+
+    void f2(double v)
+    {
+        if (v != 21.4)
+            ERROR("Expecting %lf, got %lf", 21.4, v);
+    }
+
+    ell::Rule<char> top;
+    const char * buffer;
+};
+
 struct CalcTest : public Calc
 {
     CalcTest()
@@ -151,6 +177,7 @@ int main()
 {
     ListTest l;
     MyParser p;
+    ActionChainTest ac;
     CalcTest c;
 
     printf("Everything is ok.\n");
