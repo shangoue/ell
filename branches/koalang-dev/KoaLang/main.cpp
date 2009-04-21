@@ -1,47 +1,34 @@
 #include <iostream>
-
-#include <stdlib.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <fstream>
 
 #include "Interpreter.h"
 
 int main(int argc, const char ** argv)
 {
     koalang::Interpreter ki;
+    ki.flags.debug = true;
+    
+    std::string line, file = "<stdin>";
+    std::istream * i = & std::cin;
 
     if (argc == 2)
     {
-        FILE * f = fopen(argv[1], "rb");
-        fseek(f, 0, SEEK_END);
-        long l = ftell(f);
-        rewind(f);
-        std::string buffer;
-        buffer.resize(l + 1);
-        if (fread(buffer.data(), l, 1, f) != 1)
-            throw std::runtime_error("error reading file");
-        fclose(f);
-        ki.parse(buffer, argv[1]);
+        file = argv[1];
+        i = new std::ifstream(argv[1]);
     }
-    else
-    {
-        const char * prompt = "> ";
-        char * line;
-        using_history();
 
-        while ((line = readline(prompt)))
+    std::cout << "> " << std::flush;
+    while (std::getline(* i, line))
+    {
+        try
         {
-            try
-            {
-                ki.parse(line, "<stdin>");
-            }
-            catch (std::runtime_error & e)
-            {
-                std::cerr << e.what() << '\n';
-            }
-            add_history(line);
-            free(line);
+            ki.parse(line.c_str(), "<stdin>");
         }
+        catch (std::runtime_error & e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        std::cout << "> ";
     }
 
     return 0;

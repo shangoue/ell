@@ -48,23 +48,23 @@ namespace koalang
         expression = no_skip( scoped [I::is_defined] >> * logical
                             | + logical >> ! (scoped [I::is_defined] >> * logical) );
 
-        logical = order >> * ( op("and") >> order
-                             | op("or") >> order
-                             | op("xor") >> order );
+        logical = order >> * ( (op("and") >> order) [I::binary<And>]
+                             | (op("or") >> order) [I::binary<Or>]
+                             | (op("xor") >> order) [I::binary<Xor>] );
 
-        order = sum >> * ( op("==") >> sum
-                         | op("!=") >> sum
-                         | op("<=") >> sum
-                         | op(">=") >> sum
-                         | op("<") >> sum
-                         | op(">") >> sum );
+        order = sum >> * ( (op("==") >> sum) [I::binary<Eq>]
+                         | (op("!=") >> sum) [I::binary<NotEq>]
+                         | (op("<=") >> sum) [I::binary<LE>]
+                         | (op(">=") >> sum) [I::binary<GE>]
+                         | (op("<")  >> sum) [I::binary<LT>]
+                         | (op(">")  >> sum) [I::binary<GT>] );
 
         sum = product >> * ( (op("+") >> product) [I::binary<Add>]
-                           | op("-") >> product);
+                           | (op("-") >> product) [I::binary<Sub>]);
 
-        product = unary >> * ( op("*") >> unary
-                             | op("/") >> unary
-                             | op("%") >> unary );
+        product = unary >> * ( (op("*") >> unary) [I::binary<Mult>]
+                             | (op("/") >> unary) [I::binary<Div>]
+                             | (op("%") >> unary) [I::binary<Mod>]);
 
         unary = op("-") >> unary
               | op("!") >> unary

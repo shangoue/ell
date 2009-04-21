@@ -100,14 +100,35 @@ namespace koalang
         Function * function;
     };
 
-
-    struct Add : public BinaryOperator
-    {
-        Object * eval(Map * context)
-        {
-            return new Real(left->eval(context)->to<Real>()->value + right->eval(context)->to<Real>()->value);
-        }
+#   define cpp_op(NAME, OP)                                          \
+    struct NAME : public BinaryOperator                              \
+    {                                                                \
+        Object * eval(Map * context)                                 \
+        {                                                            \
+            return new Real(left->eval(context)->to<Real>()->value   \
+                        OP right->eval(context)->to<Real>()->value); \
+        }                                                            \
     };
+
+    op(Add,   +)
+    op(Sub,   -)
+    op(Mult,  *)
+    op(Div,   /)
+    op(Eq,    ==)
+    op(NotEq, !=)
+    op(LE,    <=)
+    op(GE,    >=)
+    op(LT,    <)
+    op(GT,    <)
+#   undef op
+
+    op(And,   and)
+    op(Or,    or)
+    op(Xor,   xor)
+    op(Xor,   xor)
+    op(Mod,   %)
+
+#   undef op
 
     struct Print : public UnaryOperator
     {

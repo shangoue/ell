@@ -85,8 +85,8 @@ namespace ell
             {
                 switch (i->type)
                 {
-                case Lex::END:   os << "end"; break;
-                case Lex::NL:    os << "newline"; break;
+                case Lex::END:   os << "<end>"; break;
+                case Lex::NL:    os << "\\n"; break;
                 case Lex::NUM:   os << i->n; break;
                 case Lex::STR:   os << '"' << i->s << '"'; break;
                 case Lex::IDENT:

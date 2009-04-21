@@ -1,7 +1,7 @@
 TARGET = koalang
 TARGET_FILES = KoaLang/*.cpp
 
-CFLAGS = -I. -IlibELL/Include -DELL_DEBUG=1 -DDUMP_NODES=1
+CFLAGS = -I. -IlibELL/Include -DELL_DEBUG=1 -DELL_DUMP_NODES=0
 LDFLAGS = -lstdc++ -lreadline -lhistory
 
 include Script/target.mk
