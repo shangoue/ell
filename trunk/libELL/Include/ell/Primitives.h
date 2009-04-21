@@ -37,9 +37,9 @@ namespace ell
     };
 
     template <typename Token>
-    struct Epsilon : public ConcreteNodeBase<Token, Epsilon<Token> >
+    struct Epsilon : public TokenPrimitiveBase<Token, Epsilon<Token> >
     {
-        using ConcreteNodeBase<Token, Epsilon<Token> >::parse;
+        using TokenPrimitiveBase<Token, Epsilon<Token> >::parse;
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
