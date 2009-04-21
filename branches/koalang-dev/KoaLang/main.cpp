@@ -16,13 +16,12 @@ int main(int argc, const char ** argv)
         fseek(f, 0, SEEK_END);
         long l = ftell(f);
         rewind(f);
-        char * buffer = new char[l + 1];
-        if (fread(buffer, l, 1, f) != 1)
+        std::string buffer;
+        buffer.resize(l + 1);
+        if (fread(buffer.data(), l, 1, f) != 1)
             throw std::runtime_error("error reading file");
-        buffer[l] = '\0';
         fclose(f);
         ki.parse(buffer, argv[1]);
-        delete buffer;
     }
     else
     {
