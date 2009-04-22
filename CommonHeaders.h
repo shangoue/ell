@@ -28,6 +28,7 @@
 #include <iostream>
 #include <iomanip>
 #include <exception>
+#include <stdexcept>
 #include <string>
 #include <sstream>
 #include <locale>
@@ -36,5 +37,6 @@
 #include <ctime>
 #include <cmath>
 #include <cstdlib>
+#include <cwchar>
 
 #endif // INCLUDED_COMMON_HEADERS_H
