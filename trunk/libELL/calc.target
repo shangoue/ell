@@ -2,6 +2,6 @@ TARGET = calc
 
 TARGET_FILES = libELL/Test/calc.cpp
 CFLAGS += -IlibELL/Include
-LDFLAGS += -lstdc++ -lreadline
+LDFLAGS += -lstdc++
 
 include Script/target.mk
