@@ -150,7 +150,7 @@ int main(int argc, const char ** argv)
 
     XmlDomParser p;
 #   if ELL_DEBUG == 1
-    p.flags.debug = false;
+    p.flags.debug = true;
 #   endif
 
     DUMP("Parse %s", argv[1]);

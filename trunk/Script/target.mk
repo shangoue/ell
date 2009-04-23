@@ -35,7 +35,7 @@ DEPENDS=
 # fork
 .PHONY: all
 all:
-	@$(MAKE) MOLDUR_BUILD_TARGET=1 --no-print-directory -rR -f $(MOLDUR_MAKEFILE)
+	@$(MAKE) MOLDUR_BUILD_TARGET=1 --no-print-directory -rR -f $(MOLDUR_MAKEFILE) MOLDUR_MAKEFILE=$(MOLDUR_MAKEFILE)
 else
 LDFLAGS += -L$(BUILD_FOOTPRINT)
 
@@ -61,4 +61,7 @@ TARGET_FILES := $(wildcard $(TARGET_FILES))
 LDFLAGS += -Wl,-rpath,$(shell pwd)/$(BUILD_FOOTPRINT)
 
 include Script/system.mk
+
+$(TARGET_FILES): $(MOLDUR_MAKEFILE)
+
 endif
