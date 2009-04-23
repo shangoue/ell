@@ -31,9 +31,9 @@ namespace koalang
 
         ell::Character<Lex> number, string, identifier, newline;
 
-        ell::Rule<Lex> top, statement, assignation, expression,
+        ell::Rule<Lex> top, statement, define, assignation, expression,
                        logical, order, sum, product, unary, selection,
-                       scoped, parameters, atome;
+                       variable, parameters, atome, call;
     };
 }
 

@@ -1,0 +1,28 @@
+' Exceptions
+' Accessing an unkown variable raise an error, which stop the execution of the program
+' To prevent that you can use the ? prefixed operator to catch the error:
+? undefined_variable
+
+' You can raise your own errors with ! prefixed operator.
+' Here, catching and raising at the same time has null effect:
+?! "Bad bad bad"
+
+' An error is typically a couple id/message, which can be printed or stored into a variable:
+print ? b
+error = ? b
+
+' You can test the error:
+if error
+    print "Variable b is undefined, ok, go on"
+else
+    ! "Hum. Variable b SHOULD be undefined"
+
+' Notice that you can raise whatever complex object you want:
+' (but ! operator is unary so you must group your arguments into a list)
+code = 312
+?! ("bad" (2 "Bad bad bad..." "It is very very bad, really") code)
+
+' Selective exception catching is not supported, but you can reraise an error like this:
+error =? b
+if error[0] != "TypeError"
+    ! error

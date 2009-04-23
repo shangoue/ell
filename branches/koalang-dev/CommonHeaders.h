@@ -32,6 +32,7 @@
 #include <sstream>
 #include <locale>
 
+#include <typeinfo>
 #include <cstdarg>
 #include <ctime>
 #include <cmath>

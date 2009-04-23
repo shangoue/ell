@@ -23,6 +23,15 @@ namespace koalang
     struct Operator : public Object
     {
         std::string name;
+
+        void describe(std::ostream & os) const { os << name; }
+    };
+
+    struct Scope : public Operator
+    {
+        Scope(const std::string & n) { Operator::name = n; }
+
+        Object * eval(Map * context) { return context; }
     };
 
     struct UnaryOperator : public Operator
@@ -100,7 +109,7 @@ namespace koalang
         Function * function;
     };
 
-#   define cpp_op(NAME, OP)                                          \
+#   define op(NAME, OP)                                              \
     struct NAME : public BinaryOperator                              \
     {                                                                \
         Object * eval(Map * context)                                 \
@@ -109,25 +118,32 @@ namespace koalang
                         OP right->eval(context)->to<Real>()->value); \
         }                                                            \
     };
-
     op(Add,   +)
+    op(Eq,    ==)
+    op(NotEq, !=)
+
     op(Sub,   -)
     op(Mult,  *)
     op(Div,   /)
-    op(Eq,    ==)
-    op(NotEq, !=)
     op(LE,    <=)
     op(GE,    >=)
     op(LT,    <)
     op(GT,    <)
 #   undef op
 
-    op(And,   and)
-    op(Or,    or)
-    op(Xor,   xor)
-    op(Xor,   xor)
+#   define op(NAME, OP)                                                    \
+    struct NAME : public BinaryOperator                                    \
+    {                                                                      \
+        Object * eval(Map * context)                                       \
+        {                                                                  \
+            return new Real(long(left->eval(context)->to<Real>()->value)   \
+                        OP long(right->eval(context)->to<Real>()->value)); \
+        }                                                                  \
+    };
+    op(And,   &)
+    op(Or,    |)
+    op(Xor,   ^)
     op(Mod,   %)
-
 #   undef op
 
     struct Print : public UnaryOperator

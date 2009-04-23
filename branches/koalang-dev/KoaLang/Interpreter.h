@@ -29,7 +29,6 @@ namespace ell
         Parser()
           : ParserBase<Lex>(& grammar.top, & grammar.newline)
         {
-            root_scope = new Map;
             stack = new Block;
         }
 
@@ -40,11 +39,12 @@ namespace ell
             position = lexer.lexemes.begin();
             ParserBase<Lex>::parse();
 
-            std::cout << "stack: " << * stack << '\n';
-            std::cout << "root scope: " << * root_scope << '\n';
-            std::cout << "eval: \n";
-            koalang::Object * v = stack->eval(root_scope);
-            std::cout << "result: " << * v << '\n';
+#           if ELL_DEBUG == 1
+            std::cerr << "stack: " << * stack << '\n';
+            std::cerr << "eval: \n";
+#           endif
+            koalang::Object * v = stack->eval(0);
+            std::cerr << "result: " << * v << '\n';
         }
 
         void raise_error(const std::string & msg) const
@@ -65,6 +65,10 @@ namespace ell
             void restore(Parser<Lex> * parser)
             {
                 parser->position = position;
+#               if ELL_DEBUG == 1
+                for (size_t i = parser->stack->value.size(); i > stack_size; --i)
+                    std::cout << "Cancel push of " << * parser->stack->value[i - 1] << std::endl;
+#               endif
                 parser->stack->value.resize(stack_size);
             }
 
@@ -98,10 +102,7 @@ namespace ell
         }
 
         template <typename Object>
-        void push(const Lex & lex)
-        {
-            stack->value.push_back(new Object(lex));
-        }
+        void push(const Lex & lex) { push(new Object(lex)); }
 
         template <typename Object>
         void binary(const Lex * name)
@@ -125,17 +126,34 @@ namespace ell
         bool is_defined(const Lex * name)
         {
             // TODO
-            pop();
             return false;
         }
 
-        void push(Object * o) { stack->value.push_back(o); }
+        void push(Object * o)
+        {
+#           if ELL_DEBUG == 1
+            std::cout << "Push " << * o << std::endl;
+#           endif
+            stack->value.push_back(o);
+        }
 
         Object * pop()
         {
             Object * o = stack->value.back();
+#           if ELL_DEBUG == 1
+            std::cout << "Pop " << * o << std::endl;
+#           endif
             stack->value.pop_back();
             return o;
+        }
+
+        void append()
+        {
+#           if ELL_DEBUG == 1
+            std::cout << "Append";
+#           endif
+            Object * o = pop();
+            ((koalang::List *) stack->value.back())->value.push_back(o);
         }
 
         std::vector<Lex>::const_iterator position;
@@ -144,9 +162,20 @@ namespace ell
         Lexer lexer;
         koalang::Grammar grammar;
 
-        Map * root_scope;
-        Block * stack;
+        koalang::List * stack;
     };
+
+    template <>
+    inline void ell::Parser<Lex>::push<koalang::List>(const Lex & lex)
+    {
+        push(new koalang::List);
+    }
+
+    template <>
+    inline void ell::Parser<Lex>::push<koalang::Block>(const Lex & lex)
+    {
+        push(new koalang::Block);
+    }
 }
 
 namespace koalang

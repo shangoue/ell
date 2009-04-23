@@ -1,0 +1,74 @@
+' Functions
+
+' Let's define a function named ''add'' wich takes two arguments, and returns their sum:
+
+add <x y>: x + y
+
+' Calling the function is quite simple:
+' (notice that there is no brackets!)
+
+add 1 2
+
+' If you are not sure how many parameters you want, just pass a list:
+
+sum <list>:
+(
+    r = 0
+    for elem in list
+        r = r + elem
+    return r
+)
+
+print sum (1 2 3)
+
+' If you stil does not want to use brackets, this is possible:
+sum_variadics <list...>:
+(
+    r = 0
+    for elem in list
+        r = r + elem
+    return r
+)
+
+print sum_variadics 1 2 3 4 5 6 7 
+
+' Note that in the piece of code above, we used brackets to define a list of several statements as the body of the function.
+' The problem is that calling this function will create (or worse: modify!) a variable called
+' ''r'' at root scope. To avoid, that, it's better using curly brackets to create a block:
+
+sum <list>:
+{
+    r = 0
+    for elem in list
+        r = r + elem
+    return r
+}
+
+' A block is a list which allows nesting a local scope for every assigned variables. ''r'' becomes
+' local the the function which execution won't interfere with the rest of the program
+
+
+' Well, and of course, a function can take no parameters at all:
+
+print_message: print "Hello, world"
+
+print_message
+
+
+' Funnier now: a function can take parameters on the left! So, you can define your own operators:
+
+
+<a> plus <b>: a + b
+
+print 1 plus 2
+
+
+' Assigning a variable of the same name or trying to redefine a function is forbidden:
+f: 1
+
+error1 = ? f = 1
+error2 = ? f: 1
+
+if not error1 or not error2
+    ! "This sould raise an error"
+

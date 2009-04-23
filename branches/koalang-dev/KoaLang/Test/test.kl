@@ -1,9 +1,4 @@
 
-Exceptions:
-{
-    Accessing an unkown variable
-}
-
 AssignationAndScopes:
 {
     "Assigning a variable is quite common:"
@@ -43,26 +38,6 @@ AssignationAndScopes:
 
 
     "Definition operator will fail if the variable already exists in current scope"
-}
-
-Operators:
-{
-    "Definition et surcharge d'opérateurs"
-    '0\n1\n2\n'
-
-    func<a>:
-    {
-        print a
-        return a + 1
-    }
-
-    func:
-    {
-        print 0
-        return 1
-    }
-
-    func func func
 }
 
 POOA:

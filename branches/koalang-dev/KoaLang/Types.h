@@ -44,7 +44,6 @@ namespace koalang
             obj.describe(os);
             return os;
         }
-
         //TODO: add location information for back-trace
     };
 
@@ -66,9 +65,7 @@ namespace koalang
 
     struct Real : public Object
     {
-        Real(double real)
-          : value(real)
-        { }
+        Real(double value) : value(value) { }
 
         void describe(std::ostream & os) const { os << value; }
 
@@ -79,11 +76,9 @@ namespace koalang
 
     struct String : public Object
     {
-        String(const std::string & s)
-          : value(s)
-        { }
+        String(const std::string & value) : value(value) { }
 
-        void describe(std::ostream & os) const { os << value; }
+        void describe(std::ostream & os) const { os << '"' << value << '"'; }
 
         Object * eval(Map * context) { return this; }
 
@@ -118,7 +113,7 @@ namespace koalang
                 if (parent)
                     return parent->look_up(name);
                 else
-                    throw std::runtime_error("Lookup error");
+                    throw std::runtime_error("No variable named " + name);
             }
             return i->second;
         }
@@ -133,14 +128,11 @@ namespace koalang
 
     struct Variable : public String
     {
-        Variable(const std::string & s)
-          : String(s)
-        { }
+        Variable(const std::string & name) : String(name) { }
 
-        Object * eval(Map * context)
-        {
-            return context->look_up(value);
-        }
+        void describe(std::ostream & os) const { os << value; }
+
+        Object * eval(Map * context) { return context->look_up(value); }
     };
 
     struct Block : public List

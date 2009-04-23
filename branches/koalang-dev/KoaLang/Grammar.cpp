@@ -37,16 +37,20 @@ namespace koalang
                         | op("break")
                         | op("return") >> expression
                         | (op("print") >> expression) [I::unary<Print>]
-                        | look_ahead(! parameters >> identifier >> ! parameters >> op(":")) >> expression
+                        | define
                         | assignation );
+
+        define = look_ahead(! parameters >> identifier >> ! parameters >> op(":")) >> expression;
 
         parameters = op("<") >> * identifier >> op(">");
 
         assignation = expression >> ! (op("=") >> expression) [I::binary<Assign>];
 
         // TODO: use no_skipper
-        expression = no_skip( scoped [I::is_defined] >> * logical
-                            | + logical >> ! (scoped [I::is_defined] >> * logical) );
+        expression = no_skip(call);
+        
+        call = variable [I::is_defined] >> * logical
+             | logical >> ! look_ahead(* logical >> variable [I::is_defined] >> * logical);
 
         logical = order >> * ( (op("and") >> order) [I::binary<And>]
                              | (op("or") >> order) [I::binary<Or>]
@@ -72,22 +76,23 @@ namespace koalang
               | op("@") >> unary
               | selection;
 
-        selection = scoped >> * (op("[") >> expression >> op("]"));
+        selection = atome >> * (op("[") >> expression >> op("]"));
 
-        scoped = atome >> * ( op("..") >> atome
-                            | op(".") >> atome );
-
-        atome = op("(") >> * statement >> op(")")
-              | op("{") >> * statement >> op("}")
-              | identifier [I::push<Variable>]
-              | op("`") >> * identifier >> op("`")
+        atome = op("(") [I::push<List>] >> * statement [I::append] >> op(")")
+              | op("{") [I::push<Block>] >> * statement [I::append] >> op("}")
               | number [I::push<Real>]
               | string [I::push<String>]
-              | op("@@");
+              | variable
+              | op("@@") [I::push<Scope>];
+
+        variable = identifier [I::push<Variable>] >> * (op(".") >> identifier)
+                 | op("..") >> identifier;
 #       undef I
 
         top.set_name(0);
         ELL_NAME_RULE(statement)
+        ELL_NAME_RULE(define)
+        ELL_NAME_RULE(parameters)
         ELL_NAME_RULE(assignation)
         ELL_NAME_RULE(expression)
         ELL_NAME_RULE(logical)
@@ -96,8 +101,8 @@ namespace koalang
         ELL_NAME_RULE(product)
         ELL_NAME_RULE(unary)
         ELL_NAME_RULE(selection)
-        ELL_NAME_RULE(scoped)
-        ELL_NAME_RULE(parameters)
         ELL_NAME_RULE(atome)
+        ELL_NAME_RULE(variable)
+        ELL_NAME_RULE(call)
     }
 }
