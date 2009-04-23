@@ -13,41 +13,47 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <iostream>
+#include <fstream>
 
 #define ELL_DEBUG 1
 #define ELL_DUMP_NODES 1
 #include "Calc.h"
 
-int main()
+int main(int argc, const char ** argv)
 {
     Calc c;
     c.flags.debug = true;
 
+    std::string line, file = "<stdin>";
+    std::istream * i = & std::cin;
     const char * prompt = "> ";
-    char * line;
 
-    using_history();
-
-    while ((line = readline(prompt)))
+    if (argc == 2)
     {
+        file = argv[1];
+        i = new std::ifstream(argv[1]);
+        prompt = "";
+    }
+
+    while (true)
+    {
+        std::cout << prompt << std::flush;
+
+        if (not std::getline(* i, line))
+            break;
+
         double r;
         try
         {
-            r = c.eval(line);
+            r = c.eval(line.c_str());
         }
         catch (std::runtime_error & e)
         {
-            fprintf(stderr, "%s\n", e.what());
+            std::cerr << e.what() << std::endl;
             continue;
         }
-        printf("= %lf\n", r);
-        add_history(line);
-        free(line);
+        std::cout << "= " << r << std::endl;
     }
 
     return 0;
