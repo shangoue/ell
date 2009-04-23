@@ -9,3 +9,5 @@ all: $(TARGET_FILES)
 
 $(TARGET_FILES):
 	@$(MAKE) --no-print-directory -f $@ MOLDUR_MAKEFILE=$@
+
+XmlParser/test.target: XmlParser/lib.target
