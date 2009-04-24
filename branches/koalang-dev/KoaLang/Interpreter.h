@@ -105,7 +105,19 @@ namespace ell
         void push(const Lex & lex) { push(new Object(lex)); }
 
         template <typename Object>
-        void binary(const Lex * name)
+        void append(const Lex & lex) { append(new Object(lex)); }
+
+        template <typename Object>
+        void push_unary(const Lex * name)
+        {
+            Object * op = new Object;
+            op->target = pop();
+            op->name = name->s;
+            push(op);
+        }
+
+        template <typename Object>
+        void push_binary(const Lex * name)
         {
             Object * op = new Object;
             op->right = pop();
@@ -114,13 +126,14 @@ namespace ell
             push(op);
         }
 
-        template <typename Object>
-        void unary(const Lex * name)
+        void push_define()
         {
-            Object * op = new Object;
-            op->target = pop();
-            op->name = name->s;
-            push(op);
+            Function * func = new Function;
+            func->body = pop();
+            func->right = pop()->to<List>();
+            Variable * name = pop()->to<Variable>();
+            func->left = pop()->to<List();
+
         }
 
         bool is_defined(const Lex * name)
@@ -163,6 +176,7 @@ namespace ell
         koalang::Grammar grammar;
 
         koalang::List * stack;
+        koalang::Map * defines; // TODO: find a way to use nesting
     };
 
     template <>

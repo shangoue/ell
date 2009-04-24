@@ -40,9 +40,11 @@ namespace koalang
                         | define
                         | assignation );
 
-        define = look_ahead(! parameters >> identifier >> ! parameters >> op(":")) >> expression;
+        define = look_ahead( parameters
+                             >> identifier [I::push<Variable>]
+                             >> parameters >> op(":") ) >> expression [I::push_define];
 
-        parameters = op("<") >> * identifier >> op(">");
+        parameters = eps [I::push<List>] >> ! (op("<") >> * identifier [I::append<Variable>] >> op(">"));
 
         assignation = expression >> ! (op("=") >> expression) [I::binary<Assign>];
 
