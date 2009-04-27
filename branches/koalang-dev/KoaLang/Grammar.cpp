@@ -36,41 +36,38 @@ namespace koalang
                         | op("do")
                         | op("break")
                         | op("return") >> expression
-                        | (op("print") >> expression) [I::unary<Print>]
+                        | (op("print") >> expression) [I::push_unary<Print>]
                         | define
                         | assignation );
 
+        //TODO: add anonymous function handling within expr : f = (<a><b> -> a + b)
         define = look_ahead( parameters
                              >> identifier [I::push<Variable>]
-                             >> parameters >> op(":") ) >> expression [I::push_define];
+                             >> parameters >> op(":") ) >> statement [I::push_define];
 
         parameters = eps [I::push<List>] >> ! (op("<") >> * identifier [I::append<Variable>] >> op(">"));
 
-        assignation = expression >> ! (op("=") >> expression) [I::binary<Assign>];
+        assignation = expression >> ! (op("=") >> expression) [I::push_binary<Assign>];
 
-        // TODO: use no_skipper
-        expression = no_skip(call);
+        expression = no_skip(logical >> ! (logical [I::push_bunch] >> * logical [I::append]));
         
-        call = variable [I::is_defined] >> * logical
-             | logical >> ! look_ahead(* logical >> variable [I::is_defined] >> * logical);
+        logical = order >> * ( (op("and") >> order) [I::push_binary<And>]
+                             | (op("or") >> order) [I::push_binary<Or>]
+                             | (op("xor") >> order) [I::push_binary<Xor>] );
 
-        logical = order >> * ( (op("and") >> order) [I::binary<And>]
-                             | (op("or") >> order) [I::binary<Or>]
-                             | (op("xor") >> order) [I::binary<Xor>] );
+        order = sum >> * ( (op("==") >> sum) [I::push_binary<Eq>]
+                         | (op("!=") >> sum) [I::push_binary<NotEq>]
+                         | (op("<=") >> sum) [I::push_binary<LE>]
+                         | (op(">=") >> sum) [I::push_binary<GE>]
+                         | (op("<")  >> sum) [I::push_binary<LT>]
+                         | (op(">")  >> sum) [I::push_binary<GT>] );
 
-        order = sum >> * ( (op("==") >> sum) [I::binary<Eq>]
-                         | (op("!=") >> sum) [I::binary<NotEq>]
-                         | (op("<=") >> sum) [I::binary<LE>]
-                         | (op(">=") >> sum) [I::binary<GE>]
-                         | (op("<")  >> sum) [I::binary<LT>]
-                         | (op(">")  >> sum) [I::binary<GT>] );
+        sum = product >> * ( (op("+") >> product) [I::push_binary<Add>]
+                           | (op("-") >> product) [I::push_binary<Sub>]);
 
-        sum = product >> * ( (op("+") >> product) [I::binary<Add>]
-                           | (op("-") >> product) [I::binary<Sub>]);
-
-        product = unary >> * ( (op("*") >> unary) [I::binary<Mult>]
-                             | (op("/") >> unary) [I::binary<Div>]
-                             | (op("%") >> unary) [I::binary<Mod>]);
+        product = unary >> * ( (op("*") >> unary) [I::push_binary<Mult>]
+                             | (op("/") >> unary) [I::push_binary<Div>]
+                             | (op("%") >> unary) [I::push_binary<Mod>]);
 
         unary = op("-") >> unary
               | op("!") >> unary

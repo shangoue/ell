@@ -18,6 +18,7 @@
 
 #include "Grammar.h"
 #include "Types.h"
+#include "Operators.h"
 
 namespace ell
 {
@@ -105,7 +106,7 @@ namespace ell
         void push(const Lex & lex) { push(new Object(lex)); }
 
         template <typename Object>
-        void append(const Lex & lex) { append(new Object(lex)); }
+        void append(const Lex & lex) { push(new Object(lex)); append(); }
 
         template <typename Object>
         void push_unary(const Lex * name)
@@ -128,18 +129,26 @@ namespace ell
 
         void push_define()
         {
+            Assign * def = new Assign;
+            def->name = '=';
             Function * func = new Function;
-            func->body = pop();
-            func->right = pop()->to<List>();
-            Variable * name = pop()->to<Variable>();
-            func->left = pop()->to<List();
 
+            func->body = pop();
+            func->right = pop()->to<koalang::List>()->value;
+            def->left = pop();
+            func->left = pop()->to<koalang::List>()->value;
+
+            def->right = func;
+            push(def);
         }
 
-        bool is_defined(const Lex * name)
+        void push_bunch()
         {
-            // TODO
-            return false;
+            koalang::List * l = new koalang::List;
+            Object * second = pop();
+            l->value.push_back(pop());
+            l->value.push_back(second);
+            push(l);
         }
 
         void push(Object * o)
@@ -176,7 +185,6 @@ namespace ell
         koalang::Grammar grammar;
 
         koalang::List * stack;
-        koalang::Map * defines; // TODO: find a way to use nesting
     };
 
     template <>

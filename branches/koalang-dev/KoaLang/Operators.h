@@ -55,22 +55,24 @@ namespace koalang
         Object * left, * right;
     };
 
-
     struct Assign : public BinaryOperator
     {
-        Object * eval(Map * context) { return assign(left, right, context); }
+        Object * eval(Map * context)
+        {
+            assign(left, right, context);
+            return new List;
+        }
 
-        static Object * assign(Object * left, Object * right, Map * context)
+        static void assign(Object * left, Object * right, Map * context)
         {
             if (left->is<Variable>())
             {
-                return context->value[left->to<Variable>()->value] = right->eval(context);
+                context->value[left->to<Variable>()->value] = right->eval(context);
             }
             else if (left->is<List>())
             {
                 List * left_list = (List *) left;
                 List * right_list = right->to<List>();
-                List * result = new List;
 
                 ObjectList::iterator l = left_list->value.begin(),
                                      r = right_list->value.begin();
@@ -78,35 +80,15 @@ namespace koalang
                 {
                     if (r == right_list->value.end())
                         throw std::runtime_error("Left list too small for assignment");
-                    result->value.push_back(assign(* l, * r, context));
+                    assign(* l, * r, context);
                 }
 
                 if (r != right_list->value.end())
                     throw std::runtime_error("Left list too big for assignment");
-                return result;
             }
             else
                 throw std::runtime_error("Not assignable");
-
         }
-    };
-
-    struct Call : public Assign
-    {
-        void describe(std::ostream & os) const
-        {
-            os << '(' << * left << ' ' << name << ' ' << * right << ')';
-        }
-
-        Object * eval(Map * context)
-        {
-            Map parameters(context);
-            Assign::assign(function->left, left, & parameters);
-            Assign::assign(function->right, right, & parameters);
-            return function->body->eval(& parameters);
-        }
-
-        Function * function;
     };
 
 #   define op(NAME, OP)                                              \
@@ -154,6 +136,59 @@ namespace koalang
             return new List;
         }
     };
+
+    inline Object * List::eval(Map * context)
+    {
+        List * result = new List;
+        ObjectList evaluated;
+        unsigned begin = 0;
+
+        for (unsigned i = 0; i < value.size(); ++i)
+        {
+            Object * v;
+            if (value[i]->is<Variable>())
+                v = context->look_up(((Variable *) value[i])->value);
+            else
+                v = value[i]->eval(context);
+
+            evaluated.push_back(v);
+                
+            if (v->is<Function>())
+            {
+                Function * f = (Function *) v;
+                Map * locals = new Map(context);
+
+                for (unsigned left = 0; left < f->left.size(); ++left)
+                {
+                    if (i - 1 - left < 0)
+                        throw std::runtime_error("Lacks of a left operand");
+
+                    Assign::assign(f->left[left], value[i - 1 - left], locals);
+                }
+
+                for (unsigned right = 0; right < f->right.size(); ++right)
+                {
+                    if (i + 1 + right >= value.size())
+                        throw std::runtime_error("Lacks of a right operand");
+
+                    Assign::assign(f->right[right], value[i + 1 + right], locals);
+                }
+
+                for (unsigned j = begin; j < i - f->left.size(); ++j)
+                    result->value.push_back(evaluated[j]);
+
+                result->value.push_back(f->body->eval(locals));
+
+                i = i + f->right.size();
+                begin = i + 1;
+            }
+        }
+
+        for (unsigned j = begin; j < value.size(); ++j)
+            result->value.push_back(evaluated[j]);
+
+        return result;
+    }
 }
 
 #endif //__KOALANG_OPERATORS_H__

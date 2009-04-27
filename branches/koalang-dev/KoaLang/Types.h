@@ -29,7 +29,10 @@ namespace koalang
         virtual void describe(std::ostream & os) const = 0;
 
         template <typename Type>
-        bool is() { return dynamic_cast<Type *>(this); }
+        bool is()
+        {
+            return dynamic_cast<Type *>(this);
+        }
 
         template <typename Type>
         Type * to()
@@ -44,6 +47,7 @@ namespace koalang
             obj.describe(os);
             return os;
         }
+
         //TODO: add location information for back-trace
     };
 
@@ -59,42 +63,56 @@ namespace koalang
     inline std::ostream & operator << (std::ostream & os, const ObjectMap & l)
     {
         for (ObjectMap::const_iterator i = l.begin(); i != l.end(); ++i)
-            os << ' ' << i->first << ": " << *i->second << ' ';
+            os << ' ' << i->first << " = " << *i->second << ' ';
         return os;
     }
 
     struct Real : public Object
     {
-        Real(double value) : value(value) { }
+        Real(double value)
+          : value(value) 
+        { }
 
-        void describe(std::ostream & os) const { os << value; }
+        void describe(std::ostream & os) const
+        {
+            os << value;
+        }
 
-        Real * eval(Map * context) { return this; }
+        Real * eval(Map * context)
+        {
+            return this;
+        }
 
         double value;
     };
 
     struct String : public Object
     {
-        String(const std::string & value) : value(value) { }
+        String(const std::string & value)
+          : value(value)
+        { }
 
-        void describe(std::ostream & os) const { os << '"' << value << '"'; }
+        void describe(std::ostream & os) const
+        {
+            os << '"' << value << '"';
+        }
 
-        Object * eval(Map * context) { return this; }
+        Object * eval(Map * context)
+        {
+            return this;
+        }
 
         std::string value;
     };
 
     struct List : public Object
     {
-        void describe(std::ostream & os) const { os << '(' << value << ')'; }
-
-        Object * eval(Map * context)
+        void describe(std::ostream & os) const
         {
-            for (ObjectList::const_iterator i = value.begin(); i != value.end(); ++i)
-                (* i)->eval(context);
-            return this;
+            os << '(' << value << ')';
         }
+
+        Object * eval(Map * context);
 
         ObjectList value;
     };
@@ -126,13 +144,39 @@ namespace koalang
         Map * parent;
     };
 
+    struct Function : public Object
+    {
+        Object * eval(Map * context) { return this; }
+
+        void describe(std::ostream & os) const
+        {
+            os << "( " << "<" << left << "><" << right << "> -> " << * body << " )";
+        }
+
+        ObjectList left, right;
+        Object * body;
+    };
+
     struct Variable : public String
     {
         Variable(const std::string & name) : String(name) { }
 
         void describe(std::ostream & os) const { os << value; }
 
-        Object * eval(Map * context) { return context->look_up(value); }
+        Object * eval(Map * context)
+        {
+            Object * v = context->look_up(value);
+            if (v->is<Function>())
+            {
+                Function * f = (Function *) v;
+                if (f->left.empty() and f->right.empty())
+                    return f->body->eval(context);
+                else
+                    throw std::runtime_error("Function called without parameters");
+            }
+            else
+                return v;
+        }
     };
 
     struct Block : public List
@@ -145,19 +189,6 @@ namespace koalang
         }
 
         void describe(std::ostream & os) const { os << '{' << value << '}'; }
-    };
-
-    struct Function : public Object
-    {
-        Object * eval(Map * context) { return this; }
-
-        void describe(std::ostream & os) const
-        {
-            os << "( <" << * left << "> <" << * right << "> )";
-        }
-
-        List * left, * right;
-        Object * body;
     };
 }
 
