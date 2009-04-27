@@ -1,0 +1,17 @@
+namespace:
+{
+    class <init>:
+    {
+        data = init
+
+        func:
+        {
+            local = 12
+            print local + data
+        }
+    }
+}
+
+object = namespace.class 13
+
+object.func
