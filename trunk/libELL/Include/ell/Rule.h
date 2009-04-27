@@ -40,19 +40,11 @@ namespace ell
         {
             if (not top)
                 throw std::runtime_error("Rule not used");
-            clean();
-        }
-
-        void clean()
-        {
-            if (top and not dynamic_cast<const Rule *>(top))
-                delete top;
         }
 
         template <typename N>
         void operator = (const N & n)
         {
-            clean();
             if (dynamic_cast<const Rule *>(& n))
                 top = & n;
             else
