@@ -28,24 +28,18 @@ namespace ell
     struct Parser<Lex> : public ParserBase<Lex>
     {
         Parser()
-          : ParserBase<Lex>(& grammar.top, & grammar.newline)
-        {
-            stack = new Block;
-        }
+          : ParserBase<Lex>(& grammar.top, & grammar.newline),
+            stack(0)
+        { }
 
-        void parse(const char * buffer, const char * filename)
+        koalang::List * parse(const std::string & buffer, const std::string & filename)
         {
+            stack = new koalang::List;
             file = filename;
-            lexer.parse(buffer);
+            lexer.parse(buffer.c_str());
             position = lexer.lexemes.begin();
             ParserBase<Lex>::parse();
-
-#           if ELL_DEBUG == 1
-            std::cerr << "stack: " << * stack << '\n';
-            std::cerr << "eval: \n";
-#           endif
-            koalang::Object * v = stack->eval(0);
-            std::cerr << "result: " << * v << '\n';
+            return stack;
         }
 
         void raise_error(const std::string & msg) const

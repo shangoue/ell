@@ -137,58 +137,21 @@ namespace koalang
         }
     };
 
-    inline Object * List::eval(Map * context)
+    struct Input : public UnaryOperator
     {
-        List * result = new List;
-        ObjectList evaluated;
-        unsigned begin = 0;
-
-        for (unsigned i = 0; i < value.size(); ++i)
+        Object * eval(Map * context)
         {
-            Object * v;
-            if (value[i]->is<Variable>())
-                v = context->look_up(((Variable *) value[i])->value);
-            else
-                v = value[i]->eval(context);
-
-            evaluated.push_back(v);
-                
-            if (v->is<Function>())
-            {
-                Function * f = (Function *) v;
-                Map * locals = new Map(context);
-
-                for (unsigned left = 0; left < f->left.size(); ++left)
-                {
-                    if (i - 1 - left < 0)
-                        throw std::runtime_error("Lacks of a left operand");
-
-                    Assign::assign(f->left[left], value[i - 1 - left], locals);
-                }
-
-                for (unsigned right = 0; right < f->right.size(); ++right)
-                {
-                    if (i + 1 + right >= value.size())
-                        throw std::runtime_error("Lacks of a right operand");
-
-                    Assign::assign(f->right[right], value[i + 1 + right], locals);
-                }
-
-                for (unsigned j = begin; j < i - f->left.size(); ++j)
-                    result->value.push_back(evaluated[j]);
-
-                result->value.push_back(f->body->eval(locals));
-
-                i = i + f->right.size();
-                begin = i + 1;
-            }
+            std::cout << target->eval(context)->to<String>()->value;
+            std::string line;
+            std::getline(std::cin, line);
+            return new String(line);
         }
+    };
 
-        for (unsigned j = begin; j < value.size(); ++j)
-            result->value.push_back(evaluated[j]);
-
-        return result;
-    }
+    struct Eval : public BinaryOperator
+    {
+        Object * eval(Map * context);
+    };
 }
 
 #endif //__KOALANG_OPERATORS_H__

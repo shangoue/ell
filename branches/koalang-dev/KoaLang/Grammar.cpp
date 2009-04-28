@@ -36,7 +36,6 @@ namespace koalang
                         | op("do")
                         | op("break")
                         | op("return") >> expression
-                        | (op("print") >> expression) [I::push_unary<Print>]
                         | define
                         | assignation );
 
@@ -49,14 +48,20 @@ namespace koalang
 
         assignation = expression >> ! (op("=") >> expression) [I::push_binary<Assign>];
 
-        expression = no_skip(logical >> ! (logical [I::push_bunch] >> * logical [I::append]));
+        expression = no_skip(predefined >> ! (predefined [I::push_bunch] >> * predefined [I::append]));
+
+        // TODO: remove predefined, and rather put them in root context as real function 
+        predefined = (op("print") >> predefined) [I::push_unary<Print>]
+                   | (op("input") >> predefined) [I::push_unary<Input>]
+                   | (op("eval") >> predefined >> predefined) [I::push_binary<Eval>]
+                   | logical;
         
         logical = order >> * ( (op("and") >> order) [I::push_binary<And>]
                              | (op("or") >> order) [I::push_binary<Or>]
                              | (op("xor") >> order) [I::push_binary<Xor>] );
 
         order = sum >> * ( (op("==") >> sum) [I::push_binary<Eq>]
-                         | (op("!=") >> sum) [I::push_binary<NotEq>]
+                         | (op("\\=") >> sum) [I::push_binary<NotEq>]
                          | (op("<=") >> sum) [I::push_binary<LE>]
                          | (op(">=") >> sum) [I::push_binary<GE>]
                          | (op("<")  >> sum) [I::push_binary<LT>]
@@ -70,7 +75,9 @@ namespace koalang
                              | (op("%") >> unary) [I::push_binary<Mod>]);
 
         unary = op("-") >> unary
+              | op("\\") >> unary
               | op("!") >> unary
+              | op("?") >> unary
               | op("#") >> unary
               | op("@") >> unary
               | selection;
@@ -94,6 +101,8 @@ namespace koalang
         ELL_NAME_RULE(parameters)
         ELL_NAME_RULE(assignation)
         ELL_NAME_RULE(expression)
+
+        ELL_NAME_RULE(predefined)   // TODO: all this must be named expression
         ELL_NAME_RULE(logical)
         ELL_NAME_RULE(order)
         ELL_NAME_RULE(sum)
@@ -102,6 +111,5 @@ namespace koalang
         ELL_NAME_RULE(selection)
         ELL_NAME_RULE(atome)
         ELL_NAME_RULE(variable)
-        ELL_NAME_RULE(call)
     }
 }

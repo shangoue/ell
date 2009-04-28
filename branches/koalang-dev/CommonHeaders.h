@@ -28,6 +28,7 @@
 #include <iostream>
 #include <iomanip>
 #include <exception>
+#include <stdexcept>
 #include <string>
 #include <sstream>
 #include <locale>

@@ -1,3 +1,11 @@
+ReferencedBeforeAssignment:
+{
+    ' Avoid a common bug
+    a = "toto"
+    {
+        a = a
+    }
+}
 
 AssignationAndScopes:
 {

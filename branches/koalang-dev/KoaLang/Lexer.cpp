@@ -28,6 +28,7 @@ namespace koalang
                       | + ch('\n') [& Lexer::push<Lex::NL>]);
 
         keyword = (( str("break") | str("print")
+                   | str("input") | str("eval")
                    | str("do")    | str("else")
                    | str("for")   | str("if")
                    | str("in")    | str("return")
@@ -49,8 +50,8 @@ namespace koalang
                                   | ch('U') >> integer<unsigned long, 16, 8, 8>() [& Lexer::push_char]
                     | any [& Lexer::push_char] - ch('\n');
 
-        op = ( chset("-!#*/%+<>=") >> ! ch('=')
-             | chset("[({:])}")
+        op = ( chset("\\<>=") >> ! ch('=')
+             | chset("-?!#*/%+[({:])}")
              | ch('.') >> ! ch('.')
              | ch('@') >> ! ch('@')
              ) [& Lexer::push<Lex::OP>];

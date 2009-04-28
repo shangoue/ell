@@ -5,3 +5,4 @@ CFLAGS = -I. -IlibELL/Include -DELL_DEBUG=1 -DELL_DUMP_NODES=0 -DELL_DUMP_ACTION
 LDFLAGS = -lstdc++ -lreadline -lhistory
 
 include Script/target.mk
+

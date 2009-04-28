@@ -3,14 +3,15 @@
 
 #include "Interpreter.h"
 
-void dump(const koalang::Object * o)
-{
-    std::cerr << typeid(* o).name() << ": " << * o << std::endl;
-}
+using namespace koalang;
 
 int main(int argc, const char ** argv)
 {
-    koalang::Interpreter ki;
+    Interpreter ki;
+#   if ELL_DEBUG
+    ki.flags.debug = true;
+#   endif
+    Map * root_context = new Map(0);
     
     std::string line, file = "<stdin>";
     std::istream * i = & std::cin;
@@ -30,14 +31,15 @@ int main(int argc, const char ** argv)
         if (not std::getline(* i, line))
             break;
 
-        //try
-        //{
-            ki.parse(line.c_str(), "<stdin>");
-        //}
-        //catch (std::runtime_error & e)
-        //{
-        //    std::cerr << e.what() << '\n';
-        //}
+        try
+        {
+            Object * code = ki.parse(line, file);
+            code->eval(root_context);
+        }
+        catch (std::runtime_error & e)
+        {
+            std::cerr << e.what() << '\n';
+        }
     }
 
     return 0;
