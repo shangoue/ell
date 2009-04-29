@@ -23,17 +23,23 @@
 #include <cwchar>
 
 #ifndef ELL_DEBUG
+#ifdef NDEBUG
 #define ELL_DEBUG             0
 #else
+#define ELL_DEBUG             1
+#endif
+#endif
+
 #ifndef ELL_DUMP_NODES
 #define ELL_DUMP_NODES        0
 #endif
+
 #ifndef ELL_DUMP_ACTIONS
 #define ELL_DUMP_ACTIONS      0
 #endif
+
 #ifndef ELL_DUMP_SKIPPER
 #define ELL_DUMP_SKIPPER      0
-#endif
 #endif
 
 #define ELL_NAME_RULE(arg) arg.set_name(#arg);
@@ -47,6 +53,12 @@
     ELL_FLAG(consume, Consume)      \
     ELL_FLAG(action, Action)        \
     ELL_FLAG(skip, Skip)            \
+
+#if ELL_DEBUG == 1
+#define ELL_DUMP(arg) if (flags.debug) std::cout << arg << std::endl;
+#else
+#define ELL_DUMP(arg)
+#endif
 
 namespace ell
 {
