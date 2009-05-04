@@ -51,7 +51,7 @@ namespace koalang
                     | any [& Lexer::push_char] - ch('\n');
 
         op = ( chset("\\<>=") >> ! ch('=')
-             | chset("-?!#*/%+[({:])}")
+             | chset(",?!#*/%+[({:])}-")
              | ch('.') >> ! ch('.')
              | ch('@') >> ! ch('@')
              ) [& Lexer::push<Lex::OP>];

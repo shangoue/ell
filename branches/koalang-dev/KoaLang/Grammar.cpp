@@ -48,14 +48,15 @@ namespace koalang
 
         assignation = expression >> ! (op("=") >> expression) [I::push_binary<Assign>];
 
-        expression = no_skip(predefined >> ! (predefined [I::push_bunch] >> * predefined [I::append]));
+        expression = no_skip(look_ahead(predefined
+                                        >> ! (predefined [I::push_bunch] >> * predefined [I::append])));
 
         // TODO: remove predefined, and rather put them in root context as real function 
-        predefined = (op("print") >> predefined) [I::push_unary<Print>]
-                   | (op("input") >> predefined) [I::push_unary<Input>]
-                   | (op("eval") >> predefined >> predefined) [I::push_binary<Eval>]
-                   | logical;
-        
+        predefined = no_look_ahead( (op("print") >> predefined) [I::push_unary<Print>]
+                                  | (op("input") >> predefined) [I::push_unary<Input>]
+                                  | (op("eval") >> predefined >> predefined) [I::push_binary<Eval>]
+                                  | logical);
+
         logical = order >> * ( (op("and") >> order) [I::push_binary<And>]
                              | (op("or") >> order) [I::push_binary<Or>]
                              | (op("xor") >> order) [I::push_binary<Xor>] );
@@ -93,23 +94,21 @@ namespace koalang
 
         variable = identifier [I::push<Variable>] >> * (op(".") >> identifier)
                  | op("..") >> identifier;
+
+        skipper = op(",") | newline;
 #       undef I
 
         top.set_name(0);
+
         ELL_NAME_RULE(statement)
         ELL_NAME_RULE(define)
         ELL_NAME_RULE(parameters)
         ELL_NAME_RULE(assignation)
         ELL_NAME_RULE(expression)
-
-        ELL_NAME_RULE(predefined)   // TODO: all this must be named expression
-        ELL_NAME_RULE(logical)
-        ELL_NAME_RULE(order)
-        ELL_NAME_RULE(sum)
-        ELL_NAME_RULE(product)
-        ELL_NAME_RULE(unary)
-        ELL_NAME_RULE(selection)
         ELL_NAME_RULE(atome)
         ELL_NAME_RULE(variable)
+
+        logical.name = order.name = sum.name = product.name = unary.name = selection.name = "expression";
+
     }
 }

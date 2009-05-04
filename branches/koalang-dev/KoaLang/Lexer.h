@@ -42,6 +42,7 @@ namespace koalang
 
         operator const std::string & () const { return s; }
 
+        // used for parser primitives description
         friend std::ostream & operator << (std::ostream & os, const Lex & l)
         {
             switch (l.type)

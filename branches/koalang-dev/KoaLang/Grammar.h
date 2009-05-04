@@ -33,7 +33,7 @@ namespace koalang
 
         ell::Rule<Lex> top, statement, define, assignation, expression,
                        predefined, logical, order, sum, product, unary, selection,
-                       variable, parameters, atome;
+                       variable, parameters, atome, skipper;
     };
 }
 

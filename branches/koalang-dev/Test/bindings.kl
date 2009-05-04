@@ -1,0 +1,14 @@
+min = 0
+max = 100
+number = stdlib.rand % max ' Had better use rand binding to generate this
+n = -1
+
+stdio.printf ("Find the Number between %d and %d:\n" min max)
+while n \= number
+    n = input "? "
+    if n < number
+        print "Too small!"
+    else if n > number
+        print "Too big!"
+    else
+        print "Wahou, that's right!"

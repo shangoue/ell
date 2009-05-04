@@ -153,6 +153,8 @@ namespace koalang
             os << "( " << "<" << left << "><" << right << "> -> " << * body << " )";
         }
 
+        //void call(ObjectList & left, ObjectList & right
+
         ObjectList left, right;
         Object * body;
     };

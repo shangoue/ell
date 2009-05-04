@@ -8,37 +8,58 @@ using namespace koalang;
 int main(int argc, const char ** argv)
 {
     Interpreter ki;
-#   if ELL_DEBUG
-    ki.flags.debug = true;
-#   endif
     Map * root_context = new Map(0);
-    
-    std::string line, file = "<stdin>";
-    std::istream * i = & std::cin;
-    const char * prompt = "> ";
+    std::string filename;
 
-    if (argc == 2)
+    for (int i = 1; i < argc; ++i)
     {
-        file = argv[1];
-        i = new std::ifstream(argv[1]);
-        prompt = "";
+        std::string arg = argv[i];
+#       if ELL_DEBUG
+        if (arg == "-debug")
+            ki.lexer.flags.debug = true;
+        else if (arg == "-lexer-debug")
+            ki.flags.debug = true;
+        else
+#       endif
+            filename = arg;
     }
 
-    while (true)
+    if (not filename.empty())
     {
-        std::cout << prompt << std::flush;
+        std::ifstream file(filename.c_str());
 
-        if (not std::getline(* i, line))
-            break;
+        std::string file_content, line;
+        while (std::getline(file, line))
+            file_content += line + '\n';
 
         try
         {
-            Object * code = ki.parse(line, file);
+            Object * code = ki.parse(file_content, filename);
             code->eval(root_context);
         }
         catch (std::runtime_error & e)
         {
             std::cerr << e.what() << '\n';
+        }
+    }
+    else
+    {
+        std::string line;
+        while (true)
+        {
+            std::cout << "> " << std::flush;
+            if (not std::getline(std::cin, line))
+                break;
+
+            try
+            {
+                Object * code = ki.parse(line, "<stdin>");
+                code->eval(root_context);
+            }
+            catch (std::runtime_error & e)
+            {
+                std::cerr << e.what() << '\n';
+            }
         }
     }
 

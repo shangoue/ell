@@ -28,7 +28,7 @@ namespace ell
     struct Parser<Lex> : public ParserBase<Lex>
     {
         Parser()
-          : ParserBase<Lex>(& grammar.top, & grammar.newline),
+          : ParserBase<Lex>(& grammar.top, & grammar.skipper),
             stack(0)
         { }
 
@@ -61,8 +61,9 @@ namespace ell
             {
                 parser->position = position;
 #               if ELL_DEBUG == 1
-                for (size_t i = parser->stack->value.size(); i > stack_size; --i)
-                    std::cout << "Cancel push of " << * parser->stack->value[i - 1] << std::endl;
+                if (parser->flags.debug)
+                    for (size_t i = parser->stack->value.size(); i > stack_size; --i)
+                        std::cout << "Cancel push of " << * parser->stack->value[i - 1] << std::endl;
 #               endif
                 parser->stack->value.resize(stack_size);
             }
@@ -80,18 +81,23 @@ namespace ell
         std::string dump_position() const
         {
             std::ostringstream os;
-            for (std::vector<Lex>::const_iterator i = position; i->type != Lex::END; ++i)
+            std::vector<Lex>::const_iterator i = position;
+            bool stop = false;
+            bool sep = false;
+            while (not stop)
             {
                 switch (i->type)
                 {
-                case Lex::END:   os << "<end>"; break;
-                case Lex::NL:    os << "\\n"; break;
-                case Lex::NUM:   os << i->n; break;
-                case Lex::STR:   os << '"' << i->s << '"'; break;
-                case Lex::IDENT:
-                case Lex::OP:    os << i->s; break;
+                case Lex::END:
+                case Lex::NL:    stop = true; break;
+
+                case Lex::STR:   sep = false; os << '"' << i->s << '"'; break;
+                case Lex::OP:    sep = false; os << i->s; break;
+
+                case Lex::NUM:   if (sep) os << ' '; os << i->n; sep = true; break;
+                case Lex::IDENT: if (sep) os << ' '; os << i->s; sep = true; break;
                 }
-                os << ' ';
+                ++i;
             }
             return os.str();
         }
@@ -147,28 +153,22 @@ namespace ell
 
         void push(Object * o)
         {
-#           if ELL_DEBUG == 1
-            std::cout << "Push " << * o << std::endl;
-#           endif
+            ELL_DUMP("Push " << * o);
             stack->value.push_back(o);
         }
 
         Object * pop()
         {
             Object * o = stack->value.back();
-#           if ELL_DEBUG == 1
-            std::cout << "Pop " << * o << std::endl;
-#           endif
+            ELL_DUMP("Pop " << * o);
             stack->value.pop_back();
             return o;
         }
 
         void append()
         {
-#           if ELL_DEBUG == 1
-            std::cout << "Append";
-#           endif
             Object * o = pop();
+            ELL_DUMP("and append it");
             ((koalang::List *) stack->value.back())->value.push_back(o);
         }
 
