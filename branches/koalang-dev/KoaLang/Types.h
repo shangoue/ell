@@ -146,14 +146,12 @@ namespace koalang
 
     struct Function : public Object
     {
-        Object * eval(Map * context) { return this; }
+        Object * eval(Map * context) { return body->eval(context); }
 
         void describe(std::ostream & os) const
         {
-            os << "( " << "<" << left << "><" << right << "> -> " << * body << " )";
+            os << "( <" << left << "><" << right << "> -> " << * body << " )";
         }
-
-        //void call(ObjectList & left, ObjectList & right
 
         ObjectList left, right;
         Object * body;
@@ -171,10 +169,10 @@ namespace koalang
             if (v->is<Function>())
             {
                 Function * f = (Function *) v;
-                if (f->left.empty() and f->right.empty())
-                    return f->body->eval(context);
-                else
+                if (not f->left.empty() or not f->right.empty())
                     throw std::runtime_error("Function called without parameters");
+
+                return f->eval(context);
             }
             else
                 return v;
