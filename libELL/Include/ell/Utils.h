@@ -47,9 +47,9 @@
     ELL_FLAG(skip, Skip)            \
 
 #if ELL_DEBUG == 1
-#define ELL_DUMP(arg) if (flags.debug) std::cout << arg << std::endl;
-#define ELL_ENABLE_DUMP(parser) (parser).flags.debug = true;
-#define ELL_DISABLE_DUMP(parser) (parser).flags.debug = false;
+#define ELL_DUMP(arg) do { if (flags.debug) std::cout << arg << std::endl; } while (0)
+#define ELL_ENABLE_DUMP(parser) do { (parser).flags.debug = true; } while (0)
+#define ELL_DISABLE_DUMP(parser) do { (parser).flags.debug = false; } while (0)
 #else
 #define ELL_DUMP(arg)
 #define ELL_ENABLE_DUMP(parser)
