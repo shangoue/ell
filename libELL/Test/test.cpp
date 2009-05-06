@@ -17,9 +17,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#define ELL_DEBUG 1
-#define ELL_DUMP_NODES 1
-
 #include <ell/Grammar.h>
 #include <ell/Parser.h>
 
@@ -54,7 +51,7 @@ struct ListTest : public ell::Grammar<char>
         Parser(ListTest * g)
           : ell::Parser<char>(& g->root, & g->blank)
         {
-            flags.debug = true;
+            ELL_ENABLE_DUMP(* this);
         }
 
         void doNothing(void)
@@ -142,7 +139,7 @@ struct CalcTest : public Calc
 {
     CalcTest()
     {
-        flags.debug = true;
+        ELL_ENABLE_DUMP(* this);
 
 #       define TEST(E) test(#E, E, true)
         TEST(4/5);

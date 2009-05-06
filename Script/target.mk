@@ -11,7 +11,7 @@ CFLAGS += -fPIC
 endif
 
 ifeq ($(MODE),Release)
-CFLAGS += -O3
+CFLAGS += -O3 -DNDEBUG -s
 else
 MODE = Debug
 CFLAGS += -g -O0 -fno-inline
@@ -47,8 +47,7 @@ CFLAGS += -Winvalid-pch -Wall -pipe -Wno-parentheses
 CFLAGS += -Woverloaded-virtual
 endif
 
-ifeq ($(NOPCH),)
-PCH = CommonHeaders.h
+ifneq ($(PCH),)
 CFLAGS += -include $(PCH)
 endif
 

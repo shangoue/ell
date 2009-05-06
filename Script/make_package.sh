@@ -13,9 +13,9 @@ mkdir $pkg || exit 1
 mkdir $pkg/lib
 mkdir $pkg/include
 
-cp --parent COPYING.LESSER $pkg/ || exit 1
+cp -v --parent COPYING.LESSER $pkg/ || exit 1
 
-make -j 5 MODE=Release NOPCH=1 || exit 1
+make -j 5 MODE=Release || exit 1
 
 # Run non-regression test-suite
 for test in `find GNU_Linux -name *_test`;
@@ -31,7 +31,7 @@ for m in */; do
     fi
 done
 
-cp `find GNU_Linux -name "*.so"` $pkg/lib || exit 1
+cp -v `find GNU_Linux -name "*.so" -o -name "*.a"` $pkg/lib || exit 1
 
 # Generate dev package
 tar cjvf $pkg-dev.tar.bz2 $pkg
