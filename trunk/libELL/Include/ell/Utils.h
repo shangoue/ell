@@ -30,17 +30,9 @@
 #endif
 #endif
 
-#ifndef ELL_DUMP_NODES
 #define ELL_DUMP_NODES        0
-#endif
-
-#ifndef ELL_DUMP_ACTIONS
 #define ELL_DUMP_ACTIONS      0
-#endif
-
-#ifndef ELL_DUMP_SKIPPER
 #define ELL_DUMP_SKIPPER      0
-#endif
 
 #define ELL_NAME_RULE(arg) arg.set_name(#arg);
 #define ELL_TRANSPARENT_RULE(arg) arg.set_name(0);
@@ -56,8 +48,12 @@
 
 #if ELL_DEBUG == 1
 #define ELL_DUMP(arg) if (flags.debug) std::cout << arg << std::endl;
+#define ELL_ENABLE_DUMP(parser) (parser).flags.debug = true;
+#define ELL_DISABLE_DUMP(parser) (parser).flags.debug = false;
 #else
 #define ELL_DUMP(arg)
+#define ELL_ENABLE_DUMP(parser)
+#define ELL_DISABLE_DUMP(parser)
 #endif
 
 namespace ell

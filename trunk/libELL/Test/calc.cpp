@@ -16,14 +16,11 @@
 #include <iostream>
 #include <fstream>
 
-#define ELL_DEBUG 1
-#define ELL_DUMP_NODES 1
 #include "Calc.h"
 
 int main(int argc, const char ** argv)
 {
     Calc c;
-    c.flags.debug = true;
 
     std::string line, file = "<stdin>";
     std::istream * i = & std::cin;
