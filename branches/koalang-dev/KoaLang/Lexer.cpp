@@ -20,20 +20,11 @@ namespace koalang
     Lexer::Lexer()
       : ell::Parser<char>(& top, & blank)
     {
-        top = * lexeme( keyword
-                      | ident [& Lexer::push<Lex::IDENT>]
+        top = * lexeme( ident [& Lexer::push<Lex::IDENT>]
                       | string
                       | op
                       | real [& Lexer::push_number]
                       | + ch('\n') [& Lexer::push<Lex::NL>]);
-
-        keyword = (( str("break") | str("print")
-                   | str("input") | str("eval")
-                   | str("do")    | str("else")
-                   | str("for")   | str("if")
-                   | str("in")    | str("return")
-                   | str("xor")   | str("or")
-                   | str("and")   | str("while") ) >> eps - alnum) [& Lexer::push<Lex::OP>];
 
         string = ch('"') [& Lexer::push_string] >> string_char * ch('"');
 
@@ -51,9 +42,8 @@ namespace koalang
                     | any [& Lexer::push_char] - ch('\n');
 
         op = ( chset("\\<>=") >> ! ch('=')
-             | chset(",?!#*/%+[({:])}-")
-             | ch('.') >> ! ch('.')
-             | ch('@') >> ! ch('@')
+             | chset("^,?!#*/%+[({:])}-")
+             | repeat<1, 2>(chset(".@&|"))
              ) [& Lexer::push<Lex::OP>];
 
         blank = chset(" \t\r") 

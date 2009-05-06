@@ -1,34 +1,34 @@
-'' Basic Types
-'
-'' KoaLang shoud be intuitive for any person who knows a kind of basic programming language:
-'
-'a = 112
-'print a + 3 / 5
-'
-'' This will print 112.60. Every numbers are double-precision floating point.
-'
-'' KoaLang has dynamic typing, for exemple you can now assign a text string into ''a'':
-'a = "hello, world"
-'print a
-'
-'' A list is just a bunch of objects, but you must use brackets to group them:
-'l = ( a  1  "hey, you!" )
-'print l
-'
-'
-'' To acquire a string typed on keyboard, use the input function:
-'age = input "What is your age ? "
-'
-'
-'
-'' To evaluate a string as a piece of koalang code:
-'
-'a = 1
-'b = 2
-'eval "print a + b" @@
-'
-'
-'' Or you can give the context:
+' Basic Types
+
+' KoaLang shoud be intuitive for any person who knows a kind of basic programming language:
+
+a = 112
+print a + 3 / 5
+
+' This will print 112.60. Every numbers are double-precision floating point.
+
+' KoaLang has dynamic typing, for exemple you can now assign a text string into ''a'':
+a = "hello, world"
+print a
+
+' A list is just a bunch of objects, but you must use brackets to group them:
+l = ( a  1  "hey, you!" )
+print l
+
+
+' To acquire a string typed on keyboard, use the input function:
+age = input "What is your age ? "
+
+
+
+' To evaluate a string as a piece of koalang code:
+
+a = 1
+b = 2
+eval "print a + b" @@
+
+
+' Or you can give the context:
 
 dict = { a:1  b:2 }
 print eval "a+b" dict

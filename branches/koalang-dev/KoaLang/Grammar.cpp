@@ -14,7 +14,7 @@
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Grammar.h"
-#include "Interpreter.h"
+#include "Parser.h"
 #include "Operators.h"
 
 namespace koalang
@@ -25,55 +25,40 @@ namespace koalang
         identifier(Lex(Lex::IDENT)),
         newline(Lex(Lex::NL))
     {
-#       define I & Interpreter
+#       define P & Parser
+
         top = no_look_ahead(* statement >> end);
 
-        statement = skip( op("if") >> expression
-                        | op("else") >> statement
-                        | op("for") >> expression
-                        | op("in") >> expression
-                        | op("while") >> expression
-                        | op("do")
-                        | op("break")
-                        | op("return") >> expression
-                        | define
-                        | assignation );
+        statement = skip(define | assignation);
 
         //TODO: add anonymous function handling within expr : f = (<a><b> -> a + b)
         define = look_ahead( parameters
-                             >> identifier [I::push<Variable>]
-                             >> parameters >> op(":") ) >> statement [I::push_define];
+                             >> identifier [P::push<Variable>]
+                             >> parameters >> op(":") ) >> statement [P::push_define];
 
-        parameters = eps [I::push<List>] >> ! (op("<") >> * identifier [I::append<Variable>] >> op(">"));
+        parameters = eps [P::push<List>] >> ! (op("<") >> * identifier [P::append<Variable>] >> op(">"));
 
-        assignation = expression >> ! (op("=") >> expression) [I::push_binary<Assign>];
+        assignation = expression >> ! (op("=") >> expression) [P::push_binary<Assign>];
 
-        expression = no_skip(look_ahead(predefined
-                                        >> ! (predefined [I::push_bunch] >> * predefined [I::append])));
+        expression = no_skip(look_ahead(logical >> ! (logical [P::push_bunch] >> * logical [P::append])));
 
-        // TODO: remove predefined, and rather put them in root context as real function 
-        predefined = no_look_ahead( (op("print") >> predefined) [I::push_unary<Print>]
-                                  | (op("input") >> predefined) [I::push_unary<Input>]
-                                  | (op("eval") >> predefined >> predefined) [I::push_binary<Eval>]
-                                  | logical);
+        logical = order >> * ( (op("&&") >> order) [P::push_binary<And>]
+                             | (op("||") >> order) [P::push_binary<Or>]
+                             | (op("^") >> order) [P::push_binary<Xor>] );
 
-        logical = order >> * ( (op("and") >> order) [I::push_binary<And>]
-                             | (op("or") >> order) [I::push_binary<Or>]
-                             | (op("xor") >> order) [I::push_binary<Xor>] );
+        order = sum >> * ( (op("==") >> sum) [P::push_binary<Eq>]
+                         | (op("\\=") >> sum) [P::push_binary<NotEq>]
+                         | (op("<=") >> sum) [P::push_binary<LE>]
+                         | (op(">=") >> sum) [P::push_binary<GE>]
+                         | (op("<")  >> sum) [P::push_binary<LT>]
+                         | (op(">")  >> sum) [P::push_binary<GT>] );
 
-        order = sum >> * ( (op("==") >> sum) [I::push_binary<Eq>]
-                         | (op("\\=") >> sum) [I::push_binary<NotEq>]
-                         | (op("<=") >> sum) [I::push_binary<LE>]
-                         | (op(">=") >> sum) [I::push_binary<GE>]
-                         | (op("<")  >> sum) [I::push_binary<LT>]
-                         | (op(">")  >> sum) [I::push_binary<GT>] );
+        sum = product >> * ( (op("+") >> product) [P::push_binary<Add>]
+                           | (op("-") >> product) [P::push_binary<Sub>]);
 
-        sum = product >> * ( (op("+") >> product) [I::push_binary<Add>]
-                           | (op("-") >> product) [I::push_binary<Sub>]);
-
-        product = unary >> * ( (op("*") >> unary) [I::push_binary<Mult>]
-                             | (op("/") >> unary) [I::push_binary<Div>]
-                             | (op("%") >> unary) [I::push_binary<Mod>]);
+        product = unary >> * ( (op("*") >> unary) [P::push_binary<Mult>]
+                             | (op("/") >> unary) [P::push_binary<Div>]
+                             | (op("%") >> unary) [P::push_binary<Mod>]);
 
         unary = op("-") >> unary
               | op("\\") >> unary
@@ -85,14 +70,14 @@ namespace koalang
 
         selection = atome >> * (op("[") >> expression >> op("]"));
 
-        atome = op("(") [I::push<List>] >> * statement [I::append] >> op(")")
-              | op("{") [I::push<Block>] >> * statement [I::append] >> op("}")
-              | number [I::push<Real>]
-              | string [I::push<String>]
+        atome = op("(") [P::push<List>] >> * statement [P::append] >> op(")")
+              | op("{") [P::push<Block>] >> * statement [P::append] >> op("}")
+              | number [P::push<Real>]
+              | string [P::push<String>]
               | variable
-              | op("@@") [I::push<Scope>];
+              | op("@@") [P::push<Scope>];
 
-        variable = identifier [I::push<Variable>] >> * (op(".") >> identifier)
+        variable = identifier [P::push<Variable>] >> * (op(".") >> identifier)
                  | op("..") >> identifier;
 
         skipper = op(",") | newline;

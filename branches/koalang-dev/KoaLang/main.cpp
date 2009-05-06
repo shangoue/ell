@@ -1,26 +1,24 @@
 #include <iostream>
 #include <fstream>
 
-#include "Interpreter.h"
+#include "Parser.h"
 
 using namespace koalang;
 
 int main(int argc, const char ** argv)
 {
-    Interpreter ki;
+    Parser ki;
     Map * root_context = new Map(0);
     std::string filename;
 
     for (int i = 1; i < argc; ++i)
     {
         std::string arg = argv[i];
-#       if ELL_DEBUG
         if (arg == "-debug")
-            ki.lexer.flags.debug = true;
+            ELL_ENABLE_DUMP(ki);
         else if (arg == "-lexer-debug")
-            ki.flags.debug = true;
+            ELL_ENABLE_DUMP(ki.lexer);
         else
-#       endif
             filename = arg;
     }
 

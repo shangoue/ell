@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __KOALANG_INTERPRETER__
-#define __KOALANG_INTERPRETER__
+#ifndef __KOALANG_PARSER__
+#define __KOALANG_PARSER__
 
 #include "Grammar.h"
 #include "Types.h"
@@ -82,14 +82,14 @@ namespace ell
         {
             std::ostringstream os;
             std::vector<Lex>::const_iterator i = position;
-            bool stop = false;
+            int stop = 3;
             bool sep = false;
-            while (not stop)
+            while (stop)
             {
                 switch (i->type)
                 {
-                case Lex::END:
-                case Lex::NL:    stop = true; break;
+                case Lex::END:   stop = 0; os << " \\0"; break;
+                case Lex::NL:    stop--; os << "   "; break;
 
                 case Lex::STR:   sep = false; os << '"' << i->s << '"'; break;
                 case Lex::OP:    sep = false; os << i->s; break;
@@ -196,6 +196,6 @@ namespace ell
 
 namespace koalang
 {
-    typedef ell::Parser<Lex> Interpreter;
+    typedef ell::Parser<Lex> Parser;
 }
-#endif // __KOALANG_INTERPRETER__
+#endif // __KOALANG_PARSER__

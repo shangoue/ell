@@ -32,7 +32,7 @@ namespace koalang
         ell::Character<Lex> number, string, identifier, newline;
 
         ell::Rule<Lex> top, statement, define, assignation, expression,
-                       predefined, logical, order, sum, product, unary, selection,
+                       logical, order, sum, product, unary, selection,
                        variable, parameters, atome, skipper;
     };
 }

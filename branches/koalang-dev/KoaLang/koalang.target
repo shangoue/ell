@@ -1,5 +1,6 @@
 TARGET = koalang
 TARGET_FILES = KoaLang/*.cpp
+PCH = CommonHeaders.h
 
 CFLAGS = -I. -IlibELL/Include
 LDFLAGS = -lstdc++ -lreadline -lhistory
