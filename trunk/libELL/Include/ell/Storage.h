@@ -29,8 +29,6 @@ namespace ell
         Storage() : value() { }
         T value;
         typedef Storage<void> Unit;
-        void enqueue(const Unit &) { }
-        void clear() { }
     };
 
     template <>

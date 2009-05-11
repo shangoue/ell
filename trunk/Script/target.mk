@@ -17,7 +17,7 @@ MODE = Debug
 CFLAGS += -g -O0 -fno-inline
 endif
 
-BUILD_FOOTPRINT = $(OS)/$(ARCH)/$(MODE)
+BUILD_FOOTPRINT = Build/$(OS)/$(ARCH)/$(MODE)
 
 ifeq ($(MOLDUR_BUILD_TARGET),)
 # prevent environment variable interferences
@@ -43,7 +43,7 @@ ifeq ($(COMPILER),icc)
 CFLAGS += -Wbrief
 else
 COMPILER = LANG=C g++
-CFLAGS += -Winvalid-pch -Wall -pipe -Wno-parentheses
+CFLAGS += -Wall -pipe -Wno-parentheses
 CFLAGS += -Woverloaded-virtual
 endif
 

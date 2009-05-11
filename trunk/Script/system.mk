@@ -15,7 +15,7 @@
 # CLEAN_MORE:   files to remove appart from BUILD_DIR (opt)     (eg. Test1.bin Test2)
 # DEPENDS:      other target dependencies                       (eg. external/libbullet.a)
 
-.PHONY: default clean
+.PHONY: clean
 
 ifeq ($(BUILD_DIR),)
 BUILD_DIR := .
