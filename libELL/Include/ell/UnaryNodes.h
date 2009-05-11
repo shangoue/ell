@@ -203,6 +203,7 @@ namespace ell
         { }
 
         using Base::parse;
+
         template <typename V>
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {

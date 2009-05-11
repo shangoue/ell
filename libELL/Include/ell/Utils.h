@@ -30,8 +30,8 @@
 #endif
 #endif
 
-#define ELL_DUMP_NODES        0
-#define ELL_DUMP_ACTIONS      0
+#define ELL_DUMP_NODES        1
+#define ELL_DUMP_ACTIONS      1
 #define ELL_DUMP_SKIPPER      0
 
 #define ELL_NAME_RULE(arg) arg.set_name(#arg);
