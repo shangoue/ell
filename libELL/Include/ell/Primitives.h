@@ -234,25 +234,6 @@ namespace ell
     };
 
     template <typename Token>
-    struct Break : public ConcreteNodeBase<Token, Break<Token> >
-    {
-        using ConcreteNodeBase<Token, Break<Token> >::parse;
-
-        bool parse(Parser<Token> * parser, Storage<void> &) const
-        {
-            ELL_BEGIN_PARSE
-            asm("int3");
-            match = true;
-            ELL_END_PARSE
-        }
-
-        void describe(std::ostream & os) const
-        {
-            os << "break";
-        }
-    };
-
-    template <typename Token>
     struct IgnoreCaseString : public ConcreteNodeBase<Token, IgnoreCaseString<Token> >
     {
         IgnoreCaseString(const std::basic_string<Token> & s)

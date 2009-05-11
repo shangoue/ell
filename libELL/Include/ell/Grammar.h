@@ -30,7 +30,6 @@ namespace ell
         Epsilon<Token>                          eps;
         Any<Token>                              any;
         Nop<Token>                              nop;
-        Break<Token>                            brk;
 
         template <typename T>
         Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
