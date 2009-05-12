@@ -94,12 +94,12 @@ struct ListTest : public ell::Grammar<char>
     ell::Rule<char> root, other;
 };
 
-struct MyParser : ell::Parser<char>, ell::Grammar<char>
+struct ListToSetTest : ell::Parser<char>, ell::Grammar<char>
 {
-    MyParser()
+    ListToSetTest()
       : ell::Parser<char>(& rule, & blank)
     {
-        rule = (+ dec) [& MyParser::list];
+        rule = (+ dec) [& ListToSetTest::list];
    
         check(* this, "12 1 9", true, true);
     }
@@ -170,12 +170,30 @@ struct CalcTest : public Calc
     }
 };
 
+struct NoConsumeTest : public ell::Grammar<char>
+{
+    NoConsumeTest()
+    {
+        root = no_look_ahead(str("toto") >> no_consume(ch('[')) >> str("[]"));
+
+        ell::Parser<char> p(& root);
+
+        ELL_ENABLE_DUMP(p);
+
+        check(p, "toto[]", true, true);
+    }
+
+    ell::Rule<char> root;
+};
+ 
+
 int main()
 {
     ListTest l;
-    MyParser p;
+    ListToSetTest p;
     ActionChainTest ac;
     CalcTest c;
+    NoConsumeTest nc;
 
     printf("Everything is ok.\n");
     return 0;

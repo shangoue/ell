@@ -45,6 +45,9 @@ namespace ell
 #       undef ELL_FLAG
 
         template <typename P>
+        NoConsume<Token, P>                     no_consume(const P & p) const { return NoConsume<Token, P>(p); }
+
+        template <typename P>
         Lexeme<Token, P>                        lexeme(const P & p) const { return Lexeme<Token, P>(p); }
 
         template <const int exact, typename P>

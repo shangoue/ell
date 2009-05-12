@@ -47,6 +47,27 @@ namespace ell
     ELL_PARSER_FLAGS
 #   undef ELL_FLAG
 
+    template <typename Token, typename Child>
+    struct NoConsume : public UnaryNode<Token, NoConsume<Token, Child>, Child>
+    {
+        typedef UnaryNode<Token, NoConsume<Token, Child>, Child> Base;
+
+        NoConsume(const Child & target)
+          : Base(target, "no_consume")
+        { }
+
+        using Base::parse;
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        {
+            ELL_BEGIN_PARSE
+            typename Parser<Token>::Context sav_pos(parser);
+            match = Base::target.parse(parser, s);
+            sav_pos.restore(parser);
+            ELL_END_PARSE
+        }
+    };
+
     /// This class allows to define a new grammar terminator.
     /// When parsing parsing through its children, skipper is disabled and stepping back allowed.
     template <typename Token, typename Child>

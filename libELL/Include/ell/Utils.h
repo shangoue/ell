@@ -30,7 +30,7 @@
 #endif
 #endif
 
-#define ELL_DUMP_NODES        0
+#define ELL_DUMP_NODES        1
 #define ELL_DUMP_ACTIONS      0
 #define ELL_DUMP_SKIPPER      0
 
@@ -42,7 +42,6 @@
 
 # define ELL_PARSER_FLAGS           \
     ELL_FLAG(look_ahead, LookAhead) \
-    ELL_FLAG(consume, Consume)      \
     ELL_FLAG(action, Action)        \
     ELL_FLAG(skip, Skip)            \
 
