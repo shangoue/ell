@@ -48,12 +48,19 @@ namespace ell
         {
             int operator () (Parser<Token> * parser)
             {
+                int r = 1;
                 switch (parser->get())
                 {
-                case '-': parser->next(); return -1;
-                case '+': parser->next(); return 1;
-                default: return 1;
+                case '-':
+                    r = - 1;
+                case '+':
+                    do
+                    {
+                        parser->next();
+                    }
+                    while (parser->get() == ' ' or parser->get() == '\t');
                 }
+                return r;
             }
         };
 
