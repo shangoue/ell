@@ -32,6 +32,9 @@ for m in */; do
 done
 
 cp -v `find Build -name "*.so" -o -name "*.a"` $pkg/lib || exit 1
+for lib in $pkg/lib/*; do
+    strip $lib
+done
 
 # Generate dev package
 tar cjvf $pkg-dev.tar.bz2 $pkg
