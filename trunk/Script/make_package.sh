@@ -33,7 +33,7 @@ done
 
 cp -v `find Build -name "*.so" -o -name "*.a"` $pkg/lib || exit 1
 for lib in $pkg/lib/*; do
-    strip $lib
+    strip -s $lib
 done
 
 # Generate dev package
