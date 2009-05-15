@@ -62,14 +62,14 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            if (name)
+            if (name.size())
                 os << name;
             else
                 os << * top;
         }
 
 #       if ELL_DEBUG == 1
-        bool must_be_dumped() const { return name != 0; }
+        bool must_be_dumped() const { return name.size(); }
 #       endif
 
     private:

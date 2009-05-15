@@ -26,7 +26,7 @@ namespace ell
         void describe(std::ostream & os) const
         {                                                                                
             os << '(' << (((BinaryFlavour *) this)->left);
-            if (Node<Token>::name)
+            if (Node<Token>::name.size())
                 os << ' ' << Node<Token>::name;
             os << ' ' << (((BinaryFlavour *) this)->right) << ')';
         }
