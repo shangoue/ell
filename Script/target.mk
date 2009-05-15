@@ -19,7 +19,10 @@ endif
 
 BUILD_FOOTPRINT = Build/$(OS)/$(ARCH)/$(MODE)
 
+########################################
 ifeq ($(MOLDUR_BUILD_TARGET),)
+
+
 # prevent environment variable interferences
 TARGET=
 COMPILER=
@@ -33,9 +36,14 @@ CLEAN_MORE=
 DEPENDS=
 
 # fork
-.PHONY: all
-all:
+.DEFAULT:
 	@$(MAKE) MOLDUR_BUILD_TARGET=1 --no-print-directory -rR -f $(firstword $(MAKEFILE_LIST))
+
+clean:
+	@$(MAKE) MOLDUR_BUILD_TARGET=1 --no-print-directory -rR -f $(firstword $(MAKEFILE_LIST)) clean
+
+
+########################################
 else
 LDFLAGS += -L$(BUILD_FOOTPRINT)
 
@@ -47,13 +55,14 @@ CFLAGS += -Wall -pipe -Wno-parentheses
 CFLAGS += -Woverloaded-virtual
 endif
 
-ifneq ($(PCH),)
-CFLAGS += -include $(PCH)
-endif
+CFLAGS += $(if $(PCH),-include $(PCH))
 
 BUILD_DIR = $(BUILD_FOOTPRINT)/$(MODULE)
 
-TARGET := $(addprefix $(BUILD_FOOTPRINT)/,$(TARGET))
+ifeq (,$(findstring /,$(TARGET)))
+TARGET := $(addprefix $(BUILD_FOOTPRINT)/,$(TARGET)))
+endif
+
 DEPENDS := $(addprefix $(BUILD_FOOTPRINT)/,$(DEPENDS))
 TARGET_FILES := $(wildcard $(TARGET_FILES))
 
@@ -186,3 +195,4 @@ endif
 $(TARGET_FILES): $(firstword $(MAKEFILE_LIST))
 
 endif
+########################################
