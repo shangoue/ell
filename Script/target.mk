@@ -36,7 +36,7 @@ CLEAN_MORE=
 DEPENDS=
 
 # fork
-.DEFAULT:
+all:
 	@$(MAKE) MOLDUR_BUILD_TARGET=1 --no-print-directory -rR -f $(firstword $(MAKEFILE_LIST))
 
 clean:
@@ -60,7 +60,7 @@ CFLAGS += $(if $(PCH),-include $(PCH))
 BUILD_DIR = $(BUILD_FOOTPRINT)/$(MODULE)
 
 ifeq (,$(findstring /,$(TARGET)))
-TARGET := $(addprefix $(BUILD_FOOTPRINT)/,$(TARGET)))
+TARGET := $(addprefix $(BUILD_FOOTPRINT)/,$(TARGET))
 endif
 
 DEPENDS := $(addprefix $(BUILD_FOOTPRINT)/,$(DEPENDS))

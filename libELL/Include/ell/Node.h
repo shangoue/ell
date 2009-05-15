@@ -54,7 +54,7 @@ namespace ell
     template <typename Token>
     struct Node
     {
-        Node(const char * name = 0)
+        Node(const std::string & name = "")
           : name(name)
         { }
 
@@ -76,7 +76,7 @@ namespace ell
 
         virtual void describe(std::ostream & os) const = 0;
 
-        const char * name;
+		std::string name;
     };
 
     template <typename Token, typename ConcreteNode>
