@@ -35,7 +35,7 @@
 #define ELL_DUMP_SKIPPER      0
 
 #define ELL_NAME_RULE(arg) arg.set_name(#arg);
-#define ELL_TRANSPARENT_RULE(arg) arg.set_name(0);
+#define ELL_TRANSPARENT_RULE(arg) arg.set_name("");
 
 # define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
 # define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;

@@ -91,7 +91,7 @@ namespace ell
         using Base::left;
 
         Aggregation(const Left & left, const Right & right)
-          : Base(left, right, 0)
+          : Base(left, right, "")
         { }
 
         using Base::parse;
