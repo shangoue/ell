@@ -9,6 +9,6 @@ all: $(TARGET_FILES)
 
 $(TARGET_FILES):
 	@echo Processing $@...
-	@$(MAKE) --no-print-directory -f $@ MOLDUR_MAKEFILE=$@
+	@$(MAKE) --no-print-directory -f $@
 
 XmlParser/test.target: XmlParser/lib.target

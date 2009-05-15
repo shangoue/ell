@@ -35,7 +35,7 @@ DEPENDS=
 # fork
 .PHONY: all
 all:
-	@$(MAKE) MOLDUR_BUILD_TARGET=1 --no-print-directory -rR -f $(MOLDUR_MAKEFILE) MOLDUR_MAKEFILE=$(MOLDUR_MAKEFILE)
+	@$(MAKE) MOLDUR_BUILD_TARGET=1 --no-print-directory -rR -f $(firstword $(MAKEFILE_LIST))
 else
 LDFLAGS += -L$(BUILD_FOOTPRINT)
 
@@ -183,6 +183,6 @@ endif
 
 # END OF SYSTEM
 
-$(TARGET_FILES): $(MOLDUR_MAKEFILE)
+$(TARGET_FILES): $(firstword $(MAKEFILE_LIST))
 
 endif
