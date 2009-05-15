@@ -40,7 +40,7 @@ namespace ell
     template <typename Token, typename ConcreteNode, typename Child>
     struct UnaryNode : public UnaryNodeBase<Token, ConcreteNode, UnaryNode<Token, ConcreteNode, Child> >
     {
-        UnaryNode(const Child & child, const char * n = 0)
+        UnaryNode(const Child & child, const std::string & n = 0)
           : target(child)
         {
             Node<Token>::name = n;
@@ -53,7 +53,7 @@ namespace ell
     struct UnaryNode<Token, ConcreteNode, Rule<Token> >
       : public UnaryNodeBase<Token, ConcreteNode, UnaryNode<Token, ConcreteNode, Rule<Token> > >
     {
-        UnaryNode(const Rule<Token> & child, const char * n = 0)
+        UnaryNode(const Rule<Token> & child, const std::string & n = 0)
           : target(child)
         {
             Node<Token>::name = n;

@@ -28,11 +28,11 @@ namespace ell
         using Node<Token>::name;
         using ConcreteNodeBase<Token, Rule<Token> >::parse;
 
-        // Default name to anonymous to avoid infinite recursion in describe
-        // when no names has been given
         Rule()
           : top(0)
         {
+            // Default name to anonymous to avoid infinite recursion in describe
+            // when no names has been given
             name = "<anonymous>";
         }
 
@@ -51,7 +51,7 @@ namespace ell
                 top = new N(n);
         }
 
-        void set_name(const char * n) { name = n; }
+        void set_name(const std::string & n) { name = n; }
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
