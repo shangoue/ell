@@ -1,4 +1,4 @@
-# MOLDUR: modular, env-free build system using GNU make
+# MOLDUR: modular, env-free build system for unix using GNU make
 # by Samuel Hangouët
 
 ARCH = $(shell uname -m)
@@ -36,7 +36,7 @@ CLEAN_MORE=
 DEPENDS=
 
 # fork
-all:
+moldur_top:
 	@$(MAKE) MOLDUR_BUILD_TARGET=1 --no-print-directory -rR -f $(firstword $(MAKEFILE_LIST))
 
 clean:
