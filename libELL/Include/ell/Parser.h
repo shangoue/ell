@@ -132,10 +132,10 @@ namespace ell
             position(0)
         { }
 
-        void parse(const Char * buffer)
+        void parse(const Char * buffer, int start_line = 1)
         {
             position = buffer;
-            line_number = 1;
+            line_number = start_line;
             ParserBase<Char>::parse();
         }
 
