@@ -1,7 +1,7 @@
 # MOLDUR: modular, env-free build system using GNU make
 # by Samuel Hangouët
 
-TARGET_FILES = $(wildcard */*.target)
+TARGET_FILES = $(wildcard */*.target *.target)
 
 all: $(TARGET_FILES)
 
