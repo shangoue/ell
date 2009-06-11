@@ -26,6 +26,7 @@
 #include <functional>
 #include <limits>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <exception>
 #include <stdexcept>

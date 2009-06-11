@@ -1,18 +1,3 @@
-// This file is part of Ell library.
-//
-// Ell library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Ell library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
-
 #ifndef __KOALANG_PARSER__
 #define __KOALANG_PARSER__
 
@@ -22,21 +7,21 @@
 
 namespace ell
 {
-    using namespace koalang;
+    using koalang::Lex;
+    using koalang::Object;
 
     template <>
     struct Parser<Lex> : public ParserBase<Lex>
     {
         Parser()
-          : ParserBase<Lex>(& grammar.top, & grammar.skipper),
+          : ParserBase<Lex>(& grammar.program, & grammar.skipper),
             stack(0)
         { }
 
         koalang::List * parse(const std::string & buffer, const std::string & filename)
         {
             stack = new koalang::List;
-            file = filename;
-            lexer.parse(buffer.c_str());
+            lexer.parse(buffer.c_str(), filename);
             position = lexer.lexemes.begin();
             ParserBase<Lex>::parse();
             return stack;
@@ -45,8 +30,8 @@ namespace ell
         void raise_error(const std::string & msg) const
         {
             std::ostringstream oss;
-            oss << file << ":" << position->line << ": ";
-            oss << "before " << dump_position() << ": " << msg << std::endl;
+            oss << * position->location << ": " << "before " << dump_position()
+                                        << ": " << msg << std::endl;
             throw std::runtime_error(oss.str());
         }
 
@@ -103,15 +88,27 @@ namespace ell
         }
 
         template <typename Object>
-        void push(const Lex & lex) { push(new Object(lex)); }
+        void push(const Lex & lex)
+        {
+            Object * o = new Object(lex);
+            o->location = lex.location;
+            push(o);
+        }
 
         template <typename Object>
-        void append(const Lex & lex) { push(new Object(lex)); append(); }
+        void append(const Lex & lex)
+        {
+            Object * o = new Object(lex);
+            o->location = lex.location;
+            push(o);
+            append();
+        }
 
         template <typename Object>
         void push_unary(const Lex * name)
         {
             Object * op = new Object;
+            op->location = name->location;
             op->target = pop();
             op->name = name->s;
             push(op);
@@ -121,6 +118,7 @@ namespace ell
         void push_binary(const Lex * name)
         {
             Object * op = new Object;
+            op->location = name->location;
             op->right = pop();
             op->left = pop();
             op->name = name->s;
@@ -129,9 +127,9 @@ namespace ell
 
         void push_define()
         {
-            Assign * def = new Assign;
+            koalang::Assign * def = new koalang::Assign;
             def->name = '=';
-            Function * func = new Function;
+            koalang::Function * func = new koalang::Function;
 
             func->body = pop();
             func->right = pop()->to<koalang::List>()->value;
@@ -175,7 +173,7 @@ namespace ell
         std::vector<Lex>::const_iterator position;
         std::string file;
 
-        Lexer lexer;
+        koalang::Lexer lexer;
         koalang::Grammar grammar;
 
         koalang::List * stack;

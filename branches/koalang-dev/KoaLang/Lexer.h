@@ -1,6 +1,8 @@
 #include <ell/Grammar.h>
 #include <ell/Parser.h>
 
+#include "Location.h"
+
 namespace koalang
 {
     struct Lex
@@ -15,27 +17,27 @@ namespace koalang
             OP
         } type;
 
-        Lex(Type type = END, int line = 0)
+        Lex(Type type = END, Location * location = 0)
           : type(type),
-            line(line)
+            location(location)
         { }
 
-        Lex(double n, int line = 0)
+        Lex(double n, Location * location = 0)
           : type(NUM),
             n(n),
-            line(line)
+            location(location)
         { }
 
-        Lex(const char * begin, const char * end, Type type, int line = 0)
+        Lex(const char * begin, const char * end, Type type, Location * location = 0)
           : type(type),
             s(begin, end),
-            line(line)
+            location(location)
         { }
 
-        Lex(const char * s, Type type, int line = 0)
+        Lex(const char * s, Type type, Location * location = 0)
           : type(type),
             s(s),
-            line(line)
+            location(location)
         { }
 
         operator double () const { return n; }
@@ -70,7 +72,7 @@ namespace koalang
 
         double n;
         std::string s;
-        int line;
+        Location * location;
     };
 
     struct Lexer : public ell::Grammar<char>,
@@ -78,26 +80,32 @@ namespace koalang
     {
         Lexer();
 
-        void parse(const char * buffer)
+        void parse(const char * buffer, const std::string & filename, int line = 1)
         {
-            lexemes.clear();
-            ell::Parser<char>::parse(buffer);
+            file = new std::string(filename);
+            ell::Parser<char>::parse(buffer, line);
             lexemes.push_back(Lex());
         }
 
-        void push_number(double n) { lexemes.push_back(Lex(n, line_number)); }
+        void push_number(double n) { lexemes.push_back(Lex(n, get_location())); }
 
         template <const Lex::Type T>
-        void push(const char * begin) { lexemes.push_back(Lex(begin, position, T, line_number)); }
+        void push(const char * begin) { lexemes.push_back(Lex(begin, position, T, get_location())); }
 
-        void push_string() { lexemes.push_back(Lex(Lex::STR, line_number)); }
+        void push_string() { lexemes.push_back(Lex(Lex::STR, get_location())); }
 
         void push_char(char c) { lexemes.back().s += c; }
 
         template <const char C>
         void push_char() { lexemes.back().s += C; }
 
-        ell::Rule<char> top, keyword, string, string_char, op, blank;
+        Location * get_location()
+        {
+            return new Location(file, ell::Parser<char>::line_number);
+        }
+
+        std::string * file;
+        ell::Rule<char> top, string, string_char, punct, blank;
         std::vector<Lex> lexemes;
     };
 }

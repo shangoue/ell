@@ -1,18 +1,3 @@
-// This file is part of Ell library.
-//
-// Ell library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Ell library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
-
 #include "Lexer.h"
 
 namespace koalang
@@ -22,7 +7,7 @@ namespace koalang
     {
         top = * lexeme( ident [& Lexer::push<Lex::IDENT>]
                       | string
-                      | op
+                      | punct
                       | real [& Lexer::push_number]
                       | + ch('\n') [& Lexer::push<Lex::NL>]);
 
@@ -41,19 +26,16 @@ namespace koalang
                                   | ch('U') >> integer<unsigned long, 16, 8, 8>() [& Lexer::push_char]
                     | any [& Lexer::push_char] - ch('\n');
 
-        op = ( chset("\\<>=") >> ! ch('=')
-             | chset("^,?!#*/%+[({:])}-")
-             | repeat<1, 2>(chset(".@&|"))
-             ) [& Lexer::push<Lex::OP>];
+        punct = ( chset("\\<>=") >> ! ch('=')
+                | chset("^,?!#*/%+[({:])}-")
+                | repeat<1, 2>(chset(".@&|"))) [& Lexer::push<Lex::OP>];
 
         blank = chset(" \t\r") 
               | (ch('\'') >> any * ch('\n')) [& Lexer::push<Lex::NL>];
 
-        top.set_name(0);
-        string_char.set_name(0);
-
-        op.set_name("operator");
-        keyword.set_name("keyword");
-        string.set_name("string");
+        ELL_TRANSPARENT_RULE(top)
+        ELL_TRANSPARENT_RULE(string_char)
+        ELL_NAME_RULE(punct)
+        ELL_NAME_RULE(string)
     }
 }

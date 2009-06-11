@@ -30,6 +30,7 @@ eval "print a + b" @@
 
 ' Or you can give the context:
 
-dict = { a:1  b:2 }
+dict: { a = 1, b = 2 }
+dict = { a: 1, b: 2 }
 print eval "a+b" dict
 

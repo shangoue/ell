@@ -3,55 +3,76 @@
 
 namespace koalang
 {
-    // List evaluation is a bit complicated because we must resolve any function call, which
-    // keeping the order of evaluation of elements.
-    Object * List::eval(Map * context)
+    Object * Object::eval(Map * context)
     {
-        List * result = new List;
-        unsigned begin = 0;
+        context->backtrace->push_back(this);
+        Object * r = concrete_eval(context);
+        context->backtrace->pop_back();
+        return r;
+    }
 
-        for (unsigned i = 0; i < value.size(); ++i)
+    static void in_place_eval(ObjectList & right, Map * context)
+    {
+        ObjectList left;
+
+        while (not right.empty())
         {
-            Object * v = value[i];
-            if (v->is<Variable>())
+            Object * o = right.back();
+            right.pop_back();
+
+            if (not o->is<Variable>())
             {
-                v = context->look_up(((Variable *) value[i])->value);
-
-                if (v->is<Function>())
-                {
-                    Function * f = (Function *) v;
-               		Map * locals = new Map(context);
-
-                    for (unsigned left = 0; left < f->left.size(); ++left)
-                    {
-                        if (i - 1 - left < 0)
-                            throw std::runtime_error("Lacks of a left operand");
-
-                        Assign::assign(f->left[left], value[i - 1 - left], locals);
-                    }
-
-                    for (unsigned right = 0; right < f->right.size(); ++right)
-                    {
-                        if (i + 1 + right >= value.size())
-                            throw std::runtime_error("Lacks of a right operand");
-
-                        Assign::assign(f->right[right], value[i + 1 + right], locals);
-                    }
-
-                    for (unsigned j = begin; j < i - f->left.size(); ++j)
-                        result->value.push_back(value[j]->eval(context));
-
-                    result->value.push_back(f->eval(locals));
-
-                    i = i + f->right.size();
-                    begin = i + 1;
-                }
+                left.push_back(o->eval(context));
+                continue;
             }
+
+            Variable * v = (Variable *) o;
+            o = context->look_up(v->value);
+            if (not o->is<Function>())
+            {
+                left.push_back(o);
+                continue;
+            }
+
+            Function * f = (Function *) o;
+            if (left.size() < f->left.size())
+                throw std::runtime_error("Lacking of a left argument for function " + v->value);
+
+            if (not f->right.empty())
+            {
+                in_place_eval(right, context);
+                if (right.size() < f->right.size())
+                    throw std::runtime_error("Lacking of a right argument for function " + v->value);
+            }
+
+            Map * locals = new Map(context);
+            for (unsigned i = f->left.size() - 1; i >= 0; ++i)
+            {
+                Assign::assign(f->left[i], left.back(), locals);
+                left.pop_back();
+            }
+            for (unsigned i = 0; i < f->right.size(); ++i)
+            {
+                Assign::assign(f->right[i], right[i], locals);
+            }
+            right.erase(right.begin(), right.begin() + f->right.size());
+
+            left.push_back(f->eval(locals));
         }
 
-        for (unsigned j = begin; j < value.size(); ++j)
-            result->value.push_back(value[j]->eval(context));
+        right = left;
+    }
 
+    Object * List::concrete_eval(Map * context)
+    {
+        ObjectList l = value;
+        in_place_eval(l, context);
+
+        if (l.size() == 1)
+            return l.back();
+
+        List * result = new List;
+        result->value = l;
         return result;
     }
 }

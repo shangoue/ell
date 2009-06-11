@@ -1,64 +1,30 @@
-#include <iostream>
-#include <fstream>
-
-#include "Parser.h"
+#include "Interpreter.h"
 
 using namespace koalang;
 
 int main(int argc, const char ** argv)
 {
-    Parser ki;
-    Map * root_context = new Map(0);
     std::string filename;
+    Interpreter interpreter;
 
     for (int i = 1; i < argc; ++i)
     {
         std::string arg = argv[i];
         if (arg == "-debug")
-            ELL_ENABLE_DUMP(ki);
+            ELL_ENABLE_DUMP(interpreter.parser);
         else if (arg == "-lexer-debug")
-            ELL_ENABLE_DUMP(ki.lexer);
+            ELL_ENABLE_DUMP(interpreter.parser.lexer);
         else
             filename = arg;
     }
 
     if (not filename.empty())
     {
-        std::ifstream file(filename.c_str());
-
-        std::string file_content, line;
-        while (std::getline(file, line))
-            file_content += line + '\n';
-
-        try
-        {
-            Object * code = ki.parse(file_content, filename);
-            code->eval(root_context);
-        }
-        catch (std::runtime_error & e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+        interpreter.exec_file(filename);
     }
     else
     {
-        std::string line;
-        while (true)
-        {
-            std::cout << "> " << std::flush;
-            if (not std::getline(std::cin, line))
-                break;
-
-            try
-            {
-                Object * code = ki.parse(line, "<stdin>");
-                code->eval(root_context);
-            }
-            catch (std::runtime_error & e)
-            {
-                std::cerr << e.what() << '\n';
-            }
-        }
+        interpreter.exec_stdin();
     }
 
     return 0;

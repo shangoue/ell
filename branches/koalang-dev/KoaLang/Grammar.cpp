@@ -1,18 +1,3 @@
-// This file is part of Ell library.
-//
-// Ell library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Ell library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
-
 #include "Grammar.h"
 #include "Parser.h"
 #include "Operators.h"
@@ -27,7 +12,7 @@ namespace koalang
     {
 #       define P & Parser
 
-        top = no_look_ahead(* statement >> end);
+        program = no_look_ahead(* statement >> end);
 
         statement = skip(define | assignation);
 
@@ -83,8 +68,7 @@ namespace koalang
         skipper = op(",") | newline;
 #       undef I
 
-        top.set_name(0);
-
+        ELL_NAME_RULE(program)
         ELL_NAME_RULE(statement)
         ELL_NAME_RULE(define)
         ELL_NAME_RULE(parameters)

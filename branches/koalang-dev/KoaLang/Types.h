@@ -1,20 +1,7 @@
-// This file is part of Ell library.
-//
-// Ell library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Ell library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
-
 #ifndef __KOALANG_TYPES_H__
 #define __KOALANG_TYPES_H__
+
+#include "Location.h"
 
 namespace koalang
 {
@@ -22,9 +9,16 @@ namespace koalang
 
     struct Object
     {
+        Object()
+          : location(0)
+        { }
+
         virtual ~Object() { }
 
-        virtual Object * eval(Map * context) = 0;
+        // Evaluation with backtrace update
+        Object * eval(Map * context);
+
+        virtual Object * concrete_eval(Map * context) = 0;
 
         virtual void describe(std::ostream & os) const = 0;
 
@@ -48,10 +42,12 @@ namespace koalang
             return os;
         }
 
-        //TODO: add location information for back-trace
+        Location * location;
     };
 
+
     typedef std::vector<Object *> ObjectList;
+
     inline std::ostream & operator << (std::ostream & os, const ObjectList & l)
     {
         for (ObjectList::const_iterator i = l.begin(); i != l.end(); ++i)
@@ -59,13 +55,16 @@ namespace koalang
         return os;
     }
 
+
     typedef std::map<std::string, Object *> ObjectMap;
+
     inline std::ostream & operator << (std::ostream & os, const ObjectMap & l)
     {
         for (ObjectMap::const_iterator i = l.begin(); i != l.end(); ++i)
             os << ' ' << i->first << " = " << *i->second << ' ';
         return os;
     }
+
 
     struct Real : public Object
     {
@@ -78,13 +77,14 @@ namespace koalang
             os << value;
         }
 
-        Real * eval(Map * context)
+        Real * concrete_eval(Map * context)
         {
             return this;
         }
 
         double value;
     };
+
 
     struct String : public Object
     {
@@ -97,13 +97,14 @@ namespace koalang
             os << '"' << value << '"';
         }
 
-        Object * eval(Map * context)
+        Object * concrete_eval(Map * context)
         {
             return this;
         }
 
         std::string value;
     };
+
 
     struct List : public Object
     {
@@ -112,16 +113,22 @@ namespace koalang
             os << '(' << value << ')';
         }
 
-        Object * eval(Map * context);
+        Object * concrete_eval(Map * context);
 
         ObjectList value;
     };
+
 
     struct Map : public Object
     {
         Map(Map * parent = 0)
           : parent(parent)
-        { }
+        {
+            if (parent)
+                backtrace = parent->backtrace;
+            else
+                backtrace = new ObjectList;
+        }
 
         Object * look_up(const std::string & name) const
         {
@@ -136,17 +143,19 @@ namespace koalang
             return i->second;
         }
 
-        Map * eval(Map * context) { return this; }
+        Map * concrete_eval(Map * context) { return this; }
 
         void describe(std::ostream & os) const { os << '{' << value << '}'; }
 
         ObjectMap value;
         Map * parent;
+        ObjectList * backtrace;
     };
+
 
     struct Function : public Object
     {
-        Object * eval(Map * context) { return body->eval(context); }
+        Object * concrete_eval(Map * context) { return body->eval(context); }
 
         void describe(std::ostream & os) const
         {
@@ -157,13 +166,14 @@ namespace koalang
         Object * body;
     };
 
+
     struct Variable : public String
     {
         Variable(const std::string & name) : String(name) { }
 
         void describe(std::ostream & os) const { os << value; }
 
-        Object * eval(Map * context)
+        Object * concrete_eval(Map * context)
         {
             Object * v = context->look_up(value);
             if (v->is<Function>())
@@ -179,12 +189,13 @@ namespace koalang
         }
     };
 
+
     struct Block : public List
     {
-        Map * eval(Map * context)
+        Map * concrete_eval(Map * context)
         {
             Map * locals = new Map(context);
-            List::eval(locals);
+            List::concrete_eval(locals);
             return locals;
         }
 
