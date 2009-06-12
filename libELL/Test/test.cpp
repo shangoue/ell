@@ -87,7 +87,7 @@ struct ListTest : public ell::Grammar<char>
         TEST(buffer="2 , 3",  status=true,  full=true );
         TEST(buffer=",",    status=false, full=false);
         TEST(buffer="4",    status=true,  full=true );
-        TEST(buffer="5 ,6,", status=false,  full=false);
+        TEST(buffer="5 ,6,", status=true,  full=false);
 #       undef TEST
     }
 
