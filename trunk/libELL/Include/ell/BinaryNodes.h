@@ -184,7 +184,6 @@ namespace ell
                 if (! right.parse(parser))
                     break;
 
-                match = false;
                 parser->skip();
             }
 
