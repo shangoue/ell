@@ -20,8 +20,10 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include <cwchar>
+
+#include <wchar.h>
 #include <iso646.h>
+#include <stdlib.h>
 
 #ifndef ELL_DEBUG
 #ifdef NDEBUG

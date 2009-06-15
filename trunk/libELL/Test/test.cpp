@@ -148,10 +148,10 @@ struct CalcTest : public Calc
 
         test("1+A", 1, false);
         test("1 A", 1, false);
-        test("A", 0, false);
+        test("A",   0, false);
     }
 
-    void test(const char * expr, int r, bool ok)
+    void test(const char * expr, double r, bool ok)
     {
         printf("Eval %s:\n", expr);
 
@@ -160,10 +160,10 @@ struct CalcTest : public Calc
         if (ok)
         {
             double rr = pop();
-            printf("%d\n", rr);
+            printf("%lf\n", rr);
             if (r != rr)
             {
-                printf("Expecting %d, get %d\n", r, rr);
+                printf("Expecting %lf, get %lf\n", r, rr);
                 exit(1);
             }
         }
