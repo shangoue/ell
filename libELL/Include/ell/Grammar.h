@@ -106,7 +106,7 @@ namespace ell
         Real                                    real;
 
         template <const Token C1, const Token C2>
-        Range<Token, C1, C2>                    range() const { return Range<Token, (Token) C1, (Token) C2>(); }
+        Range<Token, C1, C2>                    range() const { return Range<Token, C1, C2>(); }
 
         Charset<Token>                          chset(const std::string & set) const { return Charset<Token>(set); }
 

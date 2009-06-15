@@ -70,7 +70,7 @@ namespace ell
 
     private:
         static XmlGrammar grammar;
-        friend class XmlGrammar;
+        friend struct XmlGrammar;
 
         void on_data_()
         {
@@ -116,8 +116,11 @@ namespace ell
                 raise_error("Unclosed element: `" + elements.top() + "`", line_number);
         }
 
-        template <const char C>
-        void push_char() { cdata += C; }
+        void push_amp() { cdata += '&'; }
+        void push_apos() { cdata += '\''; }
+        void push_quot() { cdata += '\"'; }
+        void push_lt() { cdata += '<'; }
+        void push_gt() { cdata += '>'; }
 
         void push_string(const std::string & s) { cdata += s; }
 
@@ -131,9 +134,11 @@ namespace ell
     struct XmlDomParser : public XmlParser
     {
         XmlDomParser()
-          : document(this),
+          : document(),
             current(& document)
-        { }
+        {
+            document.parser = this;
+        }
 
         /// Document node is not the XML root element
         /// It could also contain DOCTYPE, etc.

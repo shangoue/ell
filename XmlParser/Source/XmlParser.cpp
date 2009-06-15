@@ -71,11 +71,11 @@ namespace ell
                                 ch('\"') >> * ((+ (any - chset("\'<&"))) [& XmlParser::push_string] |
                                                reference) >> ch('\'')) [& XmlParser::on_attribute];
 
-        reference = ch('&') >> (str("quot") [& XmlParser::push_char<'\"'>] |
-                                str("apos") [& XmlParser::push_char<'\''>] |
-                                str("amp")  [& XmlParser::push_char<'&'>] |
-                                str("lt")   [& XmlParser::push_char<'<'>] |
-                                str("gt")   [& XmlParser::push_char<'>'>] |
+        reference = ch('&') >> (str("quot") [& XmlParser::push_quot] |
+                                str("apos") [& XmlParser::push_apos] |
+                                str("amp")  [& XmlParser::push_amp] |
+                                str("lt")   [& XmlParser::push_lt] |
+                                str("gt")   [& XmlParser::push_gt] |
                                 error("unkown entity")
                                 ) >> ch(';');
 
@@ -90,8 +90,8 @@ namespace ell
                           reference)) [& XmlParser::on_data_];
 
         ident = lexeme((chset("a-zA-Z_:") |
-                       range<0x80, 0xFF>()) >> * (chset("a-zA-Z0-9_.:-") |
-                                                  range<0x80, 0xFF>()));
+                       range<(char) 0x80, (char) 0xFF>()) >> * ( chset("a-zA-Z0-9_.:-") |
+                                                                 range<(char) 0x80, (char) 0xFF>()));
         ELL_NAME_RULE(document);
         ELL_NAME_RULE(element);
         ELL_NAME_RULE(attribute);
