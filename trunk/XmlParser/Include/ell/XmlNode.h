@@ -22,13 +22,13 @@
 namespace ell
 {
     template <typename Token>
-    class Parser;
+    struct Parser;
 
     typedef std::map<std::string, std::string> XmlAttributesMap;
 
     struct XmlNode
     {
-        XmlNode(Parser<char> * _parser, int _line = 0)
+        XmlNode(Parser<char> * _parser = 0, int _line = 0)
           : _next_sibling(NULL), _previous_sibling(NULL),
             _first_child(NULL), _last_child(NULL),
             _parent(NULL), line(_line), parser(_parser)

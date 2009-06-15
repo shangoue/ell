@@ -39,7 +39,8 @@ void nonreg()
         {"<closed twice=\"error\"></closed></closed>", false},
         {"<not open=\"error\"></not></hum>", false},
         {"   <white>  space 2 \r\n  </white> \r\n  \t<top /> ", true},
-        {"<entities inside_att=\"&quot;'&lt;'\\\"><![CDATA[]]&gt;<>\"]]>&lt;a&gt;</entities>", true}
+        {"<entities inside_att=\"&quot;'&lt;'\\\"><![CDATA[]]&gt;<>\"]]>&lt;a&gt;</entities>", true},
+        {"<specialé char_in_ident_é=\"é\"></specialé>", true}
     };
 
     try
@@ -51,9 +52,6 @@ void nonreg()
 
             // Parse and check result
             XmlDomParser p;
-#           if ELL_DEBUG == 1
-            p.flags.debug = true;
-#           endif
 
             try
             {
@@ -76,9 +74,6 @@ void nonreg()
                 root1->unparse(s1);
 
                 XmlDomParser p2;
-#               if ELL_DEBUG == 1
-                p2.flags.debug = true;
-#               endif
 
                 DUMP("Reparse unparsed DOM from first parsing:\n%s", s1.str().c_str());
                 try
@@ -133,38 +128,23 @@ int main(int argc, const char ** argv)
         return 1;
     }
 
-    FILE * f = fopen(argv[1], "rb");
-
-    fseek(f, 0, SEEK_END);
-    long l = ftell(f);
-    rewind(f);
-
-    char * buffer = new char[l + 1];
-    if (fread(buffer, l, 1, f) != 1)
-    {
-        ERROR("IO error");
-        return 2;
-    }
-    buffer[l] = '\0';
-    fclose(f);
+    std::ifstream file(argv[1]);
+    std::string file_content, line;
+    while (std::getline(file, line))
+        file_content += line + '\n';
 
     XmlDomParser p;
-#   if ELL_DEBUG == 1
-    p.flags.debug = true;
-#   endif
 
     DUMP("Parse %s", argv[1]);
 
     try
     {
-        p.parse(buffer);
+        p.parse(file_content.c_str());
     }
     catch (std::exception & e)
     {
         ERROR("%s", e.what());
     }
-
-    delete [] buffer;
 
     XmlNode * root = p.get_root();
 

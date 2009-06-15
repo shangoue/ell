@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="ELL"
-	ProjectGUID="{F6976CD1-E530-4BE1-AFE7-E8CBFB17666F}"
-	RootNamespace="ELL"
+	Name="ELLXML"
+	ProjectGUID="{3594BAB0-802B-4A39-9F49-F02703A1C36B}"
+	RootNamespace="ELLXML"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -40,13 +40,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(InputDir)\..\..\libELL\Include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\XmlParser\Include&quot;;&quot;$(SolutionDir)..\..\libELL\Include&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				WarningLevel="3"
 				DebugInformationFormat="4"
-				ForcedIncludeFiles="$(InputDir)\..\..\CommonHeaders.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -59,8 +58,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				GenerateDebugInformation="true"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -159,76 +156,28 @@
 	</References>
 	<Files>
 		<Filter
-			Name="source"
+			Name="Fichiers sources"
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libELL\Test\Calc.h"
+				RelativePath="..\..\..\XmlParser\Test\Test.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libELL\Test\test.cpp"
+				RelativePath="..\..\..\XmlParser\Source\XmlNode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\XmlParser\Source\XmlParser.cpp"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="include"
+			Name="Fichiers d&apos;en-tête"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\..\libELL\Include\ell\BinaryNode.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\BinaryNodes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\Grammar.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\Node.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\Numerics.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\Parser.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\Primitives.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\RepeatMatchTpl.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\Rule.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\Storage.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\UnaryNode.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\UnaryNodes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libELL\Include\ell\Utils.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Fichiers de ressources"
