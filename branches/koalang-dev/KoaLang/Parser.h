@@ -18,10 +18,10 @@ namespace ell
             stack(0)
         { }
 
-        koalang::List * parse(const std::string & buffer, const std::string & filename)
+        koalang::List * parse(const std::string & buffer, const std::string & filename, int line_number = 1)
         {
             stack = new koalang::List;
-            lexer.parse(buffer.c_str(), filename);
+            lexer.parse(buffer.c_str(), filename, line_number);
             position = lexer.lexemes.begin();
             ParserBase<Lex>::parse();
             return stack;
@@ -48,7 +48,7 @@ namespace ell
 #               if ELL_DEBUG == 1
                 if (parser->flags.debug)
                     for (size_t i = parser->stack->value.size(); i > stack_size; --i)
-                        std::cout << "Cancel push of " << * parser->stack->value[i - 1] << std::endl;
+                        std::cerr << "Cancel push of " << * parser->stack->value[i - 1] << std::endl;
 #               endif
                 parser->stack->value.resize(stack_size);
             }

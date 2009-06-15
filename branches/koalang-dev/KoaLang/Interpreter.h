@@ -21,13 +21,18 @@ namespace koalang
             root_context->value["eval"] = new Eval;
         }
 
-        void exec_file(const std::string & filename)
+        std::string read_file(const std::string & filename)
         {
-            std::ifstream file(filename.c_str());
             std::string file_content, line;
+            std::ifstream file(filename.c_str());
             while (std::getline(file, line))
                 file_content += line + '\n';
+            return file_content;
+        }
 
+        void exec_file(const std::string & filename)
+        {
+            std::string file_content = read_file(filename);
             try
             {
                 Object * code = parser.parse(file_content, filename);
@@ -35,7 +40,7 @@ namespace koalang
             }
             catch (std::runtime_error & e)
             {
-                show_error(e);
+                show_backtrace(e);
             }
         }
 
@@ -51,16 +56,69 @@ namespace koalang
                 try
                 {
                     Object * code = parser.parse(line, "<stdin>");
-                    code->eval(root_context);
+                    //std::cout << * code << '\n';
+                    Object * o = code->eval(root_context);
+                    std::cout << "  " << * o << '\n';
                 }
                 catch (std::runtime_error & e)
                 {
-                    show_error(e);
+                    show_backtrace(e);
                 }
             }
         }
 
-        void show_error(std::runtime_error & e)
+        void exec_with_trace(const std::string & filename)
+        {
+            std::vector<std::string> lines;
+            std::string cmd, line, last_cmd;
+            std::ifstream file(filename.c_str());
+            while (std::getline(file, line))
+                lines.push_back(line + '\n');
+
+            for (int l = 1; l <= (int) lines.size(); ++l)
+            {
+                std::cout << filename << ":" << l << ": " << lines[l - 1];
+                std::cout << "> " << std::flush;
+
+                last_cmd = cmd;
+                if (not std::getline(std::cin, cmd))
+                    break;
+                if (cmd.empty())
+                    cmd = last_cmd;
+
+                try
+                {
+                    if (cmd == "n")
+                    {
+                        Object * code = parser.parse(lines[l - 1], filename, l);
+                        ++l;
+                        code->eval(root_context);
+                    }
+                    else if (cmd == "l")
+                    {
+                        for (int ctx = l - 3; ctx <= l + 3; ++ctx)
+                        {
+                            if (ctx >= 1 and ctx <= (int) lines.size())
+                            {
+                                std::cout << lines[ctx - 1];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Object * code = parser.parse(cmd, "<stdin>");
+                        Object * o = code->eval(root_context);
+                        std::cout << "  " << * o << '\n';
+                    }
+                }
+                catch (std::runtime_error & e)
+                {
+                    show_backtrace(e);
+                }
+            }
+        }
+
+        void show_backtrace(std::runtime_error & e)
         {
             for (ObjectList::iterator i = root_context->backtrace->begin();
                  i != root_context->backtrace->end();
@@ -68,9 +126,9 @@ namespace koalang
             {
                 if ((* i)->location)
                     std::cerr << * (* i)->location << ": ";
-                std::cerr << ** i << std::endl;
+                std::cerr << ** i << '\n';
             }
-            std::cerr << e.what() << std::endl;
+            std::cerr << e.what() << '\n';
         }
 
         Map * root_context;

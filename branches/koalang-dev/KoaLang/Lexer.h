@@ -82,6 +82,7 @@ namespace koalang
 
         void parse(const char * buffer, const std::string & filename, int line = 1)
         {
+            lexemes.clear();
             file = new std::string(filename);
             ell::Parser<char>::parse(buffer, line);
             lexemes.push_back(Lex());
