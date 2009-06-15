@@ -162,9 +162,6 @@ namespace ell
     
     namespace
     {
-        template <typename CP, typename V, typename A>
-        bool make_action(CP * parser, A CP::*attr, Storage<V> & s);
-
         template <typename CP, typename V>
         bool make_action(CP * parser, V CP::*var, Storage<V> & s)
         { 

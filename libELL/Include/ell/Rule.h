@@ -69,7 +69,7 @@ namespace ell
         }
 
 #       if ELL_DEBUG == 1
-        bool must_be_dumped() const { return name.size(); }
+        bool must_be_dumped() const { return not name.empty(); }
 #       endif
 
     private:
