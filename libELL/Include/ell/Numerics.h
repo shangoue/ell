@@ -19,9 +19,6 @@
 #include <ell/Node.h>
 #include <ell/Parser.h>
 
-// Only pick this from stdlib
-extern "C" double strtod(const char *nptr, char **endptr) throw ();
-
 namespace ell
 {
     namespace
@@ -228,13 +225,12 @@ namespace ell
         }
     };
 
-    template <typename Token>
-    struct Real : public ConcreteNodeBase<Token, Real<Token> >
+    struct Real : public ConcreteNodeBase<char, Real>
     {
-        using ConcreteNodeBase<Token, Real<Token> >::parse;
+        using ConcreteNodeBase<char, Real>::parse;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool parse(Parser<char> * parser, Storage<V> & s) const
         {
             // No wide string real number parsing implemented
             ELL_BEGIN_PARSE

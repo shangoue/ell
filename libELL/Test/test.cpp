@@ -159,7 +159,7 @@ struct CalcTest : public Calc
 
         if (ok)
         {
-            int rr = pop();
+            double rr = pop();
             printf("%d\n", rr);
             if (r != rr)
             {
