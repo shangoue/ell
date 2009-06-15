@@ -103,7 +103,7 @@ namespace ell
         Integer<Token, unsigned long, 8>        oct;
         Integer<Token, unsigned long, 2>        bin;
 
-        Real<Token>                             real;
+        Real                                    real;
 
         template <const Token C1, const Token C2>
         Range<Token, C1, C2>                    range() const { return Range<Token, (Token) C1, (Token) C2>(); }

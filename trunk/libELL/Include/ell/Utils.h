@@ -21,6 +21,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cwchar>
+#include <iso646.h>
 
 #ifndef ELL_DEBUG
 #ifdef NDEBUG
