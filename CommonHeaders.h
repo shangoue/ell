@@ -33,10 +33,11 @@
 #include <sstream>
 #include <locale>
 
-#include <cstdarg>
-#include <ctime>
-#include <cmath>
-#include <cstdlib>
-#include <cwchar>
+#include <stdarg.h>
+#include <time.h>
+#include <math.h>
+#include <wchar.h>
+#include <iso646.h>
+#include <stdlib.h>
 
 #endif // INCLUDED_COMMON_HEADERS_H
