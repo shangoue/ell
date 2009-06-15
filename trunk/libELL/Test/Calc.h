@@ -9,10 +9,10 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
     {
         flags.look_ahead = false;
 
-        factor = dec [& Calc::push] |
-                 ch('(') >> expression >> ch(')') |
+        factor = ch('(') >> expression >> ch(')') |
                  (ch('-') >> factor) [& Calc::negate] |
-                 (ch('+') >> factor);
+                 (ch('+') >> factor) |
+                 real [& Calc::push];
 
         term = factor >> *((ch('*') >> factor) [& Calc::multiply] |
                            (ch('/') >> factor) [& Calc::divide]);

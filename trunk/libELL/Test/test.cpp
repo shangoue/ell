@@ -24,6 +24,19 @@
 
 #define ERROR(f, ...) do { printf("Error parsing %s: " f "\n", buffer , ## __VA_ARGS__); exit(1); } while (0)
 
+struct Test
+{
+	Test(const char * name)
+	{
+        printf("\n## %s\n", name);
+	}
+
+    virtual ~Test()
+    {
+        printf("# Passed.\n");
+    }
+};
+
 void check(ell::Parser<char> & parser, const char * buffer, bool status, bool full)
 {
     printf("Parse %s\n", buffer);
@@ -40,18 +53,18 @@ void check(ell::Parser<char> & parser, const char * buffer, bool status, bool fu
             printf("  Expected message catched: %s\n", e.what());
     }
 
-    if (not full xor bool(parser.get()))
+    if (not full xor (parser.get() != '\0'))
         ERROR("  Expecting %s at %s", (full ? "<EOS>" : "smthg"), parser.position);
 }
 
-struct ListTest : public ell::Grammar<char>
+struct ListTest : public ell::Grammar<char>, public Test
 {
     struct Parser : public ell::Parser<char>
     {
         Parser(ListTest * g)
           : ell::Parser<char>(& g->root, & g->blank)
         {
-            ELL_ENABLE_DUMP(* this);
+            ELL_DISABLE_DUMP(* this);
         }
 
         void doNothing(void)
@@ -70,6 +83,7 @@ struct ListTest : public ell::Grammar<char>
     };
 
     ListTest()
+      : Test("ListTest") 
     {
         root = other [& Parser::doNothing];
         other = (dec % ch(',')) [& Parser::getValues];
@@ -94,10 +108,11 @@ struct ListTest : public ell::Grammar<char>
     ell::Rule<char> root, other;
 };
 
-struct ListToSetTest : ell::Parser<char>, ell::Grammar<char>
+struct ListToSetTest : ell::Parser<char>, ell::Grammar<char>, Test
 {
     ListToSetTest()
       : ell::Parser<char>(& rule, & blank)
+      , Test("ListToSetTest")
     {
         rule = (+ dec) [& ListToSetTest::list];
    
@@ -109,10 +124,11 @@ struct ListToSetTest : ell::Parser<char>, ell::Grammar<char>
     std::set<int> list;
 };
 
-struct ActionChainTest : ell::Parser<char>, ell::Grammar<char>
+struct ActionChainTest : ell::Parser<char>, ell::Grammar<char>, Test
 {
     ActionChainTest()
-      : ell::Parser<char>(& top)
+      : ell::Parser<char>(& top),
+        Test("ActionChainTest")
     {
         top = real [& ActionChainTest::f1][& ActionChainTest::f2];
 
@@ -135,15 +151,15 @@ struct ActionChainTest : ell::Parser<char>, ell::Grammar<char>
     const char * buffer;
 };
 
-struct CalcTest : public Calc
+struct CalcTest : Calc, Test
 {
-    CalcTest()
+    CalcTest() : Test("CalcTest")
     {
-        ELL_ENABLE_DUMP(* this);
+        ELL_DISABLE_DUMP(* this);
 
 #       define TEST(E) test(#E, E, true)
-        TEST(4/5);
-        TEST(10+3/6-(-3));
+        TEST(4.0/5);
+        TEST(10+3.0/6-(-3));
 #       undef TEST
 
         test("1+A", 1, false);
@@ -170,15 +186,15 @@ struct CalcTest : public Calc
     }
 };
 
-struct NoConsumeTest : public ell::Grammar<char>
+struct NoConsumeTest : ell::Grammar<char>, Test
 {
-    NoConsumeTest()
+    NoConsumeTest() : Test("NoConsumeTest")
     {
         root = no_look_ahead(str("toto") >> no_consume(ch('[')) >> str("[]"));
 
         ell::Parser<char> p(& root);
 
-        ELL_ENABLE_DUMP(p);
+        ELL_DISABLE_DUMP(p);
 
         check(p, "toto[]", true, true);
     }
@@ -189,11 +205,11 @@ struct NoConsumeTest : public ell::Grammar<char>
 
 int main()
 {
-    ListTest l;
-    ListToSetTest p;
-    ActionChainTest ac;
-    CalcTest c;
-    NoConsumeTest nc;
+    ListTest();
+    ListToSetTest();
+    ActionChainTest();
+    CalcTest();
+    NoConsumeTest();
 
     printf("Everything is ok.\n");
     return 0;
