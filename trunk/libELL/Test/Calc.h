@@ -22,10 +22,10 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
 
         root = expression >> ell::Grammar<char>::end;
 
-        ELL_NAME_RULE(factor)
-        ELL_NAME_RULE(term)
-        ELL_NAME_RULE(expression)
-        ELL_NAME_RULE(root)
+        ELL_NAME_RULE(factor);
+        ELL_NAME_RULE(term);
+        ELL_NAME_RULE(expression);
+        ELL_NAME_RULE(root);
     }
 
     double eval(const char * expr)
