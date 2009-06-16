@@ -51,7 +51,21 @@ namespace ell
                 top = new N(n);
         }
 
-        void set_name(const std::string & n) { name = n; }
+#       define ELL_NAME_RULE(rule) rule.set_name(#rule)
+
+        Rule & set_name(const std::string & n)
+        {
+            name = n;
+            return * this;
+        }
+
+        /// A transparent rule must not call itself recursively (even indirectly from another rule)
+        /// else, the description will lead to stack a overflow behaviour.
+        Rule & set_transparent()
+        {
+            name.clear();
+            return * this;
+        }
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
