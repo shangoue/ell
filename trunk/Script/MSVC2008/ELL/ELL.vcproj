@@ -172,6 +172,58 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\BinaryNode.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\BinaryNodes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\Grammar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\Node.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\Numerics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\Parser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\Primitives.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\RepeatMatchTpl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\Rule.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\Storage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\UnaryNode.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\UnaryNodes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\libELL\Include\ell\Utils.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Fichiers de ressources"
