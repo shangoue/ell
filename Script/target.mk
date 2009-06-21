@@ -47,7 +47,8 @@ clean:
 else
 LDFLAGS += -L$(BUILD_FOOTPRINT)
 
-ifeq ($(COMPILER),icc)
+#COMPILER = LANG=C icc
+ifneq ($(findstring icc,$(COMPILER)),)
 CFLAGS += -Wbrief
 else
 COMPILER = LANG=C g++

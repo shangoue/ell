@@ -26,46 +26,46 @@ namespace ell
     {
         virtual ~GrammarBase() { }
 
-        EndOfStream<Token>                      end;
-        Epsilon<Token>                          eps;
-        Any<Token>                              any;
-        Nop<Token>                              nop;
+        EoS<Token>                      end;
+        Eps<Token>                      eps;
+        Any<Token>                      any;
+        Nop<Token>                      nop;
 
         template <typename T>
-        Character<Token>                        ch(const T & t) const { return Character<Token>((Token) t); }
+        Chr<Token>                        ch(const T & t) const { return Chr<Token>((Token) t); }
 
-#       define ELL_FLAG(FLAG, CLASS)                                                                                        \
-        template <typename P>                                                                                               \
-        CLASS##FlagMod<Token, P, true>          FLAG(const P & p) const { return CLASS##FlagMod<Token, P, true>(p); }       \
-                                                                                                                            \
-        template <typename P>                                                                                               \
-        CLASS##FlagMod<Token, P, false>         no_##FLAG(const P & p) const { return CLASS##FlagMod<Token, P, false>(p); } \
+#       define ELL_FLAG(FLAG, CLASS)                                                                              \
+        template <typename P>                                                                                     \
+        CLASS##Md<Token, P, true>          FLAG(const P & p) const { return CLASS##Md<Token, P, true>(p); }       \
+                                                                                                                  \
+        template <typename P>                                                                                     \
+        CLASS##Md<Token, P, false>         no_##FLAG(const P & p) const { return CLASS##Md<Token, P, false>(p); } \
 
         ELL_PARSER_FLAGS
 #       undef ELL_FLAG
 
         template <typename P>
-        NoConsume<Token, P>                     no_consume(const P & p) const { return NoConsume<Token, P>(p); }
+        NCs<Token, P>                       no_consume(const P & p) const { return NCs<Token, P>(p); }
 
         template <typename P>
-        Lexeme<Token, P>                        lexeme(const P & p) const { return Lexeme<Token, P>(p); }
+        Lx<Token, P>                        lexeme(const P & p) const { return Lx<Token, P>(p); }
 
         template <const int exact, typename P>
-        Repeat<Token, P, exact, exact>          repeat(const P & p) const { return Repeat<Token, P, exact, exact>(p); }
+        Rp<Token, P, exact, exact>          repeat(const P & p) const { return Rp<Token, P, exact, exact>(p); }
 
         template <const int min, const int max, typename P>
-        Repeat<Token, P, min, max>              repeat(const P & p) const { return Repeat<Token, P, min, max>(p); }
+        Rp<Token, P, min, max>              repeat(const P & p) const { return Rp<Token, P, min, max>(p); }
 
         template <typename P, typename CP>
-        DynRepeat<Token, P, CP>                 repeat(const int CP::*exact, const P & p) const { return DynRepeat<Token, P, CP>(p, exact, exact); }
+        DRp<Token, P, CP>                   repeat(const int CP::*exact, const P & p) const { return DRp<Token, P, CP>(p, exact, exact); }
 
         template <typename P, typename CP>
-        DynRepeat<Token, P, CP>                 repeat(const int CP::*min, const int CP::*max, const P & p) const { return DynRepeat<Token, P, CP>(p, min, max); }
+        DRp<Token, P, CP>                   repeat(const int CP::*min, const int CP::*max, const P & p) const { return DRp<Token, P, CP>(p, min, max); }
 
         template <typename P, typename Suffix>
-        NoSuffix<Token, P, Suffix>              no_suffix(const P & p, const Suffix & s) const { return NoSuffix<Token, P, Suffix>(p, s); }
+        NSx<Token, P, Suffix>               no_suffix(const P & p, const Suffix & s) const { return NSx<Token, P, Suffix>(p, s); }
 
-        Error<Token>                            error(const std::string & msg) const { return Error<Token>(msg); }
+        Err<Token>                          error(const std::string & msg) const { return Err<Token>(msg); }
     };
 
     template <typename Token>
@@ -78,47 +78,47 @@ namespace ell
             ident(lexeme(chset("a-zA-Z_") >> * alnum))
         { }
 
-        Range<Token, (Token) '0', (Token) '9'>  digit;
-        Range<Token, (Token) 'A', (Token) 'Z'>  upper;
-        Range<Token, (Token) 'a', (Token) 'z'>  lower;
-        Charset<Token>                          alpha;
-        Charset<Token>                          alnum;
+        Rg<Token, (Token) '0', (Token) '9'> digit;
+        Rg<Token, (Token) 'A', (Token) 'Z'> upper;
+        Rg<Token, (Token) 'a', (Token) 'z'> lower;
+        ChS<Token>                          alpha;
+        ChS<Token>                          alnum;
 
-        Charset<Token>                          blank;
+        ChS<Token>                          blank;
 
-        Lexeme<Token, Aggregation<Token, Charset<Token>, Repeat<Token, Charset<Token>, 0, -1> > >
-                                                ident;
+        Lx<Token, Agg<Token, ChS<Token>, Rp<Token, ChS<Token>, 0, -1> > >
+                                            ident;
 
-        Range<Token, (Token) '!', (Token) '~'>  visible_ascii;
-        UTF8NonASCII                            utf8nonascii;
+        Rg<Token, (Token) '!', (Token) '~'> visible_ascii;
+        UTF8NonASCII                        utf8nonascii;
 
-        Integer<Token, signed long>             signed_dec;
+        Int<Token, signed long>             signed_dec;
 
         template <typename Sign, const int Radix, const int MinDigits, const int MaxDigits>
-        Integer<Token, Sign, Radix, MinDigits, MaxDigits>
-                                                integer() const { return Integer<Token, Sign, Radix, MinDigits, MaxDigits>(); }
+        Int<Token, Sign, Radix, MinDigits, MaxDigits>
+                                            integer() const { return Int<Token, Sign, Radix, MinDigits, MaxDigits>(); }
 
-        Integer<Token, unsigned long>           dec;
-        Integer<Token, unsigned long, 16>       hex;
-        Integer<Token, unsigned long, 8>        oct;
-        Integer<Token, unsigned long, 2>        bin;
+        Int<Token, unsigned long>           dec;
+        Int<Token, unsigned long, 16>       hex;
+        Int<Token, unsigned long, 8>        oct;
+        Int<Token, unsigned long, 2>        bin;
 
-        Real                                    real;
+        Rl                                  real;
 
         template <const Token C1, const Token C2>
-        Range<Token, C1, C2>                    range() const { return Range<Token, C1, C2>(); }
+        Rg<Token, C1, C2>                   range() const { return Rg<Token, C1, C2>(); }
 
-        Charset<Token>                          chset(const std::string & set) const { return Charset<Token>(set); }
+        ChS<Token>                          chset(const std::string & set) const { return ChS<Token>(set); }
 
-        String<Token>                           str(const std::basic_string<Token> & arg) const { return String<Token>(arg); }
+        Str<Token>                          str(const std::basic_string<Token> & arg) const { return Str<Token>(arg); }
 
-        IgnoreCaseString<Token>                 istr(const std::basic_string<Token> & arg) const { return IgnoreCaseString<Token>(arg); }
+        IStr<Token>                         istr(const std::basic_string<Token> & arg) const { return IStr<Token>(arg); }
 
-        NoSuffix<Token, String<Token>, Charset<Token> >
-                                                kw(const std::basic_string<Token> & s) const { return no_suffix(str(s), alnum); }
+        NSx<Token, Str<Token>, ChS<Token> >
+                                            kw(const std::basic_string<Token> & s) const { return no_suffix(str(s), alnum); }
 
-        NoSuffix<Token, IgnoreCaseString<Token>, Charset<Token> >
-                                                ikw(const std::basic_string<Token> & s) const { return no_suffix(istr(s), alnum); }
+        NSx<Token, IStr<Token>, ChS<Token> >
+                                            ikw(const std::basic_string<Token> & s) const { return no_suffix(istr(s), alnum); }
     };
 
     template <typename Token>

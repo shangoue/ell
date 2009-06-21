@@ -22,13 +22,13 @@
 namespace ell
 {
     template <typename Token, typename Left, typename Right>
-    struct Alternative : public BinaryNode<Token, Alternative<Token, Left, Right>, Left, Right>
+    struct Alt : public BinaryNode<Token, Alt<Token, Left, Right>, Left, Right>
     {
-        typedef BinaryNode<Token, Alternative<Token, Left, Right>, Left, Right> Base;
+        typedef BinaryNode<Token, Alt<Token, Left, Right>, Left, Right> Base;
         using Base::right;
         using Base::left;
 
-        Alternative(const Left & left, const Right & right)
+        Alt(const Left & left, const Right & right)
           : Base(left, right, "or")
         { }
 
@@ -44,13 +44,13 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
-    struct Association : public BinaryNode<Token, Association<Token, Left, Right>, Left, Right>
+    struct Asc : public BinaryNode<Token, Asc<Token, Left, Right>, Left, Right>
     {
-        typedef BinaryNode<Token, Association<Token, Left, Right>, Left, Right> Base;
+        typedef BinaryNode<Token, Asc<Token, Left, Right>, Left, Right> Base;
         using Base::right;
         using Base::left;
 
-        Association(const Left & left, const Right & right)
+        Asc(const Left & left, const Right & right)
           : Base(left, right, "followed or preceded by")
         { }
 
@@ -84,13 +84,13 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
-    struct Aggregation : public BinaryNode<Token, Aggregation<Token, Left, Right>, Left, Right>
+    struct Agg : public BinaryNode<Token, Agg<Token, Left, Right>, Left, Right>
     {
-        typedef BinaryNode<Token, Aggregation<Token, Left, Right>, Left, Right> Base;
+        typedef BinaryNode<Token, Agg<Token, Left, Right>, Left, Right> Base;
         using Base::right;
         using Base::left;
 
-        Aggregation(const Left & left, const Right & right)
+        Agg(const Left & left, const Right & right)
           : Base(left, right, "")
         { }
 
@@ -128,13 +128,13 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
-    struct Difference : public BinaryNode<Token, Difference<Token, Left, Right>, Left, Right>
+    struct Dif : public BinaryNode<Token, Dif<Token, Left, Right>, Left, Right>
     {
-        typedef BinaryNode<Token, Difference<Token, Left, Right>, Left, Right> Base;
+        typedef BinaryNode<Token, Dif<Token, Left, Right>, Left, Right> Base;
         using Base::right;
         using Base::left;
 
-        Difference(const Left & left, const Right & right)
+        Dif(const Left & left, const Right & right)
           : Base(left, right, "but not")
         { }
 
@@ -154,13 +154,13 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
-    struct List : public BinaryNode<Token, List<Token, Left, Right>, Left, Right>
+    struct Lst : public BinaryNode<Token, Lst<Token, Left, Right>, Left, Right>
     {
-        typedef BinaryNode<Token, List<Token, Left, Right>, Left, Right> Base;
+        typedef BinaryNode<Token, Lst<Token, Left, Right>, Left, Right> Base;
         using Base::right;
         using Base::left;
 
-        List(const Left & left, const Right & right)
+        Lst(const Left & left, const Right & right)
           : Base(left, right, "separated by")
         { }
 
@@ -193,13 +193,13 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
-    struct BoundRepetition : public BinaryNode<Token, BoundRepetition<Token, Left, Right>, Left, Right>
+    struct BRp : public BinaryNode<Token, BRp<Token, Left, Right>, Left, Right>
     {
-        typedef BinaryNode<Token, BoundRepetition<Token, Left, Right>, Left, Right> Base;
+        typedef BinaryNode<Token, BRp<Token, Left, Right>, Left, Right> Base;
         using Base::right;
         using Base::left;
 
-        BoundRepetition(const Left & left, const Right & right)
+        BRp(const Left & left, const Right & right)
           : Base(left, right, "until")
         { }
 
@@ -223,13 +223,13 @@ namespace ell
     };
 
     template <typename Token, typename Left, typename Right>
-    struct NoSuffix : public BinaryNode<Token, NoSuffix<Token, Left, Right>, Left, Right>
+    struct NSx : public BinaryNode<Token, NSx<Token, Left, Right>, Left, Right>
     {
-        typedef BinaryNode<Token, NoSuffix<Token, Left, Right>, Left, Right> Base;
+        typedef BinaryNode<Token, NSx<Token, Left, Right>, Left, Right> Base;
         using Base::right;
         using Base::left;
 
-        NoSuffix(const Left & left, const Right & right)
+        NSx(const Left & left, const Right & right)
           : Base(left, right, "not followed by")
         { }
 

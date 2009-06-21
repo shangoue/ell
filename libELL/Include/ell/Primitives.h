@@ -37,9 +37,9 @@ namespace ell
     };
 
     template <typename Token>
-    struct Epsilon : public TokenPrimitiveBase<Token, Epsilon<Token> >
+    struct Eps : public TokenPrimitiveBase<Token, Eps<Token> >
     {
-        using TokenPrimitiveBase<Token, Epsilon<Token> >::parse;
+        using TokenPrimitiveBase<Token, Eps<Token> >::parse;
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
@@ -86,9 +86,9 @@ namespace ell
     };
 
     template <typename Token>
-    struct EndOfStream : public TokenPrimitiveBase<Token, EndOfStream<Token> >
+    struct EoS : public TokenPrimitiveBase<Token, EoS<Token> >
     {
-        using TokenPrimitiveBase<Token, EndOfStream<Token> >::parse;
+        using TokenPrimitiveBase<Token, EoS<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
@@ -104,13 +104,13 @@ namespace ell
     };
 
     template <typename Token>
-    struct Charset : public TokenPrimitiveBase<Token, Charset<Token> >
+    struct ChS : public TokenPrimitiveBase<Token, ChS<Token> >
     {
-        Charset(const std::string & s)
+        ChS(const std::string & s)
             : set(s)
         { }
 
-        using TokenPrimitiveBase<Token, Charset<Token> >::parse;
+        using TokenPrimitiveBase<Token, ChS<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
@@ -153,13 +153,13 @@ namespace ell
     };
 
     template <typename Token>
-    struct Character : public TokenPrimitiveBase<Token, Character<Token> >
+    struct Chr : public TokenPrimitiveBase<Token, Chr<Token> >
     {
-        Character(const Token _c)
+        Chr(const Token _c)
           : c(_c)
         { }
 
-        using TokenPrimitiveBase<Token, Character<Token> >::parse;
+        using TokenPrimitiveBase<Token, Chr<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
@@ -178,15 +178,15 @@ namespace ell
     };
 
 	template <>
-    inline void Character<char>::describe(std::ostream & os) const { os << protect_char(c); }
+    inline void Chr<char>::describe(std::ostream & os) const { os << protect_char(c); }
 
     template <>
-    inline void Character<wchar_t>::describe(std::ostream & os) const { os << protect_char(c); }
+    inline void Chr<wchar_t>::describe(std::ostream & os) const { os << protect_char(c); }
 
     template <typename Token, const Token C1, const Token C2>
-    struct Range : public TokenPrimitiveBase<Token, Range<Token, C1, C2> >
+    struct Rg : public TokenPrimitiveBase<Token, Rg<Token, C1, C2> >
     {
-        using TokenPrimitiveBase<Token, Range<Token, C1, C2> >::parse;
+        using TokenPrimitiveBase<Token, Rg<Token, C1, C2> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
@@ -209,13 +209,13 @@ namespace ell
     };
 
     template <typename Token>
-    struct Error : public ConcreteNodeBase<Token, Error<Token> >
+    struct Err : public ConcreteNodeBase<Token, Err<Token> >
     {
-        Error(const std::string & s)
+        Err(const std::string & s)
             : str(s)
         { }
 
-        using ConcreteNodeBase<Token, Error<Token> >::parse;
+        using ConcreteNodeBase<Token, Err<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
@@ -234,13 +234,13 @@ namespace ell
     };
 
     template <typename Token>
-    struct IgnoreCaseString : public ConcreteNodeBase<Token, IgnoreCaseString<Token> >
+    struct IStr : public ConcreteNodeBase<Token, IStr<Token> >
     {
-        IgnoreCaseString(const std::basic_string<Token> & s)
+        IStr(const std::basic_string<Token> & s)
           : str(s)
         { }
 
-        using ConcreteNodeBase<Token, IgnoreCaseString<Token> >::parse;
+        using ConcreteNodeBase<Token, IStr<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
@@ -282,13 +282,13 @@ namespace ell
     /// Can compare strings of different types if == operator is defined between them
     /// The ostream << operator must be defined for Token
     template <typename Token>
-    struct String : public ConcreteNodeBase<Token, String<Token> >
+    struct Str : public ConcreteNodeBase<Token, Str<Token> >
     {
-        String(const std::basic_string<Token> & s)
+        Str(const std::basic_string<Token> & s)
           : str(s)
         { }
 
-        using ConcreteNodeBase<Token, String<Token> >::parse;
+        using ConcreteNodeBase<Token, Str<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {

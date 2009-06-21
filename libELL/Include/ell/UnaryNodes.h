@@ -23,12 +23,12 @@ namespace ell
 {
 #   define ELL_FLAG(FLAG, NAME)                                                  \
     template <typename Token, typename Child, const bool NV>                     \
-    struct NAME ## FlagMod                                                       \
-      : public UnaryNode<Token, NAME ## FlagMod<Token, Child, NV>, Child>        \
+    struct NAME ## Md                                                            \
+      : public UnaryNode<Token, NAME ## Md<Token, Child, NV>, Child>             \
     {                                                                            \
-        typedef UnaryNode<Token, NAME ## FlagMod<Token, Child, NV>, Child> Base; \
+        typedef UnaryNode<Token, NAME ## Md<Token, Child, NV>, Child> Base;      \
                                                                                  \
-        NAME ## FlagMod(const Child & target)                                    \
+        NAME ## Md(const Child & target)                                         \
           : Base(target, NV ? #FLAG : "no_" #FLAG)                               \
         { }                                                                      \
                                                                                  \
@@ -48,11 +48,11 @@ namespace ell
 #   undef ELL_FLAG
 
     template <typename Token, typename Child>
-    struct NoConsume : public UnaryNode<Token, NoConsume<Token, Child>, Child>
+    struct NCs : public UnaryNode<Token, NCs<Token, Child>, Child>
     {
-        typedef UnaryNode<Token, NoConsume<Token, Child>, Child> Base;
+        typedef UnaryNode<Token, NCs<Token, Child>, Child> Base;
 
-        NoConsume(const Child & target)
+        NCs(const Child & target)
           : Base(target, "no_consume")
         { }
 
@@ -71,11 +71,11 @@ namespace ell
     /// This class allows to define a new grammar terminator.
     /// When parsing parsing through its children, skipper is disabled and stepping back allowed.
     template <typename Token, typename Child>
-    struct Lexeme : public UnaryNode<Token, Lexeme<Token, Child>, Child>
+    struct Lx : public UnaryNode<Token, Lx<Token, Child>, Child>
     {
-        typedef UnaryNode<Token, Lexeme<Token, Child>, Child> Base;
+        typedef UnaryNode<Token, Lx<Token, Child>, Child> Base;
 
-        Lexeme(const Child & target)
+        Lx(const Child & target)
           : Base(target, "lexeme")
         { }
 
@@ -93,14 +93,14 @@ namespace ell
 
     /// Compile-time min/max repeat
     template <typename Token, typename Child, const int Min, const int Max>
-    struct Repeat : public UnaryNode<Token, Repeat<Token, Child, Min, Max>, Child>
+    struct Rp : public UnaryNode<Token, Rp<Token, Child, Min, Max>, Child>
     {
-        typedef UnaryNode<Token, Repeat<Token, Child, Min, Max>, Child> Base;
+        typedef UnaryNode<Token, Rp<Token, Child, Min, Max>, Child> Base;
 
         using Base::target;
         using Base::parse;
 
-        Repeat(const Child & target)
+        Rp(const Child & target)
           : Base(target, "repeat")
         { }
 
@@ -130,14 +130,14 @@ namespace ell
 
     /// Run-time min/max repeat
     template <typename Token, typename Child, typename CP>
-    struct DynRepeat : public UnaryNode<Token, DynRepeat<Token, Child, CP>, Child>
+    struct DRp : public UnaryNode<Token, DRp<Token, Child, CP>, Child>
     {
-        typedef UnaryNode<Token, DynRepeat<Token, Child, CP>, Child> Base;
+        typedef UnaryNode<Token, DRp<Token, Child, CP>, Child> Base;
 
         using Base::target;
         using Base::parse;
 
-        DynRepeat(const Child & target,
+        DRp(const Child & target,
                   const int CP::*min,
                   const int CP::*max)
           : Base(target, "dyn_repeat"),
@@ -157,7 +157,7 @@ namespace ell
     };
 
     template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
-    struct Action
+    struct Act
     { };
     
     namespace
@@ -210,12 +210,12 @@ namespace ell
     }
 
     template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
-    struct Action<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>
-      : public UnaryNode<Token, Action<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child>
+    struct Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>
+      : public UnaryNode<Token, Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child>
     {
-        typedef UnaryNode<Token, Action<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child> Base;
+        typedef UnaryNode<Token, Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child> Base;
 
-        Action(const Child & target, Var ConcreteParser::*v)
+        Act(const Child & target, Var ConcreteParser::*v)
           : Base(target, "action"),
             var(v)
         { }
