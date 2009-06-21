@@ -107,9 +107,9 @@ namespace ell
 
     /// Generic integer parser
     template <typename Token, typename Sign = unsigned long, const int Radix = 10, const int MinDigits = 1, const int MaxDigits = 200>
-    struct Integer : public ConcreteNodeBase<Token, Integer<Token, Sign, Radix, MinDigits, MaxDigits> >
+    struct Int : public ConcreteNodeBase<Token, Int<Token, Sign, Radix, MinDigits, MaxDigits> >
     {
-        using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, MinDigits, MaxDigits> >::parse;
+        using ConcreteNodeBase<Token, Int<Token, Sign, Radix, MinDigits, MaxDigits> >::parse;
 
         template <typename V>
         bool parse(Parser<Token> * parser, Storage<V> & se) const
@@ -178,10 +178,10 @@ namespace ell
 
     /// Partial template specialization for numbers of any digits
     template <typename Token, typename Sign, const int Radix>
-    struct Integer<Token, Sign, Radix, 1, 200>
-      : public ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >
+    struct Int<Token, Sign, Radix, 1, 200>
+      : public ConcreteNodeBase<Token, Int<Token, Sign, Radix, 1, 200> >
     {
-        using ConcreteNodeBase<Token, Integer<Token, Sign, Radix, 1, 200> >::parse;
+        using ConcreteNodeBase<Token, Int<Token, Sign, Radix, 1, 200> >::parse;
 
         template <typename V>
         bool parse(Parser<Token> * parser, Storage<V> & se) const
@@ -225,9 +225,9 @@ namespace ell
         }
     };
 
-    struct Real : public ConcreteNodeBase<char, Real>
+    struct Rl : public ConcreteNodeBase<char, Rl>
     {
-        using ConcreteNodeBase<char, Real>::parse;
+        using ConcreteNodeBase<char, Rl>::parse;
 
         template <typename V>
         bool parse(Parser<char> * parser, Storage<V> & s) const
