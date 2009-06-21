@@ -26,10 +26,10 @@
 
 struct Test
 {
-	Test(const char * name)
-	{
+    Test(const char * name)
+    {
         printf("\n## %s\n", name);
-	}
+    }
 
     virtual ~Test()
     {
@@ -202,6 +202,43 @@ struct NoConsumeTest : ell::Grammar<char>, Test
     ell::Rule<char> root;
 };
  
+
+struct BigRulesTest : ell::Grammar<char>, Test
+{
+    BigRulesTest()
+      : Test("BigRulesTest")
+    {
+        struct P : public ell::Parser<char>
+        {
+            P(ell::Node<char> * g) : ell::Parser<char>(g)
+            { }
+
+            bool check(const char * begin)
+            {
+                std::cout << std::string(begin, ell::Parser<char>::position);
+                return true;
+            }
+        };
+
+        root = ikw("hi")
+               >> first
+               >> no_consume(first >> second)
+               >> ( first [&P::check]
+                  | second [&P::check])
+               >> ch('(') >> (first % ch(',')) >> ch(')')
+               >> no_look_ahead( ikw("hi")
+               >> first
+               >> no_consume(first >> second)
+               >> ( first [&P::check]
+                  | second [&P::check])
+               >> ch('(') >> (first % ch(',')) >> ch(')'));
+
+        first = ikw("tto");
+        second = ikw("tti");
+    }
+
+    ell::Rule<char> root, first, second;
+};
 
 int main()
 {
