@@ -32,7 +32,7 @@ namespace ell
         Nop<Token>                      nop;
 
         template <typename T>
-        Chr<Token>                        ch(const T & t) const { return Chr<Token>((Token) t); }
+        Ch<Token>                          ch(const T & t) const { return Ch<Token>((Token) t); }
 
 #       define ELL_FLAG(FLAG, CLASS)                                                                              \
         template <typename P>                                                                                     \

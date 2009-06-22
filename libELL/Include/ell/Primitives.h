@@ -153,13 +153,13 @@ namespace ell
     };
 
     template <typename Token>
-    struct Chr : public TokenPrimitiveBase<Token, Chr<Token> >
+    struct Ch : public TokenPrimitiveBase<Token, Ch<Token> >
     {
-        Chr(const Token _c)
+        Ch(const Token _c)
           : c(_c)
         { }
 
-        using TokenPrimitiveBase<Token, Chr<Token> >::parse;
+        using TokenPrimitiveBase<Token, Ch<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
@@ -178,10 +178,10 @@ namespace ell
     };
 
 	template <>
-    inline void Chr<char>::describe(std::ostream & os) const { os << protect_char(c); }
+    inline void Ch<char>::describe(std::ostream & os) const { os << protect_char(c); }
 
     template <>
-    inline void Chr<wchar_t>::describe(std::ostream & os) const { os << protect_char(c); }
+    inline void Ch<wchar_t>::describe(std::ostream & os) const { os << protect_char(c); }
 
     template <typename Token, const Token C1, const Token C2>
     struct Rg : public TokenPrimitiveBase<Token, Rg<Token, C1, C2> >
