@@ -205,21 +205,21 @@ struct NoConsumeTest : ell::Grammar<char>, Test
 
 struct BigRulesTest : ell::Grammar<char>, Test
 {
+    struct P : public ell::Parser<char>
+    {
+        P(ell::Node<char> * g) : ell::Parser<char>(g)
+        { }
+
+        bool check(const char * begin)
+        {
+            std::cout << std::string(begin, ell::Parser<char>::position);
+            return true;
+        }
+    };
+
     BigRulesTest()
       : Test("BigRulesTest")
     {
-        struct P : public ell::Parser<char>
-        {
-            P(ell::Node<char> * g) : ell::Parser<char>(g)
-            { }
-
-            bool check(const char * begin)
-            {
-                std::cout << std::string(begin, ell::Parser<char>::position);
-                return true;
-            }
-        };
-
         root = ikw("hi")
                >> first
                >> no_consume(first >> second)
