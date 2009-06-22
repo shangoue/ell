@@ -15,7 +15,7 @@ mkdir $pkg/include
 
 cp -v --parent COPYING.LESSER $pkg/ || exit 1
 
-make -j 5 MODE=Release || exit 1
+make MODE=Release || exit 1
 
 # Run non-regression test-suite
 for test in `find Build -name *_test`;
