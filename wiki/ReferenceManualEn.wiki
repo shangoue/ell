@@ -169,10 +169,10 @@ The tables below lists all the operators which can be used to write a grammar. O
 || Name || Notation || Meaning ||
 || Agreggation || `a >> b` || a followed by b ||
 || Alternative || `a | b` || a or b ||
-|| Difference || `a - b` || a bereft of b ||
-|| List with separator || `a % b` || one or more a separated by b (equivalent to `a >> * (b >> a)`) ||
-|| Bound repetition || `a * b` || zero or more a until b (equivalent to `* (a - b) >> b` but much more efficient) ||
-|| Association || `a & b` || a followed or preceded by b (equivalent to `(a >> b) | (b >> a)`) ||
+|| Difference || `a - b` || a bereft of b (match a but not b) ||
+|| List with separator || `a % b` || one or more a separated by b (similar to `a >> * (b >> a)`) ||
+|| Bound repetition || `a * b` || zero or more a until b (similar to `* (a - b) >> b` but much more efficient) ||
+|| Association || `a & b` || a followed or preceded by b (similar to `(a >> b) | (b >> a)`) ||
 
 ==== Unary operators ====
 
@@ -180,16 +180,14 @@ The tables below lists all the operators which can be used to write a grammar. O
 || `! a` || Optional match ||
 || `+ a` || One or more repetition ||
 || `* a` || Zero or more repetition ||
-|| `a [& Class::v]` || Assign the result of matching into a variable. ||
-|| `a [& Class::f]` || Call the given member function passing the matching result. ||
+|| `a [& Class::variable]` || Assign the result of matching into a variable. ||
+|| `a [& Class::method]` || Call the given member function passing the matching result. ||
 
 *Note:*
 
   Last two operators are called semantic operators. They have no effect if the rule on which they applied does not match. The variables or methods passed in argument must be members of the Parser class instance used for parsing.
 
-  The types which are allowed for variables or method arguments targetted by the semantic action depend on the node on which the action operator is applied.
-
-  For example, the code below parses a list of space-separated unsigned integers, and assign them into a standard set of signed integers. The repetition operator (`+`) allows to target a STL container : without such a repetition, the compiler would issue an error when trying to resolve the `[ ]` operator.
+  The types which are allowed for variables or method targetted by the semantic action depend on the node on which the action operator is applied. For example, the code below parses a list of space-separated unsigned integers, and assign them into a standard set of signed integers. The repetition operator (`+`) allows to target a STL container : without such a repetition, the compiler would issue an error when trying to resolve the `[ ]` operator:
 
 {{{
 struct MyParser : ell::Parser<char>, ell::Grammar<char>
@@ -217,8 +215,18 @@ In addition to primitives and operators, you can use the following methods in yo
 || `repeat<min, max>(rule)` || Repetition within a range ||
 || `repeat(& Class::exact, rule)` || Exact repetition resolved at run-time ||
 || `repeat(& Class::min, &Class::max, rule)` || Range repetition resolved at run-time ||
-|| `no_step_back(rule)` || Walk along the grammar in a LL(1) manner ||
-|| `no_action(rule)` || Disable all semantic actions (operator[] has no effect) ||
-|| `no_consume(rule)` || Do not consume any input tokens ||
-|| `lexeme(rule)` || Defines a new primitive by disabling skipper and allowing step-back ||
-|| no_suffix(a, b) || equivalent to `lexeme(a >> (eps - b))` ||
+|| `look_ahead(rule)` || Allow parser step back when searching for the first matching branch along `rule` ||
+|| `no_look_ahead(rule)` || Issue an error when the right operand of an aggregation operataor mismatch, ie. walk along the grammar in a LL(1) manner ||
+|| `no_action(rule)` || Disable all semantic actions (inhibate operator[]) ||
+|| `no_consume(rule)` || Restore the position of the parser in the input token list after having parse along `rule` ||
+|| `no_suffix(a, b)` || equivalent to `lexeme(a >> (eps - b))` ||
+|| `lexeme(rule)` || Defines a new primitive by disabling skipper and allowing look-ahead inside `rule` ||
+
+=== How to prevent branch conflicts ===
+
+The idea between ELL is that simplicity is better that heavy-featuring.
+Indeed, ELL library provides a straigth forward means to write LL(n) grammars, but there is no mecanism to detect conflicts between branch.
+
+Writing a grammar with ELL library is no more than building up a tree along which the Parser will perform a depth-first search.
+
+So, order does matter when writing a grammar. Let's take an exemple:
