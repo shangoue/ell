@@ -222,11 +222,25 @@ In addition to primitives and operators, you can use the following methods in yo
 || `no_suffix(a, b)` || equivalent to `lexeme(a >> (eps - b))` ||
 || `lexeme(rule)` || Defines a new primitive by disabling skipper and allowing look-ahead inside `rule` ||
 
-=== How to prevent branch conflicts ===
+==== How to prevent branch conflicts ====
 
 The idea between ELL is that simplicity is better that heavy-featuring.
 Indeed, ELL library provides a straigth forward means to write LL(n) grammars, but there is no mecanism to detect conflicts between branch.
 
 Writing a grammar with ELL library is no more than building up a tree along which the Parser will perform a depth-first search.
 
-So, order does matter when writing a grammar. Let's take an exemple:
+So, order does matter when writing a grammar. Consider the following (quite naïve) exemple:
+
+rule1 = str("foo") >> str("bar")
+      | str("foo") >> str("t");
+
+If you try to parse the word `foot`, the parser will first try to match the first branch of the `|`-alternative. The second primitive `str("bar")` won't match, so the parser will fall back on the second branch.
+
+Keep in mind that each time a node of the grammar does not match, the cursor of the parser is restored back at the position where it was before try to match this node. So the definition above will produce a working parser for word `foot`, although rather inefficient.
+
+A better way to write the grammar would be :
+
+rule1 = str("foo") >> ( str("bar")
+                      | str("t") );
+
+This will prevent the parser from stepping-back to a token which has already been consumed.
