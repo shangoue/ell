@@ -167,12 +167,12 @@ The tables below lists all the operators which can be used to write a grammar. O
 ==== Binary operators ====
 
 || Name || Notation || Meaning ||
-|| Agreggation || `a >> b` || a followed by b ||
-|| Alternative || `a | b` || a or b ||
-|| Difference || `a - b` || a bereft of b (match a but not b) ||
-|| List with separator || `a % b` || one or more a separated by b (similar to `a >> * (b >> a)`) ||
+|| Sequence || `a >> b` || a followed by b ||
+|| Choice || `a | b` || a or b ||
+|| Exclusion || `a - b` || a bereft of b (match a but not b) ||
+|| List (with separator) || `a % b` || one or more a separated by b (similar to `a >> * (b >> a)`) ||
 || Bound repetition || `a * b` || zero or more a until b (similar to `* (a - b) >> b` but much more efficient) ||
-|| Association || `a & b` || a followed or preceded by b (similar to `(a >> b) | (b >> a)`) ||
+|| Combination || `a & b` || a followed or preceded by b (similar to `(a >> b) | (b >> a)`) ||
 
 ==== Unary operators ====
 
@@ -233,8 +233,10 @@ Writing a grammar with ELL library is no more than building up a tree along whic
 
 So, order does matter when writing a grammar. Consider the following (quite naïve) exemple:
 
+{{{
 rule1 = str("foo") >> str("bar")
       | str("foo") >> str("t");
+}}}
 
 If you try to parse the word `foot`, the parser will first try to match the first branch of the `|`-alternative. The second primitive `str("bar")` won't match, so the parser will fall back on the second branch.
 
@@ -242,11 +244,36 @@ Keep in mind that each time a node of the grammar does not match, the cursor of 
 
 A better way to write the grammar would be :
 
+{{{
 rule1 = str("foo") >> ( str("bar")
                       | str("t") );
+}}}
 
 This will prevent the parser from stepping-back to a token which has already been consumed.
 
 
 === Detect errors ealrier ===
+
+Consider the following grammar:
+
+{{{
+root = brunch | diner;
+
+brunch = str("bacon") >> str("eggs") >> str("beer");
+
+diner = str("salad") >> str("cassoulet") >> str("kouign amann");
+}}}
+
+
+Now, let's parse a meal which does not match this grammar, for exemple `bacon eggs kouign amann`.
+
+By default, the parser is LL(n), so both branches will be evaluated before issuing an error :
+
+
+
+
+
+
+
+
 
