@@ -222,7 +222,9 @@ In addition to primitives and operators, you can use the following methods in yo
 || `no_suffix(a, b)` || equivalent to `lexeme(a >> (eps - b))` ||
 || `lexeme(rule)` || Defines a new primitive by disabling skipper and allowing look-ahead inside `rule` ||
 
-==== How to prevent branch conflicts ====
+== How to write your grammars ==
+
+=== Prevent branch conflicts ===
 
 The idea between ELL is that simplicity is better that heavy-featuring.
 Indeed, ELL library provides a straigth forward means to write LL(n) grammars, but there is no mecanism to detect conflicts between branch.
@@ -244,3 +246,7 @@ rule1 = str("foo") >> ( str("bar")
                       | str("t") );
 
 This will prevent the parser from stepping-back to a token which has already been consumed.
+
+
+=== Detect errors ealrier ===
+
