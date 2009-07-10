@@ -95,8 +95,9 @@ namespace ell
         {
             if (flags.debug && node->must_be_dumped())
             {
-                std::cout << std::string(++flags.level, ' ');
-                std::cout << "\\ " << * node << ": \t"
+                ++flags.level;
+                std::cout << std::string(flags.level, ' ')
+                          << "\\ " << * node << ": \t"
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
         }
@@ -105,8 +106,10 @@ namespace ell
         {
             if (flags.debug && node->must_be_dumped())
             {
-                std::cout << std::string(flags.level--, ' ');
-                std::cout << (match ? '/' : '#') << ' ' << * node << ": \t"
+                if (flags.level > 0)
+                    --flags.level;
+                std::cout << std::string(flags.level, ' ')
+                          << (match ? '/' : '#') << ' ' << * node << ": \t"
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
         }
