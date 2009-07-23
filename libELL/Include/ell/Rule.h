@@ -51,6 +51,14 @@ namespace ell
                 top = new N(n);
         }
 
+        // It seems that the default assignment operator is used instead of the
+        // template version above without this:
+        const Rule & operator = (const Rule & r)
+        {
+            top = & r;
+            return r;
+        }
+
 #       define ELL_NAME_RULE(rule) rule.set_name(#rule)
 
         Rule & set_name(const std::string & n)

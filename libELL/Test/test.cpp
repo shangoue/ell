@@ -240,6 +240,20 @@ struct BigRulesTest : ell::Grammar<char>, Test
     ell::Rule<char> root, first, second;
 };
 
+struct DirectRuleAssignTest : ell::Grammar<char>, Test
+{
+    DirectRuleAssignTest() : Test("DirectRuleAssignTest")
+    {
+        r1 = r2;
+        r2 = ikw("toto");
+        ell::Parser<char> p(& r1);
+        ELL_DISABLE_DUMP(p);
+        check(p, "toto", true, true);
+    }
+
+    ell::Rule<char> r1,r2;
+};
+
 int main()
 {
     ListTest();
@@ -247,6 +261,7 @@ int main()
     ActionChainTest();
     CalcTest();
     NoConsumeTest();
+    DirectRuleAssignTest();
 
     printf("Everything is ok.\n");
     return 0;
