@@ -54,7 +54,7 @@ void check(ell::Parser<char> & parser, const char * buffer, bool status, bool fu
     }
 
     if (not full xor (parser.get() != '\0'))
-        ERROR("  Expecting %s at %s", (full ? "<EOS>" : "smthg"), parser.position);
+        ERROR("  Expecting %s at %s", (full ? "<EOS>" : "not <EOS>"), parser.dump_position().c_str());
 }
 
 struct ListTest : public ell::Grammar<char>, public Test
@@ -254,6 +254,37 @@ struct DirectRuleAssignTest : ell::Grammar<char>, Test
     ell::Rule<char> r1,r2;
 };
 
+struct LongestOpTest : ell::Grammar<char>, Test
+{
+    struct Parser : ell::Parser<char>
+    {
+        Parser(ell::Node<char> * n)
+          : ell::Parser<char>(n)
+        { }
+
+        bool fail() { return false; }
+    };
+
+    LongestOpTest() : Test("LongestOpTest")
+    {
+        {
+            ELL_NAME_RULE(r1) = str("toto") [& Parser::fail] || str("totot");
+            Parser p1(& r1);
+            ELL_ENABLE_DUMP(p1);
+            check(p1, "totot", true, true);
+        }
+
+        {
+            ELL_NAME_RULE(r2) = str("toto") [& Parser::fail] || str("totot") [& Parser::fail];
+            Parser p2(& r2);
+            ELL_ENABLE_DUMP(p2);
+            check(p2, "totot", false, true);
+        }
+    }
+
+    ell::Rule<char> r1,r2;
+};
+
 int main()
 {
     ListTest();
@@ -262,7 +293,9 @@ int main()
     CalcTest();
     NoConsumeTest();
     DirectRuleAssignTest();
+    LongestOpTest();
 
     printf("Everything is ok.\n");
     return 0;
 }
+

@@ -21,6 +21,7 @@
 
 namespace ell
 {
+    /// Alternative, left first match 
     template <typename Token, typename Left, typename Right>
     struct Alt : public BinaryNode<Token, Alt<Token, Left, Right>, Left, Right>
     {
@@ -39,6 +40,53 @@ namespace ell
         {
             ELL_BEGIN_PARSE
             match = left.parse(parser, s) or right.parse(parser, s);
+            ELL_END_PARSE
+        }
+    };
+
+ /// Longest alternative
+    template <typename Token, typename Left, typename Right>
+    struct LAl : public BinaryNode<Token, LAl<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, LAl<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        LAl(const Left & left, const Right & right)
+          : Base(left, right, "longest-or")
+        { }
+
+        using Base::parse;
+
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        {
+            ELL_BEGIN_PARSE
+            typename Parser<Token>::Context sav_pos(parser);
+
+            size_t left_s = 0;
+            size_t right_s = 0;
+            // Parse a first time to find length
+            {
+              SafeModify<> no_actions(parser->flags.action, false);
+
+              if (left.parse(parser, s))
+                  left_s = parser->measure(sav_pos);
+              sav_pos.restore(parser);
+
+              if (right.parse(parser, s))
+                  right_s = parser->measure(sav_pos);
+              sav_pos.restore(parser);
+            }
+
+            if (left_s != 0 or right_s != 0)
+            {
+                // Reparse the right one with actions
+                if (left_s >= right_s)
+                    match = left.parse(parser, s);
+                else
+                    match = right.parse(parser, s);
+            }
             ELL_END_PARSE
         }
     };

@@ -51,6 +51,9 @@ namespace ell
     template <typename Token, typename Left, typename Right>
     struct NSx;
 
+    template <typename Token, typename Left, typename Right>
+    struct LAl;
+
     template <typename Token>
     struct Node
     {
@@ -132,6 +135,9 @@ namespace ell
         Alt<Token, ConcreteNode, Right> operator | (const Right & r) const;
 
         template <typename Right>
+        LAl<Token, ConcreteNode, Right> operator || (const Right & r) const;
+
+        template <typename Right>
         Dif<Token, ConcreteNode, Right> operator - (const Right & r) const;
 
         template <typename Right>
@@ -207,6 +213,13 @@ namespace ell
     Alt<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator | (const Right & r) const
     {
         return Alt<Token, CN, Right>(* (CN *) this, r);
+    }
+
+    template <typename Token, typename CN>
+    template <typename Right>
+    LAl<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator || (const Right & r) const
+    {
+        return LAl<Token, CN, Right>(* (CN *) this, r);
     }
 
     template <typename Token, typename CN>
