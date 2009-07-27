@@ -62,7 +62,34 @@ namespace ell
         };
 
         template <typename Token>
-        struct GetSign<Token, unsigned long>
+        struct GetSign<Token, unsigned long int>
+        {
+            int operator () (Parser<Token> *)
+            {
+                return 1;
+            }
+        };
+
+        template <typename Token>
+        struct GetSign<Token, unsigned int>
+        {
+            int operator () (Parser<Token> *)
+            {
+                return 1;
+            }
+        };
+
+        template <typename Token>
+        struct GetSign<Token, unsigned char>
+        {
+            int operator () (Parser<Token> *)
+            {
+                return 1;
+            }
+        };
+
+        template <typename Token>
+        struct GetSign<Token, unsigned long long int>
         {
             int operator () (Parser<Token> *)
             {
