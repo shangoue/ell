@@ -173,6 +173,7 @@ The tables below lists all the operators which can be used to write a grammar. O
 || List (with separator) || `a % b` || one or more a separated by b (similar to `a >> * (b >> a)`) ||
 || Bound repetition || `a * b` || zero or more a until b (similar to `* (a - b) >> b` but much more efficient) ||
 || Combination || `a & b` || a followed or preceded by b (similar to `(a >> b) | (b >> a)`) ||
+|| Longest || `a |``| b` || the longest of a or b (take a if equal). Avoid using it if you care in performance ||
 
 ==== Unary operators ====
 
@@ -268,8 +269,6 @@ diner = str("salad") >> str("cassoulet") >> str("kouign amann");
 Now, let's parse a meal which does not match this grammar, for exemple `bacon eggs kouign amann`.
 
 By default, the parser is LL(n), so both branches will be evaluated before issuing an error :
-
-
 
 
 
