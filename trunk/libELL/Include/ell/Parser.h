@@ -124,7 +124,7 @@ namespace ell
     };
 
     /// You will have to write an explicit specialization of this class
-    /// if you do not parse a buffer of characters.
+    /// if you do not parse a buffer of contiguous characters.
     template <typename Char>
     struct Parser : public ParserBase<Char>
     {
@@ -177,6 +177,13 @@ namespace ell
             int line_number;
             const Char * position;
         };
+
+        /// Return the number of tokens consumed since the given context
+        /// (must be overriden with use of next() for non contiguous buffers)
+        size_t measure(Context & start)
+        {
+            return position - start.position;
+        }
 
         void next()
         {
