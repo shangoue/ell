@@ -130,6 +130,24 @@ namespace ell
             }
         };
         //@}
+
+        //@{
+        /// Parser real number into the wanted storage
+        template <typename Size>
+        struct RealParser
+        {
+            Size parse(const char * pos, char ** endpos);
+        };
+
+        template <>
+        float RealParser<float>::parse(const char * pos, char ** endpos) { return strtof(pos, endpos); }
+
+        template <>
+        double RealParser<double>::parse(const char * pos, char ** endpos) { return strtod(pos, endpos); }
+
+        template <>
+        long double RealParser<long double>::parse(const char * pos, char ** endpos) { return strtold(pos, endpos); }
+        //@}
     } // Anonymous namespace
 
     /// Generic integer parser
@@ -252,22 +270,23 @@ namespace ell
         }
     };
 
-    struct Rl : public ConcreteNodeBase<char, Rl>
+    /// No wide string real number parsing implemented
+    template <typename Size=double>
+    struct Rl : public ConcreteNodeBase<char, Rl<Size> >
     {
-        using ConcreteNodeBase<char, Rl>::parse;
+        using ConcreteNodeBase<char, Rl<Size> >::parse;
 
         template <typename V>
         bool parse(Parser<char> * parser, Storage<V> & s) const
         {
-            // No wide string real number parsing implemented
             ELL_BEGIN_PARSE
             char * endptr;
-            Storage<double> sd;
-            sd.value = strtod(parser->position, & endptr);
-            assign(s, sd);
+            Storage<Size> sd;
+            sd.value = RealParser<Size>().parse(parser->position, & endptr);
 
             if (endptr > parser->position)
             {
+                assign(s, sd);
                 parser->position = endptr;
                 match = true;
             }
