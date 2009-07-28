@@ -23,7 +23,7 @@ namespace ell
 {
     namespace
     {
-        inline void describe_integer_parser(int Radix, int MinDigits, int MaxDigits, std::ostream & os)
+        inline void describe_integer_parser(bool is_signed, int Radix, int MinDigits, int MaxDigits, std::ostream & os)
         {
             if (MinDigits != 1 || MaxDigits != 200)
                 os << '(';
@@ -33,6 +33,8 @@ namespace ell
                 os << "hexadecimal ";
             else if (Radix != 10)
                 os << Radix << "-based ";
+            if (not is_signed)
+                os << "unsigned ";
             os << "int";
             if (MinDigits != 1 || MaxDigits != 200)
                 os << " with " << MinDigits << " < digits < " << MaxDigits << ')';
@@ -59,43 +61,22 @@ namespace ell
                 }
                 return r;
             }
+
+            bool is_signed() { return true; }
         };
 
-        template <typename Token>
-        struct GetSign<Token, unsigned long int>
-        {
-            int operator () (Parser<Token> *)
-            {
-                return 1;
-            }
+#       define D(T)                                          \
+        template <typename Token>                            \
+        struct GetSign<Token, T>                             \
+        {                                                    \
+            int operator () (Parser<Token> *) { return 1; }  \
+            bool is_signed() { return false; }               \
         };
-
-        template <typename Token>
-        struct GetSign<Token, unsigned int>
-        {
-            int operator () (Parser<Token> *)
-            {
-                return 1;
-            }
-        };
-
-        template <typename Token>
-        struct GetSign<Token, unsigned char>
-        {
-            int operator () (Parser<Token> *)
-            {
-                return 1;
-            }
-        };
-
-        template <typename Token>
-        struct GetSign<Token, unsigned long long int>
-        {
-            int operator () (Parser<Token> *)
-            {
-                return 1;
-            }
-        };
+        D(unsigned char)
+        D(unsigned)
+        D(unsigned long)
+        D(unsigned long long)
+#       undef D
         //@}
 
         //@{
@@ -217,7 +198,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            describe_integer_parser(Radix, MinDigits, MaxDigits, os);
+            describe_integer_parser(GetSign<Token, Sign>().is_signed(), Radix, MinDigits, MaxDigits, os);
         }
     };
 
@@ -266,7 +247,7 @@ namespace ell
 
         void describe(std::ostream & os) const
         {
-            describe_integer_parser(Radix, 1, 200, os);
+            describe_integer_parser(GetSign<Token, Sign>().is_signed(), Radix, 1, 200, os);
         }
     };
 
