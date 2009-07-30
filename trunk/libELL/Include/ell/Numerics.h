@@ -111,24 +111,6 @@ namespace ell
             }
         };
         //@}
-
-        //@{
-        /// Parser real number into the wanted storage
-        template <typename Size>
-        struct RealParser
-        {
-            Size parse(const char * pos, char ** endpos);
-        };
-
-        template <>
-        float RealParser<float>::parse(const char * pos, char ** endpos) { return strtof(pos, endpos); }
-
-        template <>
-        double RealParser<double>::parse(const char * pos, char ** endpos) { return strtod(pos, endpos); }
-
-        template <>
-        long double RealParser<long double>::parse(const char * pos, char ** endpos) { return strtold(pos, endpos); }
-        //@}
     } // Anonymous namespace
 
     /// Generic integer parser
@@ -263,7 +245,7 @@ namespace ell
             ELL_BEGIN_PARSE
             char * endptr;
             Storage<Size> sd;
-            sd.value = RealParser<Size>().parse(parser->position, & endptr);
+            sd.value = strtod(parser->position, & endptr);
 
             if (endptr > parser->position)
             {
