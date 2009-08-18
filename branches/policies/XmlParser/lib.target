@@ -1,0 +1,8 @@
+TARGET = libellxml.a
+TARGET_FILES = XmlParser/Source/*.cpp
+PCH = CommonHeaders.h
+
+CFLAGS = -IXmlParser/Include -IlibELL/Include
+LDFLAGS = -lstdc++
+
+include Script/target.mk
