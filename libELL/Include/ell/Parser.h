@@ -106,11 +106,11 @@ namespace ell
         {
             if (flags.debug && node->must_be_dumped())
             {
-                if (flags.level > 0)
-                    --flags.level;
                 std::cout << std::string(flags.level, ' ')
                           << (match ? '/' : '#') << ' ' << * node << ": \t"
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
+                if (flags.level > 0)
+                    --flags.level;
             }
         }
 #       else
