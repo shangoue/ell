@@ -14,6 +14,7 @@
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ell/XmlParser.h>
+#include <ell/XmlNode.h>
 
 namespace ell
 {
@@ -101,5 +102,34 @@ namespace ell
         ELL_NAME_RULE(cdata);
         ELL_NAME_RULE(data);
         ELL_NAME_RULE(ident);
+    }
+
+    XmlDomParser::XmlDomParser(XmlNode * document)
+      : document(document),
+        current(document)
+    {
+        document->parser = this;
+    }
+
+    XmlNode * XmlDomParser::get_root()
+    {
+        return document->first_child();
+    }
+
+    void XmlDomParser::on_data(const std::string & data)
+    {
+        current->enqueue_child(new XmlNode(this, line_number))->data = data;
+    }
+
+    void XmlDomParser::on_start_element(const std::string & name, const XmlAttributesMap & attrs)
+    {
+        current = current->enqueue_child(new XmlNode(this, line_number));
+        current->name = name;
+        current->attributes = attrs;
+    }
+
+    void XmlDomParser::on_end_element(const std::string &)
+    {
+        current = current->parent();
     }
 }

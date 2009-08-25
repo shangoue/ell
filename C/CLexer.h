@@ -1,3 +1,6 @@
+#ifndef INCLUDED_ELL_C_LEXER_H
+#define INCLUDED_ELL_C_LEXER_H
+
 #include <ell/Parser.h>
 #include <ell/Grammar.h>
 
@@ -8,8 +11,8 @@ namespace ell
 {
     enum LexId
     {
-#       define D(NAME) TOK_##NAME,
-#       include "c_tokens.def"
+#       define D(ID, NAME) TOK_##ID,
+#       include "CTokens.def"
         LAST_TOKEN
     };
 
@@ -73,7 +76,10 @@ namespace ell
             return (type == other.type);
         }
 
-        const char * get_name() const;
+        operator bool () const
+        {
+            return type != LAST_TOKEN;
+        }
 
         LexId type;
         std::string s;
@@ -104,9 +110,9 @@ namespace ell
                    unsigned_constant, signed_constant, real_constant;
     };
 
-    struct Lexer : public Parser<char>
+    struct CLexer : public Parser<char>
     {
-        Lexer();
+        CLexer();
 
         void parse(const char * buffer, int start_line)
         {
@@ -147,20 +153,21 @@ namespace ell
 
         bool search_kw(const std::string & s)
         {
-            std::map<const char *, LexId>::iterator i = keywords.find(s.c_str());
+            std::map<std::string, LexId>::iterator i = keywords.find(s);
             if (i != keywords.end())
             {
                 temp.type = i->second;
                 return true;
             }
-
             return false;
         }
 
         std::vector<Lex> lexemes;
-        std::map<const char *, LexId> keywords;
+        std::map<std::string, LexId> keywords;
         Lex temp;
 
         static LexemesGrammar grammar;
     };
 }
+
+#endif // INCLUDED_ELL_C_LEXER_H

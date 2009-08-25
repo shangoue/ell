@@ -17,21 +17,16 @@
 #define INCLUDED_ELL_XMLNODE_H
 
 #include <map>
-#include <ell/Parser.h>
+#include <ell/XmlParser.h>
 
 namespace ell
 {
-    template <typename Token>
-    struct Parser;
-
-    typedef std::map<std::string, std::string> XmlAttributesMap;
-
     struct XmlNode
     {
-        XmlNode(Parser<char> * _parser = 0, int _line = 0)
+        XmlNode(XmlParser * parser = 0, int line = 0)
           : _next_sibling(NULL), _previous_sibling(NULL),
             _first_child(NULL), _last_child(NULL),
-            _parent(NULL), line(_line), parser(_parser)
+            _parent(NULL), line(line), parser(parser)
         { }
 
         /// Destruction with children nodes deletion
@@ -114,7 +109,7 @@ namespace ell
         XmlNode * _parent;
 
         int line;
-        Parser<char> * parser;
+        XmlParser * parser;
 
         std::string describe() const;
 

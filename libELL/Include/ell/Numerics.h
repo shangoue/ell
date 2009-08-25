@@ -23,8 +23,9 @@ namespace ell
 {
     namespace
     {
-        inline void describe_integer_parser(bool is_signed, int Radix, int MinDigits, int MaxDigits, std::ostream & os)
+        inline std::string describe_integer_parser(bool is_signed, int Radix, int MinDigits, int MaxDigits)
         {
+            std::ostringstream os;
             if (MinDigits != 1 || MaxDigits != 200)
                 os << '(';
             if (Radix == 8)
@@ -38,6 +39,7 @@ namespace ell
             os << "int";
             if (MinDigits != 1 || MaxDigits != 200)
                 os << " with " << MinDigits << " < digits < " << MaxDigits << ')';
+            return os.str();
         }
 
         //@{
@@ -178,9 +180,9 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            describe_integer_parser(GetSign<Token, Sign>().is_signed(), Radix, MinDigits, MaxDigits, os);
+            return describe_integer_parser(GetSign<Token, Sign>().is_signed(), Radix, MinDigits, MaxDigits);
         }
     };
 
@@ -227,9 +229,9 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            describe_integer_parser(GetSign<Token, Sign>().is_signed(), Radix, 1, 200, os);
+            return describe_integer_parser(GetSign<Token, Sign>().is_signed(), Radix, 1, 200);
         }
     };
 
@@ -256,9 +258,9 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            os << "real";
+            return "real";
         }
     };
 }

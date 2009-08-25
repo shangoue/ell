@@ -23,12 +23,17 @@ namespace ell
     template <typename Token, typename ConcreteNode, typename BinaryFlavour>
     struct BinaryNodeBase : public ConcreteNodeBase<Token, ConcreteNode>
     {
-        void describe(std::ostream & os) const
+        std::string describe(bool need_parens) const
         {                                                                                
-            os << '(' << (((BinaryFlavour *) this)->left);
-            if (Node<Token>::name.size())
-                os << ' ' << Node<Token>::name;
-            os << ' ' << (((BinaryFlavour *) this)->right) << ')';
+            const Node<Token> & left = ((BinaryFlavour *) this)->left;
+            const Node<Token> & right = ((BinaryFlavour *) this)->right;
+            std::string s = left.describe(left.name != Node<Token>::name);
+            if (Node<Token>::name != "sequence")
+                s += ' ' + Node<Token>::name;
+            s += ' ' + right.describe(right.name != Node<Token>::name);
+            if (need_parens)
+                s = '(' + s + ')';
+            return s;
         }
     };
 

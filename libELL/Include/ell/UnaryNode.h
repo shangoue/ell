@@ -27,12 +27,12 @@ namespace ell
         bool must_be_dumped() const { return ELL_DUMP_ACTIONS; }
 #       endif
 
-        void describe(std::ostream & os) const
+        std::string describe(bool need_parens) const
         {
 #           if ELL_DEBUG == 1 && ELL_DUMP_ACTIONS == 1
-            os << Node<Token>::name << '(' << ((UnaryFlavour *) this)->target << ')';
+            return Node<Token>::name + '(' + ((UnaryFlavour *) this)->target.describe(false) + ')';
 #           else
-            os << ((UnaryFlavour *) this)->target;
+            return ((UnaryFlavour *) this)->target.describe(need_parens);
 #           endif
         }
     };
