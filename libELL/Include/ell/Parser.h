@@ -26,7 +26,7 @@ namespace ell
     template <typename Token>
     struct Parser;
 
-    /// Every parser should extends this class
+    /// Every Parser extends this class
     template <typename Token>
     struct ParserBase
     {
@@ -57,6 +57,10 @@ namespace ell
                     ;
             }
         }
+
+        /// Return the number of tokens consumed since the given context
+        /// (must be overriden with use of next() for non contiguous buffers)
+        //virtual size_t measure(Context & start) = 0;
 
         void mismatch(const Node<Token> & mismatch) const
         {
