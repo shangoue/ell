@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <ell/XmlNode.h>
+
 #ifndef INCLUDED_ELL_XMLPARSER_H
 #define INCLUDED_ELL_XMLPARSER_H
 
@@ -21,10 +23,11 @@
 #include <ell/Grammar.h>
 #include <ell/Parser.h>
 
-#include "XmlNode.h"
-
 namespace ell
 {
+    struct XmlNode;
+    typedef std::map<std::string, std::string> XmlAttributesMap;
+
     /// Basic XML Grammar.
     ///
     /// A fully reentrant grammar, used to parse XML buffers
@@ -67,6 +70,13 @@ namespace ell
         virtual void on_end_element(const std::string & name) = 0;
         virtual void on_data(const std::string & data) = 0;
         //@}
+
+        using Parser<char>::raise_error;
+        void raise_error(const std::string & msg, int line)
+        {
+            line_number = line;
+            raise_error(msg);
+        }
 
     private:
         static XmlGrammar grammar;
@@ -133,36 +143,18 @@ namespace ell
 
     struct XmlDomParser : public XmlParser
     {
-        XmlDomParser()
-          : document(),
-            current(& document)
-        {
-            document.parser = this;
-        }
+        XmlDomParser(XmlNode * document);
 
-        /// Document node is not the XML root element
-        /// It could also contain DOCTYPE, etc.
-        XmlNode * get_root() { return document.first_child(); }
+        XmlNode * get_root();
 
-        XmlNode document;
+        XmlNode * document;
         XmlNode * current;
 
-        void on_data(const std::string & data)
-        {
-            current->enqueue_child(new XmlNode(this, line_number))->data = data;
-        }
+        void on_data(const std::string & data);
 
-        void on_start_element(const std::string & name, const XmlAttributesMap & attrs)
-        {
-            current = current->enqueue_child(new XmlNode(this, line_number));
-            current->name = name;
-            current->attributes = attrs;
-        }
+        void on_start_element(const std::string & name, const XmlAttributesMap & attrs);
 
-        void on_end_element(const std::string &)
-        {
-            current = current->parent();
-        }
+        void on_end_element(const std::string &);
     };
 }
 

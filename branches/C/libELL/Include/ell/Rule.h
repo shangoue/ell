@@ -64,6 +64,7 @@ namespace ell
         Rule & set_name(const std::string & n)
         {
             name = n;
+            std::replace(name.begin(), name.end(), '_', ' ');
             return * this;
         }
 
@@ -82,12 +83,12 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool need_parens) const
         {
             if (name.size())
-                os << name;
+                return name;
             else
-                os << * top;
+                return top->describe(need_parens);
         }
 
 #       if ELL_DEBUG == 1

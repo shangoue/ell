@@ -108,9 +108,12 @@ namespace ell
 #       define MAX Max
 #       include "RepeatMatchTpl.h"
 
-        void describe(std::ostream & os) const
+        std::string describe(bool need_parens) const
         {
-            os << target << ' ';
+            std::ostringstream os;
+            if (need_parens)
+                os << '(';
+            os << target.describe(true) << ' ';
             if (Max == -1 and Min == 0)
                 os << '*';
             else if (Max == -1 and Min == 1)
@@ -125,6 +128,9 @@ namespace ell
                 os << '{' << Max << ",}";
             else
                 os << '{' << Min << ',' << Max << '}';
+            if (need_parens)
+                os << ')';
+            return os.str();
         }
     };
 
@@ -149,7 +155,13 @@ namespace ell
 #       define MAX (((CP *) parser)->*max)
 #       include "RepeatMatchTpl.h"
 
-        void describe(std::ostream & os) const { os << target << " {?,?}"; }
+        std::string describe(bool need_parens) const
+        {
+            std::string s = target.describe(true) + " {?,?}";
+            if (need_parens)
+                s = '(' + s + ')';
+            return s;
+        }
 
     private:
         const int CP::*min;
@@ -229,11 +241,16 @@ namespace ell
             if (parser->flags.action)
             {                                         
                 Storage<Value> sa;
+                typename Parser<Token>::Context sav_pos(parser);
+
                 match = Base::target.parse(parser, sa);
                 if (match)
                 {
                     match = make_action((ConcreteParser *) parser, var, sa);
-                    assign(s, sa);
+                    if (match)
+                        assign(s, sa);
+                    else
+                        sav_pos.restore(parser);
                 }
             }
             else

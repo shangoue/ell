@@ -26,7 +26,7 @@ namespace ell
     template <typename Token>
     struct Parser;
 
-    /// Every parser should extends this class
+    /// Every Parser extends this class
     template <typename Token>
     struct ParserBase
     {
@@ -57,6 +57,10 @@ namespace ell
                     ;
             }
         }
+
+        /// Return the number of tokens consumed since the given context
+        /// (must be overriden with use of next() for non contiguous buffers)
+        //virtual size_t measure(Context & start) = 0;
 
         void mismatch(const Node<Token> & mismatch) const
         {
@@ -106,11 +110,11 @@ namespace ell
         {
             if (flags.debug && node->must_be_dumped())
             {
-                if (flags.level > 0)
-                    --flags.level;
                 std::cout << std::string(flags.level, ' ')
                           << (match ? '/' : '#') << ' ' << * node << ": \t"
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
+                if (flags.level > 0)
+                    --flags.level;
             }
         }
 #       else
@@ -123,13 +127,12 @@ namespace ell
         const Node<Token> * skipper;
     };
 
-    /// You will have to write an explicit specialization of this class
-    /// if you do not parse a buffer of contiguous characters.
+    /// Typical parser for buffer of contiguous characters, with handling of newlines.
     template <typename Char>
-    struct Parser : public ParserBase<Char>
+    struct CharParser : public ParserBase<Char>
     {
-        Parser(const Node<Char> * grammar,
-               const Node<Char> * skipper = 0)
+        CharParser(const Node<Char> * grammar,
+                   const Node<Char> * skipper)
           : ParserBase<Char>(grammar, skipper),
             line_number(1),
             position(0)
@@ -142,33 +145,42 @@ namespace ell
             ParserBase<Char>::parse();
         }
 
-        void raise_error(const std::string & msg, int line_number) const
+        std::string dump_position() const
+        {
+            std::string s = "\"";
+            const Char * p = position;
+            while (* p && p - position < 31)
+            {
+                s += protect_char(* p);
+                ++p;
+            }
+            s += "\"";
+            if (s.size() == 2)
+                return "<EOS>";
+            if (* p)
+                s += "...";
+            return s;
+        }
+
+        void raise_error(const std::string & msg) const
         {
             std::ostringstream oss;
+            if (not file.empty())
+                oss << file << ":";
             if (line_number)
                 oss << line_number << ": ";
             oss << "before " << dump_position() << ": " << msg << std::endl;
             throw std::runtime_error(oss.str());
         }
 
-        std::string dump_position() const
-        {
-            return ell::dump_position(position);
-        }
-
-        void raise_error(const std::string & msg) const
-        {
-            raise_error(msg, line_number);
-        }
-
         struct Context
         {
-            Context(Parser<Char> * parser)
+            Context(CharParser<Char> * parser)
               : line_number(parser->line_number),
                 position(parser->position)
             { }
 
-            void restore(Parser<Char> * parser)
+            void restore(CharParser<Char> * parser)
             {
                 parser->line_number = line_number;
                 parser->position = position;
@@ -178,8 +190,6 @@ namespace ell
             const Char * position;
         };
 
-        /// Return the number of tokens consumed since the given context
-        /// (must be overriden with use of next() for non contiguous buffers)
         size_t measure(Context & start)
         {
             return position - start.position;
@@ -204,6 +214,100 @@ namespace ell
 
         int line_number;
         const Char * position;
+        std::string file;
+    };
+
+    template <>
+    struct Parser<char> : public CharParser<char>
+    {
+        Parser(const Node<char> * grammar = 0,
+               const Node<char> * skipper = 0)
+          : CharParser<char>(grammar, skipper)
+        { }
+    };
+
+    template <>
+    struct Parser<wchar_t> : public CharParser<wchar_t>
+    {
+        Parser(const Node<wchar_t> * grammar = 0,
+               const Node<wchar_t> * skipper = 0)
+          : CharParser<wchar_t>(grammar, skipper)
+        { }
+    };
+
+    /// Parser at syntaxic level only, works on a vector of lexemes
+    template <typename Lex>
+    struct VectorParser : public ParserBase<Lex>
+    {
+        VectorParser(const Node<Lex> * grammar)
+          : ParserBase<Lex>(grammar)
+        { }
+
+        void parse(const std::vector<Lex> & lexemes)
+        {
+            position = lexemes.begin();
+            ParserBase<Lex>::parse();
+        }
+
+        struct Context
+        {
+            Context(VectorParser<Lex> * parser)
+            {
+                position = parser->position;
+            }
+
+            void restore(VectorParser<Lex> * parser)
+            {
+                parser->position = position;
+            }
+
+            typename std::vector<Lex>::const_iterator position;
+        };
+
+        void skip()
+        { }
+
+        void next()
+        {
+            ++position;
+        }
+
+        Lex get()
+        {
+            return * position;
+        }
+
+        bool end()
+        {
+            return ! bool(* position);
+        }
+
+        size_t measure(Context & start)
+        {
+            return position - start.position;
+        }
+
+        std::string dump_position() const
+        {
+            std::ostringstream os;
+            typename std::vector<Lex>::const_iterator it = position;
+            int i = 0;
+            os << '"';
+            while (bool(* it) && i < 9)
+            {
+              os << * it << ' ';
+              ++it;
+              ++i;
+            }
+            os << '"';
+            if (i == 9)
+              os << "...";
+            else
+              os << "<EOS>";
+            return os.str();
+        }
+
+        typename std::vector<Lex>::const_iterator position;
     };
 }
 

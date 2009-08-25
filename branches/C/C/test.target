@@ -1,9 +1,11 @@
 TARGET = c_test
 TARGET_FILES = C/*.cpp
 
-CFLAGS = -IlibELL/Include
+CFLAGS = -IlibELL/Include -std=gnu++0x
 LDFLAGS = -lstdc++
 
 PCH = CommonHeaders.h
+
+#COMPILER = LANG=C icc -Wbrief
 
 include Script/target.mk

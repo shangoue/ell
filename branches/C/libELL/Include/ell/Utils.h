@@ -33,7 +33,7 @@
 #endif
 #endif
 
-#define ELL_DUMP_NODES        0
+#define ELL_DUMP_NODES        1
 #define ELL_DUMP_ACTIONS      0
 #define ELL_DUMP_SKIPPER      0
 
@@ -117,24 +117,6 @@ namespace ell
         for (unsigned int i = 0; i < s.size(); ++i)
             oss << protect_char(s[i]);
         return oss.str();
-    }
-
-    template <typename Char>
-    std::string dump_position(const Char * position)
-    {
-        std::string s = "\"";
-        const Char * p = position;
-        while (* p and p - position < 31)
-        {
-            s += protect_char(* p);
-            ++p;
-        }
-        s += "\"";
-        if (s.size() == 2)
-            return "end";
-        if (* p)
-            s += "...";
-        return s;
     }
     //@}
 }

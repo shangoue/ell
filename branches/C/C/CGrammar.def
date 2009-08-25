@@ -1,0 +1,26 @@
+
+            root = * decl >> ( end | error("Syntax error") );
+
+            var_decl = decl_spec >> IDENTIFIER [P::emit_declare] % COMMA >> SEMICOLON;
+
+            decl_spec = eps [P::clear_type] >> + ( storage_spec
+                                                 | type_spec
+                                                 | type_qualifier ) [P::set_flag];
+
+            storage_spec = EXTERN
+                         | STATIC
+                         | AUTO
+                         | REGISTER;
+
+            type_spec = VOID
+                      | CHAR
+                      | SHORT
+                      | INT
+                      | LONG
+                      | FLOAT
+                      | DOUBLE
+                      | SIGNED
+                      | UNSIGNED;
+
+            type_qualifier = CONST
+                           | VOLATILE;

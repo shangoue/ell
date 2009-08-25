@@ -67,7 +67,7 @@ namespace ell
 
         friend inline std::ostream & operator << (std::ostream & os, const Node & sr)
         {
-            sr.describe(os);
+            os << sr.describe(false);
             return os;
         }
 
@@ -77,7 +77,9 @@ namespace ell
 
         void get_value() { }
 
-        virtual void describe(std::ostream & os) const = 0;
+        virtual std::string describe(bool need_parens) const = 0;
+
+        const std::string & get_name() const { return name; }
 
 		std::string name;
     };

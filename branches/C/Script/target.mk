@@ -130,7 +130,6 @@ else
 PCHLANG = c++-header
 endif
 endif
-
 GCH        := $(BUILD_DIR)/$(PCH).gch
 DCH        := $(BUILD_DIR)/$(PCH).d
 CFLAGS     := $(addprefix -I,$(dir $(GCH))) $(CFLAGS)
@@ -167,6 +166,7 @@ $(TARGET): $(TARGET_OBJ) $(DEPENDS)
 	@mkdir -p $(dir $@)
 	@echo $(COL1)LINK - $@ $(COLE)
 	$(COMPILER) $(TARGET_OBJ) -o $(TARGET) $(LDFLAGS) $(CFLAGS)
+	@ln -sf $(TARGET)
 endif
 endif
 
@@ -188,7 +188,7 @@ else
 clean:
 	@rm -rf $(TARGET) $(BUILD_DIR)/*
 	@if [ -d "$(BUILD_DIR)" ]; then rmdir -p --ignore-fail-on-non-empty $(BUILD_DIR); fi
-	@rm -f $(CLEAN_MORE)
+	@rm -f $(CLEAN_MORE) $(shell basename $(TARGET))
 endif
 
 # END OF SYSTEM
