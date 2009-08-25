@@ -9,16 +9,16 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
     {
         flags.look_ahead = false;
 
-        factor = ch('(') >> expression >> ch(')') |
-                 (ch('-') >> factor) [& Calc::negate] |
-                 (ch('+') >> factor) |
-                 real [& Calc::push];
+        factor = ch('(') >> expression >> ch(')') 
+               | (ch('-') >> factor) [& Calc::negate] 
+               | (ch('+') >> factor) 
+               | real [& Calc::push];
 
-        term = factor >> *((ch('*') >> factor) [& Calc::multiply] |
-                           (ch('/') >> factor) [& Calc::divide]);
+        term = factor >> *( (ch('*') >> factor) [& Calc::multiply] 
+                          | (ch('/') >> factor) [& Calc::divide] );
 
-        expression = term >> *((ch('+') >> term) [& Calc::add] |
-                               (ch('-') >> term) [& Calc::substract]);
+        expression = term >> *( (ch('+') >> term) [& Calc::add] 
+                              | (ch('-') >> term) [& Calc::substract] );
 
         root = expression >> ell::Grammar<char>::end;
 
