@@ -270,7 +270,7 @@ struct LongestOpTest : ell::Grammar<char>, Test
         {
             ELL_NAME_RULE(r2) = str("toto") [& Parser::fail] || str("totot") [& Parser::fail];
             Parser p2(& r2);
-            check(p2, "totot", false, true);
+            check(p2, "totot", false, false);
         }
     }
 

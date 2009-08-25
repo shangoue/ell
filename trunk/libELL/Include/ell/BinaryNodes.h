@@ -21,7 +21,7 @@
 
 namespace ell
 {
-    /// Alternative, left first match 
+    /// Alternative, left first match
     template <typename Token, typename Left, typename Right>
     struct Alt : public BinaryNode<Token, Alt<Token, Left, Right>, Left, Right>
     {
@@ -44,7 +44,7 @@ namespace ell
         }
     };
 
- /// Longest alternative
+    /// Longest alternative
     template <typename Token, typename Left, typename Right>
     struct LAl : public BinaryNode<Token, LAl<Token, Left, Right>, Left, Right>
     {
@@ -131,6 +131,7 @@ namespace ell
         }
     };
 
+    /// Aggregation (sequence)
     template <typename Token, typename Left, typename Right>
     struct Agg : public BinaryNode<Token, Agg<Token, Left, Right>, Left, Right>
     {
@@ -139,7 +140,7 @@ namespace ell
         using Base::left;
 
         Agg(const Left & left, const Right & right)
-          : Base(left, right, "")
+          : Base(left, right, "sequence")
         { }
 
         using Base::parse;
@@ -240,6 +241,7 @@ namespace ell
         }
     };
 
+    /// Bound repetition, equivalent to `* (left - right) >> right`
     template <typename Token, typename Left, typename Right>
     struct BRp : public BinaryNode<Token, BRp<Token, Left, Right>, Left, Right>
     {
@@ -270,6 +272,7 @@ namespace ell
         }
     };
 
+    /// No suffix
     template <typename Token, typename Left, typename Right>
     struct NSx : public BinaryNode<Token, NSx<Token, Left, Right>, Left, Right>
     {

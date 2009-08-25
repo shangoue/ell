@@ -35,7 +35,8 @@ namespace ell
             return ((ConcreteNode *) this)->parse(parser);
         }
     };
-
+          
+    /// Epsilon (equivalent to `no_consume(any)`)
     template <typename Token>
     struct Eps : public TokenPrimitiveBase<Token, Eps<Token> >
     {
@@ -47,9 +48,10 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const { os << "epsilon"; }
+        std::string describe(bool) const { return "epsilon"; }
     };
 
+    /// Never match
     template <typename Token>
     struct Nop : public ConcreteNodeBase<Token, Nop<Token> >
     {
@@ -60,9 +62,10 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const { os << "nop"; }
+        std::string describe(bool) const { return "nop"; }
     };
 
+    /// Always match
     template <typename Token>
     struct Any : public TokenPrimitiveBase<Token, Any<Token> >
     {
@@ -79,12 +82,10 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
-        {
-            os << "any";
-        }
+        std::string describe(bool) const { return "any"; }
     };
 
+    /// End of tokens stream
     template <typename Token>
     struct EoS : public TokenPrimitiveBase<Token, EoS<Token> >
     {
@@ -97,12 +98,10 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
-        {
-            os << "end";
-        }
+        std::string describe(bool) const { return "end"; }
     };
 
+    /// Charset
     template <typename Token>
     struct ChS : public TokenPrimitiveBase<Token, ChS<Token> >
     {
@@ -144,14 +143,15 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            os << '[' << protect(set) << ']';
+            return '[' + protect(set) + ']';
         }
 
         std::string set;
     };
 
+    /// Character, ie a litteral token
     template <typename Token>
     struct Ch : public TokenPrimitiveBase<Token, Ch<Token> >
     {
@@ -172,17 +172,23 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const { os << c; }
+        std::string describe(bool) const
+        {
+            std::ostringstream os;
+            os << c;
+            return os.str();
+        }
 
         const Token c;
     };
 
 	template <>
-    inline void Ch<char>::describe(std::ostream & os) const { os << protect_char(c); }
+    inline std::string Ch<char>::describe(bool) const { return protect_char(c); }
 
     template <>
-    inline void Ch<wchar_t>::describe(std::ostream & os) const { os << protect_char(c); }
+    inline std::string Ch<wchar_t>::describe(bool) const { return protect_char(c); }
 
+    /// Token range
     template <typename Token, const Token C1, const Token C2>
     struct Rg : public TokenPrimitiveBase<Token, Rg<Token, C1, C2> >
     {
@@ -202,12 +208,13 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            os << '[' << protect_char(C1) << '-' << protect_char(C2) << ']';
+            return '[' + protect_char(C1) + '-' + protect_char(C2) + ']';
         }
     };
 
+    /// Error raiser
     template <typename Token>
     struct Err : public ConcreteNodeBase<Token, Err<Token> >
     {
@@ -224,15 +231,16 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            os << "error(\"" << protect(str) << "\")";
+            return "error(\"" + protect(str) + "\")";
         }
 
     private:
         std::string str;
     };
 
+    /// Case insensitive string
     template <typename Token>
     struct IStr : public ConcreteNodeBase<Token, IStr<Token> >
     {
@@ -270,9 +278,9 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            os << "icase(\"" << protect(str) << "\")";
+            return "icase(\"" + protect(str) + "\")";
         }
 
         std::basic_string<Token> str;
@@ -310,9 +318,9 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            os << '\"' << protect(str) << '\"';
+            return '\"' + protect(str) + '\"';
         }
 
         std::basic_string<Token> str;
@@ -362,9 +370,9 @@ namespace ell
             ELL_END_PARSE
         }
 
-        void describe(std::ostream & os) const
+        std::string describe(bool) const
         {
-            os << "utf8nonascii";
+            return "utf8nonascii";
         }
     };
 }
