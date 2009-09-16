@@ -18,7 +18,7 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
                           | (ch('/') >> factor) [& Calc::divide] );
 
         expression = term >> *( (ch('+') >> term) [& Calc::add] 
-                              | (ch('-') >> term) [& Calc::substract] );
+                              | (ch('-') >> term) [& Calc::subtract] );
 
         root = expression >> ell::Grammar<char>::end;
 
@@ -64,7 +64,7 @@ protected:
     BINARY(multiply, *)
     BINARY(divide, /)
     BINARY(add, +)
-    BINARY(substract, -)
+    BINARY(subtract, -)
 #   undef BINARY
 
     ell::Rule<char> factor, term, expression, root;
