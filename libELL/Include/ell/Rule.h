@@ -94,7 +94,6 @@ namespace ell
         bool must_be_dumped() const { return not name.empty(); }
 #       endif
 
-    private:
         const Node<Token> * top;
     };
 }
