@@ -312,6 +312,46 @@ namespace ell
         std::basic_string<Token> str;
     };
 
+    template <typename Token>
+    struct Kw : public ConcreteNodeBase<Token, Kw<Token> >
+    {
+        Kw(const std::basic_string<Token> & s)
+          : decorated(Str<Token>(s), ChS<Token>("a-zA-Z0-9_"))
+        { }
+
+        using ConcreteNodeBase<Token, Kw<Token> >::parse;
+
+        bool parse(Parser<Token> * parser, Storage<void> & v) const
+        {
+            return decorated.parse(parser, v);
+        }
+
+        std::string get_value() const { return protect(decorated.left.str); }
+        std::string get_kind() const { return "keyword"; }
+
+        NSx<Token, Str<Token>, ChS<Token> > decorated;
+    };
+
+    template <typename Token>
+    struct IKw : public ConcreteNodeBase<Token, IKw<Token> >
+    {
+        IKw(const std::basic_string<Token> & s)
+          : decorated(IStr<Token>(s), ChS<Token>("a-zA-Z0-9_"))
+        { }
+
+        using ConcreteNodeBase<Token, IKw<Token> >::parse;
+
+        bool parse(Parser<Token> * parser, Storage<void> & v) const
+        {
+            return decorated.parse(parser, v);
+        }
+
+        std::string get_value() const { return protect(decorated.left.str); }
+        std::string get_kind() const { return "ignore-case-keyword"; }
+
+        NSx<Token, IStr<Token>, ChS<Token> > decorated;
+    };
+
     /// Only for byte strings...
     struct UTF8NonASCII : public ConcreteNodeBase<char, UTF8NonASCII>
     {
