@@ -23,28 +23,20 @@ namespace ell
     template <typename Token, typename ConcreteNode, typename UnaryFlavour>
     struct UnaryNodeBase : public ConcreteNodeBase<Token, ConcreteNode>
     {
-#       if ELL_DEBUG == 1
-        bool must_be_dumped() const { return ELL_DUMP_ACTIONS; }
-#       endif
-
-        std::string describe(bool need_parens) const
+        const Node<Token> * get_child_at(int index) const
         {
-#           if ELL_DEBUG == 1 && ELL_DUMP_ACTIONS == 1
-            return Node<Token>::name + '(' + ((UnaryFlavour *) this)->target.describe(false) + ')';
-#           else
-            return ((UnaryFlavour *) this)->target.describe(need_parens);
-#           endif
+            if (index == 0)
+                return & ((UnaryFlavour *) this)->target;
+            return 0;
         }
     };
 
     template <typename Token, typename ConcreteNode, typename Child>
     struct UnaryNode : public UnaryNodeBase<Token, ConcreteNode, UnaryNode<Token, ConcreteNode, Child> >
     {
-        UnaryNode(const Child & child, const std::string & n = 0)
+        UnaryNode(const Child & child)
           : target(child)
-        {
-            Node<Token>::name = n;
-        }
+        { }
 
         Child target;
     };
@@ -53,11 +45,9 @@ namespace ell
     struct UnaryNode<Token, ConcreteNode, Rule<Token> >
       : public UnaryNodeBase<Token, ConcreteNode, UnaryNode<Token, ConcreteNode, Rule<Token> > >
     {
-        UnaryNode(const Rule<Token> & child, const std::string & n = 0)
+        UnaryNode(const Rule<Token> & child)
           : target(child)
-        {
-            Node<Token>::name = n;
-        }
+        { }
 
         const Rule<Token> & target;
     };

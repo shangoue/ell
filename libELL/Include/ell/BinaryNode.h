@@ -23,28 +23,22 @@ namespace ell
     template <typename Token, typename ConcreteNode, typename BinaryFlavour>
     struct BinaryNodeBase : public ConcreteNodeBase<Token, ConcreteNode>
     {
-        std::string describe(bool need_parens) const
-        {                                                                                
-            const Node<Token> & left = ((BinaryFlavour *) this)->left;
-            const Node<Token> & right = ((BinaryFlavour *) this)->right;
-            std::string s = left.describe(left.name != Node<Token>::name);
-            if (Node<Token>::name != "sequence")
-                s += ' ' + Node<Token>::name;
-            s += ' ' + right.describe(right.name != Node<Token>::name);
-            if (need_parens)
-                s = '(' + s + ')';
-            return s;
+        const Node<Token> * get_child_at(int index) const
+        {
+            if (index == 0)
+                return & ((BinaryFlavour *) this)->left;
+            if (index == 1)
+                return & ((BinaryFlavour *) this)->right;
+            return 0;
         }
     };
 
     template <typename Token, typename ConcreteNode, typename TLeft, typename TRight>
     struct BinaryNode : public BinaryNodeBase<Token, ConcreteNode, BinaryNode<Token, ConcreteNode, TLeft, TRight> >
     {
-        BinaryNode(const TLeft & left, const TRight & right, const std::string & n)
+        BinaryNode(const TLeft & left, const TRight & right)
           : left(left), right(right)
-        {
-            Node<Token>::name = n;
-        }
+        { }
 
         TLeft left;
         TRight right;
@@ -54,11 +48,9 @@ namespace ell
     struct BinaryNode<Token, ConcreteNode, TLeft, Rule<Token> >
       : public BinaryNodeBase<Token, ConcreteNode, BinaryNode<Token, ConcreteNode, TLeft, Rule<Token> > >
     {
-        BinaryNode(const TLeft & left, const Rule<Token> & right, const std::string & n)
+        BinaryNode(const TLeft & left, const Rule<Token> & right)
           : left(left), right(right)
-        {
-            Node<Token>::name = n;
-        }
+        { }
 
         TLeft left;
         const Rule<Token> & right;
@@ -68,11 +60,9 @@ namespace ell
     struct BinaryNode<Token, ConcreteNode, Rule<Token>, TRight>
       : public BinaryNodeBase<Token, ConcreteNode, BinaryNode<Token, ConcreteNode, Rule<Token>, TRight> >
     {
-        BinaryNode(const Rule<Token> & left, const TRight & right, const std::string & n)
+        BinaryNode(const Rule<Token> & left, const TRight & right)
           : left(left), right(right)
-        {
-            Node<Token>::name = n;
-        }
+        { }
 
         const Rule<Token> & left;
         TRight right;
@@ -82,11 +72,9 @@ namespace ell
     struct BinaryNode<Token, ConcreteNode, Rule<Token>, Rule<Token> >
       : public BinaryNodeBase<Token, ConcreteNode, BinaryNode<Token, ConcreteNode, Rule<Token>, Rule<Token> > >
     {
-        BinaryNode(const Rule<Token> & left, const Rule<Token> & right, const std::string & n)
+        BinaryNode(const Rule<Token> & left, const Rule<Token> & right)
           : left(left), right(right)
-        {
-            Node<Token>::name = n;
-        }
+        { }
 
         const Rule<Token> & left;
         const Rule<Token> & right;

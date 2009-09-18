@@ -1,9 +1,9 @@
 TARGET = xml_test
-TARGET_FILES = XmlParser/Test/*.cpp
+TARGET_FILES = XmlParser/Test/XmlTest.cpp
 
 CFLAGS = -IXmlParser/Include -IlibELL/Include
 LDFLAGS = -lstdc++ -lellxml
 
-PCH = CommonHeaders.h
+PCH = libELL/Include/CommonHeaders.h
 
 include Script/target.mk

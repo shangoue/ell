@@ -23,25 +23,6 @@ namespace ell
 {
     namespace
     {
-        inline std::string describe_integer_parser(bool is_signed, int Radix, int MinDigits, int MaxDigits)
-        {
-            std::ostringstream os;
-            if (MinDigits != 1 || MaxDigits != 200)
-                os << '(';
-            if (Radix == 8)
-                os << "octal ";
-            else if (Radix == 16)
-                os << "hexadecimal ";
-            else if (Radix != 10)
-                os << Radix << "-based ";
-            if (not is_signed)
-                os << "unsigned ";
-            os << "int";
-            if (MinDigits != 1 || MaxDigits != 200)
-                os << " with " << MinDigits << " < digits < " << MaxDigits << ')';
-            return os.str();
-        }
-
         //@{
         /// Extract optional sign prefix
         template <typename Token, typename T>
@@ -180,9 +161,13 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
+        std::string get_kind() const
         {
-            return describe_integer_parser(GetSign<Token, Sign>().is_signed(), Radix, MinDigits, MaxDigits);
+            std::ostringstream oss;
+            oss << (GetSign<Token, Sign>().is_signed() ? "" : "unsigned-")
+                << (Radix == 8 ? "octal" : Radix == 16 ? "hexadecimal" : "decimal")
+                << "-" << MinDigits << "-" << MaxDigits;
+            return oss.str();
         }
     };
 
@@ -229,10 +214,12 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
+        std::string get_kind() const
         {
-            return describe_integer_parser(GetSign<Token, Sign>().is_signed(), Radix, 1, 200);
+            return std::string(GetSign<Token, Sign>().is_signed() ? "" : "unsigned-")
+                   + (Radix == 8 ? "octal" : Radix == 16 ? "hexadecimal" : "decimal");
         }
+
     };
 
     /// No wide string real number parsing implemented
@@ -258,10 +245,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
-        {
-            return "real";
-        }
+        std::string get_kind() const { return "real"; }
     };
 }
 

@@ -39,5 +39,6 @@
 #include <wchar.h>
 #include <iso646.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #endif // INCLUDED_COMMON_HEADERS_H

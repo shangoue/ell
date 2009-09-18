@@ -1,0 +1,9 @@
+TARGET = dump_test
+TARGET_FILES = XmlParser/Test/DumpTest.cpp
+
+CFLAGS = -IXmlParser/Include -IlibELL/Include
+LDFLAGS = -lstdc++ -lellxml
+
+PCH = libELL/Include/CommonHeaders.h
+
+include Script/target.mk

@@ -4,6 +4,6 @@ TARGET_FILES = libELL/Test/test.cpp
 CFLAGS += -IlibELL/Include
 LDFLAGS += -lstdc++
 
-PCH = CommonHeaders.h
+PCH = libELL/Include/CommonHeaders.h
 
 include Script/target.mk

@@ -5,19 +5,20 @@ svn up || exit 1
 ver=`svnversion | sed "s/^[^:]*:\([0-9]\+\)/\1/" | sed "s/\([0-9]\+\)M\?/\1/"`
 
 pkg="Ell-`date +%Y%b%d`-r$ver"
-rm -rf Build $pkg
-rm -f Ell-*.tar.bz2
 
 echo Generate $pkg
+rm -rf $pkg
 mkdir $pkg || exit 1
 mkdir $pkg/lib
 mkdir $pkg/include
 
 cp -v --parent COPYING.LESSER $pkg/ || exit 1
 
+# Build all configurations
+make MODE=Debug || exit 1
 make MODE=Release || exit 1
 
-# Run non-regression test-suite
+# Run non-regression test-suite for both modes
 for test in `find Build -name *_test`;
 do
     $test || exit 1
@@ -31,16 +32,19 @@ for m in */; do
     fi
 done
 
-cp -v `find Build -name "*.so" -o -name "*.a"` $pkg/lib || exit 1
+ReleaseBuild=`find Build -type d -name Release`
+cp -v `find $ReleaseBuild -name "*.so" -o -name "*.a"` $pkg/lib || exit 1
 for lib in $pkg/lib/*; do
     strip -s $lib
 done
 
 # Generate dev package
-tar cjvf $pkg-dev.tar.bz2 $pkg
+rm -f   $pkg-dev.tar.bz2
+tar cjf $pkg-dev.tar.bz2 $pkg
 rm -rf $pkg
 
 # Generate src package
 svn export . $pkg || exit 1
-tar cjvf $pkg-src.tar.bz2 $pkg
+rm -f   $pkg-src.tar.bz2
+tar cjf $pkg-src.tar.bz2 $pkg
 rm -rf $pkg

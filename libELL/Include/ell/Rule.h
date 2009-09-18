@@ -25,14 +25,12 @@ namespace ell
     template <typename Token>
     struct Rule : public ConcreteNodeBase<Token, Rule<Token> >
     {
-        using Node<Token>::name;
         using ConcreteNodeBase<Token, Rule<Token> >::parse;
 
         Rule()
           : top(0)
         {
-            // Default name to anonymous to avoid infinite recursion in describe
-            // when no names has been given
+            // Default name to anonymous to avoid infinite recursion in dump
             name = "<anonymous>";
         }
 
@@ -82,19 +80,17 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool need_parens) const
+        std::string get_kind() const { return "rule"; }
+        std::string get_value() const { return name; }
+        const Node<Token> * get_child_at(int index) const 
         {
-            if (name.size())
-                return name;
-            else
-                return top->describe(need_parens);
+            if (index == 0)
+                return top;
+            return 0;
         }
 
-#       if ELL_DEBUG == 1
-        bool must_be_dumped() const { return not name.empty(); }
-#       endif
-
         const Node<Token> * top;
+        std::string name;
     };
 }
 

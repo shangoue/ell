@@ -35,7 +35,7 @@ namespace ell
             return ((ConcreteNode *) this)->parse(parser);
         }
     };
-          
+
     /// Epsilon (equivalent to `no_consume(any)`)
     template <typename Token>
     struct Eps : public TokenPrimitiveBase<Token, Eps<Token> >
@@ -48,7 +48,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const { return "epsilon"; }
+        std::string get_kind() const { return "epsilon"; }
     };
 
     /// Never match
@@ -62,7 +62,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const { return "nop"; }
+        std::string get_kind() const { return "nop"; }
     };
 
     /// Always match
@@ -82,7 +82,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const { return "any"; }
+        std::string get_kind() const { return "any"; }
     };
 
     /// End of tokens stream
@@ -98,7 +98,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const { return "end"; }
+        std::string get_kind() const { return "end"; }
     };
 
     /// Charset
@@ -143,11 +143,8 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
-        {
-            return '[' + protect(set) + ']';
-        }
-
+        std::string get_kind() const { return "charset"; }
+        std::string get_value() const { return protect(set); }
         std::string set;
     };
 
@@ -159,6 +156,7 @@ namespace ell
           : c(_c)
         { }
 
+        std::string get_kind() const { return "char"; }
         using TokenPrimitiveBase<Token, Ch<Token> >::parse;
 
         bool parse(Parser<Token> * parser, Storage<void> &) const
@@ -172,7 +170,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
+        std::string get_value() const
         {
             std::ostringstream os;
             os << c;
@@ -182,11 +180,11 @@ namespace ell
         const Token c;
     };
 
-	template <>
-    inline std::string Ch<char>::describe(bool) const { return protect_char(c); }
+    template <>
+    inline std::string Ch<char>::get_value() const { return protect_char(c); }
 
     template <>
-    inline std::string Ch<wchar_t>::describe(bool) const { return protect_char(c); }
+    inline std::string Ch<wchar_t>::get_value() const { return protect_char(c); }
 
     /// Token range
     template <typename Token, const Token C1, const Token C2>
@@ -208,10 +206,8 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
-        {
-            return '[' + protect_char(C1) + '-' + protect_char(C2) + ']';
-        }
+        std::string get_value() const { return protect_char(C1) + '-' + protect_char(C2); }
+        std::string get_kind() const { return "range"; }
     };
 
     /// Error raiser
@@ -231,12 +227,8 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
-        {
-            return "error(\"" + protect(str) + "\")";
-        }
-
-    private:
+        std::string get_kind() const { return "error"; }
+        std::string get_value() const { return str; }
         std::string str;
     };
 
@@ -278,11 +270,8 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
-        {
-            return "icase(\"" + protect(str) + "\")";
-        }
-
+        std::string get_value() const { return protect(str); }
+        std::string get_kind() const { return "ignore-case-string"; }
         std::basic_string<Token> str;
     };
 
@@ -318,11 +307,8 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
-        {
-            return '\"' + protect(str) + '\"';
-        }
-
+        std::string get_value() const { return protect(str); }
+        std::string get_kind() const { return "string"; }
         std::basic_string<Token> str;
     };
 
@@ -370,10 +356,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string describe(bool) const
-        {
-            return "utf8nonascii";
-        }
+        std::string get_kind() const { return "utf8nonascii"; }
     };
 }
 
