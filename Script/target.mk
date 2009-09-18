@@ -60,12 +60,15 @@ CFLAGS += $(if $(PCH),-include $(PCH))
 
 BUILD_DIR = $(BUILD_FOOTPRINT)/$(MODULE)
 
-ifeq (,$(findstring /,$(TARGET)))
 TARGET := $(addprefix $(BUILD_FOOTPRINT)/,$(TARGET))
-endif
-
-DEPENDS := $(addprefix $(BUILD_FOOTPRINT)/,$(DEPENDS))
+DEPENDS := $(wildcard $(DEPENDS))
 TARGET_FILES := $(wildcard $(TARGET_FILES))
+
+ifeq ($(RESSOURCE_PATH),)
+RESSOURCE_PATH = $(BUILD_FOOTPRINT)
+else
+RESSOURCE_PATH := $(addprefix $(BUILD_FOOTPRINT)/,$(RESSOURCE_PATH))
+endif
 
 LDFLAGS += -Wl,-rpath,$(shell pwd)/$(BUILD_FOOTPRINT)
 
@@ -87,6 +90,7 @@ LDFLAGS += -Wl,-rpath,$(shell pwd)/$(BUILD_FOOTPRINT)
 # PCH:          precompiled header (opt)                        (eg. Include/CommonHeaders.h)
 # CLEAN_MORE:   files to remove appart from BUILD_DIR (opt)     (eg. Test1.bin Test2)
 # DEPENDS:      other target dependencies                       (eg. external/libbullet.a)
+# INSTALL:      files to be copied into BUILD_DIR (opt)         (eg. doc/LICENSE.TXT)
 
 .PHONY: clean
 
@@ -120,7 +124,20 @@ COL3=$(PF) "\033[33m"
 COLE="\033[0m"
 endif
 
-$(TARGET):
+TARGET_OBJ := $(addprefix $(BUILD_DIR)/,$(TARGET_FILES:%$(EXT)=%.o))
+TARGET_DEP := $(TARGET_OBJ:%.o=%.d)
+
+RESSOURCE_DEST = $(addprefix $(RESSOURCE_PATH)/,$(notdir $(RESSOURCES)))
+
+ifneq ($(TARGET),)
+$(TARGET): $(DEPENDS) $(TARGET_OBJ) $(RESSOURCE_DEST)
+endif
+
+ifneq ($(RESSOURCES),)
+$(RESSOURCE_DEST): $(RESSOURCES)
+	@mkdir -p $(RESSOURCE_PATH)
+	@cp -uv $^ $(RESSOURCE_PATH)
+endif
 
 ifneq ($(PCH),)
 ifeq ($(PCHLANG),)
@@ -148,22 +165,19 @@ $(DCH): $(PCH)
 -include $(DCH)
 endif
 
-TARGET_OBJ := $(addprefix $(BUILD_DIR)/,$(TARGET_FILES:%$(EXT)=%.o))
-TARGET_DEP := $(TARGET_OBJ:%.o=%.d)
-
 ifeq ($(suffix $(TARGET)),.a)
-$(TARGET): $(TARGET_OBJ) $(DEPENDS)
+$(TARGET):
 	@mkdir -p $(dir $@)
 	@echo $(COL1)Create static library $@ $(COLE)
 	ar -rucs $@ $(TARGET_OBJ)
 else
 ifeq ($(suffix $(TARGET)),.so)
-$(TARGET): %.so: $(TARGET_OBJ) $(DEPENDS)
+$(TARGET): %.so:
 	@mkdir -p $(dir $@)
 	@echo $(COL1)Create shared library $@ $(COLE)
 	$(COMPILER) -Wl,--no-undefined -shared -rdynamic -o $@ $(TARGET_OBJ) $(CFLAGS) $(LDFLAGS)
 else
-$(TARGET): $(TARGET_OBJ) $(DEPENDS)
+$(TARGET):
 	@mkdir -p $(dir $@)
 	@echo $(COL1)LINK - $@ $(COLE)
 	$(COMPILER) $(TARGET_OBJ) -o $(TARGET) $(LDFLAGS) $(CFLAGS)

@@ -66,7 +66,7 @@ namespace ell
         virtual bool parse(Parser<Token> *) const = 0;
 
         virtual std::string get_kind() const = 0;
-        virtual const Node<Token> * get_child_at(int index) const { return 0; }
+        virtual const Node<Token> * get_child_at(int /*index*/) const { return 0; }
         virtual std::string get_value() const { return ""; }
     };
 
