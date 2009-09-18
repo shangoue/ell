@@ -83,6 +83,12 @@ namespace ell
         /// Recursive write of resulting XML
         void unparse(std::ostream & out, int indent=0, int shift=1) const;
 
+        friend std::ostream & operator << (std::ostream & os, const XmlNode & node)
+        {
+            node.unparse(os);
+            return os;
+        }
+
         /// Dump a visual representation of the DOM tree
         void dump(std::ostream & out, int indent=0, int shift=1) const;
 
@@ -117,6 +123,8 @@ namespace ell
         Parser<char> * parser;
 
         std::string describe() const;
+
+        bool is_equal(const XmlNode & other) const;
 
     private:
         /// Forbidden

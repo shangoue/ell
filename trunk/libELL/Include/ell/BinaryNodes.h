@@ -30,8 +30,10 @@ namespace ell
         using Base::left;
 
         Alt(const Left & left, const Right & right)
-          : Base(left, right, "or")
+          : Base(left, right)
         { }
+
+        std::string get_kind() const { return "alternative"; }
 
         using Base::parse;
 
@@ -53,8 +55,10 @@ namespace ell
         using Base::left;
 
         LAl(const Left & left, const Right & right)
-          : Base(left, right, "longest-or")
+          : Base(left, right)
         { }
+         
+        std::string get_kind() const { return "longest"; }
 
         using Base::parse;
 
@@ -99,8 +103,10 @@ namespace ell
         using Base::left;
 
         Asc(const Left & left, const Right & right)
-          : Base(left, right, "followed or preceded by")
+          : Base(left, right)
         { }
+
+        std::string get_kind() const { return "association"; }
 
         using Base::parse;
         template <typename T>
@@ -140,8 +146,10 @@ namespace ell
         using Base::left;
 
         Agg(const Left & left, const Right & right)
-          : Base(left, right, "sequence")
+          : Base(left, right)
         { }
+
+        std::string get_kind() const { return "aggregation"; }
 
         using Base::parse;
 
@@ -184,8 +192,10 @@ namespace ell
         using Base::left;
 
         Dif(const Left & left, const Right & right)
-          : Base(left, right, "but not")
+          : Base(left, right)
         { }
+
+        std::string get_kind() const { return "exclusion"; }
 
         using Base::parse;
 
@@ -210,8 +220,10 @@ namespace ell
         using Base::left;
 
         Lst(const Left & left, const Right & right)
-          : Base(left, right, "separated by")
+          : Base(left, right)
         { }
+
+        std::string get_kind() const { return "list"; }
 
         using Base::parse;
 
@@ -250,8 +262,10 @@ namespace ell
         using Base::left;
 
         BRp(const Left & left, const Right & right)
-          : Base(left, right, "until")
+          : Base(left, right)
         { }
+
+        std::string get_kind() const { return "bound-repetition"; }
 
         using Base::parse;
         template <typename T>
@@ -281,8 +295,10 @@ namespace ell
         using Base::left;
 
         NSx(const Left & left, const Right & right)
-          : Base(left, right, "not followed by")
+          : Base(left, right)
         { }
+
+        std::string get_kind() const { return "no-suffix"; }
 
         using Base::parse;
         template <typename T>

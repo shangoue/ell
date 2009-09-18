@@ -29,8 +29,15 @@ namespace ell
         typedef UnaryNode<Token, NAME ## Md<Token, Child, NV>, Child> Base;      \
                                                                                  \
         NAME ## Md(const Child & target)                                         \
-          : Base(target, NV ? #FLAG : "no_" #FLAG)                               \
+          : Base(target)                                                         \
         { }                                                                      \
+                                                                                 \
+        std::string get_kind() const                                             \
+        {                                                                        \
+            std::string s = #FLAG;                                               \
+            std::replace(s.begin(), s.end(), '_', '-');                          \
+            return NV ? s : "no-" + s;                                           \
+        }                                                                        \
                                                                                  \
         using Base::parse;                                                       \
                                                                                  \
@@ -53,8 +60,10 @@ namespace ell
         typedef UnaryNode<Token, NCs<Token, Child>, Child> Base;
 
         NCs(const Child & target)
-          : Base(target, "no_consume")
+          : Base(target)
         { }
+
+        std::string get_kind() const { return "no-consume"; }
 
         using Base::parse;
         template <typename V>
@@ -76,8 +85,10 @@ namespace ell
         typedef UnaryNode<Token, Lx<Token, Child>, Child> Base;
 
         Lx(const Child & target)
-          : Base(target, "lexeme")
+          : Base(target)
         { }
+
+        std::string get_kind() const { return "lexeme"; }
 
         using Base::parse;
         template <typename V>
@@ -101,19 +112,18 @@ namespace ell
         using Base::parse;
 
         Rp(const Child & target)
-          : Base(target, "repeat")
+          : Base(target)
         { }
+
+        std::string get_kind() const { return "repeat"; }
 
 #       define MIN Min
 #       define MAX Max
 #       include "RepeatMatchTpl.h"
 
-        std::string describe(bool need_parens) const
+        std::string get_value() const
         {
             std::ostringstream os;
-            if (need_parens)
-                os << '(';
-            os << target.describe(true) << ' ';
             if (Max == -1 and Min == 0)
                 os << '*';
             else if (Max == -1 and Min == 1)
@@ -128,8 +138,6 @@ namespace ell
                 os << '{' << Max << ",}";
             else
                 os << '{' << Min << ',' << Max << '}';
-            if (need_parens)
-                os << ')';
             return os.str();
         }
     };
@@ -146,22 +154,18 @@ namespace ell
         DRp(const Child & target,
                   const int CP::*min,
                   const int CP::*max)
-          : Base(target, "dyn_repeat"),
+          : Base(target),
             min(min),
             max(max)
         { }
+
+        std::string get_kind() const { return "dynamic-repeat"; }
 
 #       define MIN (((CP *) parser)->*min)
 #       define MAX (((CP *) parser)->*max)
 #       include "RepeatMatchTpl.h"
 
-        std::string describe(bool need_parens) const
-        {
-            std::string s = target.describe(true) + " {?,?}";
-            if (need_parens)
-                s = '(' + s + ')';
-            return s;
-        }
+        std::string get_value() const { return "{?,?}"; }
 
     private:
         const int CP::*min;
@@ -228,9 +232,11 @@ namespace ell
         typedef UnaryNode<Token, Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child> Base;
 
         Act(const Child & target, Var ConcreteParser::*v)
-          : Base(target, "action"),
+          : Base(target),
             var(v)
         { }
+
+        std::string get_kind() const { return "action"; }
 
         using Base::parse;
 

@@ -56,7 +56,6 @@ namespace ell
     {
         document = no_look_ahead(+ ( element
                                    | comment
-                                   | cdata
                                    | pi
                                    | data ) >> end [& XmlParser::on_end_of_file]);
 
@@ -83,11 +82,12 @@ namespace ell
 
         pi = str("<?") >> any * str("?>");
 
-        cdata = str("<![CDATA[")
-                >> lexeme(* (any - str("]]>"))) [& XmlParser::on_data_] >> str("]]>");
+        data = lexeme(+ ( (+ (any - (* blank >> ch('<') | ch('&')))) [& XmlParser::push_string]
+                        | reference
+                        | * blank >> cdata )) [& XmlParser::on_data_];
 
-        data = lexeme(+ ((+ (any - (* blank >> chset("<&")))) [& XmlParser::push_string] |
-                          reference)) [& XmlParser::on_data_];
+        cdata = str("<![CDATA[")
+                >> lexeme(* (any - str("]]>")))[& XmlParser::push_string] >> str("]]>");
 
         ident = lexeme((chset("a-zA-Z_:") |
                        range<(char) 0x80, (char) 0xFF>()) >> * ( chset("a-zA-Z0-9_.:-") |

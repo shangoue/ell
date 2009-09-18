@@ -28,19 +28,20 @@ void nonreg()
 {
     struct Vector
     {
+        int id;
         const char * value;
         bool result;
     };
 
     Vector vectors[] =
     {
-        {"<two roots=\"no error\" /><hem></hem>", true},
-        {"<not closed=\"error\"><Closed />", false},
-        {"<closed twice=\"error\"></closed></closed>", false},
-        {"<not open=\"error\"></not></hum>", false},
-        {"   <white>  space 2 \r\n  </white> \r\n  \t<top /> ", true},
-        {"<entities inside_att=\"&quot;'&lt;'\\\"><![CDATA[]]&gt;<>\"]]>&lt;a&gt;</entities>", true},
-        {"<specialé char_in_ident_é=\"é\"></specialé>", true}
+        {0, "<two roots=\"no error\" /><hem></hem>", true},
+        {1, "<not closed=\"error\"><Closed />", false},
+        {2, "<closed twice=\"error\"></closed></closed>", false},
+        {3, "<not open=\"error\"></not></hum>", false},
+        {4, "   <white>  space 2 \r\n  </white> \r\n  \t<top /> ", true},
+        {5, "<entities inside_att=\"&quot;'&lt;'\\\"><![CDATA[]]&gt;<>\"]]>&lt;a&gt;</entities>", true},
+        {6, "<specialé char_in_ident_é=\"é\"></specialé>", true}
     };
 
     try
@@ -48,10 +49,11 @@ void nonreg()
         for (unsigned int i = 0; i < sizeof(vectors) / sizeof(Vector); i++)
         {
             Vector * v = vectors + i;
-            DUMP("\nTEST %d: %s", i, v->value);
+            DUMP("\nTEST %d: %s", v->id, v->value);
 
             // Parse and check result
             XmlDomParser p;
+            ELL_ENABLE_DUMP(p);
 
             try
             {
@@ -69,16 +71,15 @@ void nonreg()
             {
                 // Check DOM
                 XmlNode * root1 = p.get_root();
-
-                std::ostringstream s1;
-                root1->unparse(s1);
-
+                std::ostringstream oss;
+                oss << * root1;
                 XmlDomParser p2;
+                ELL_ENABLE_DUMP(p2);
 
-                DUMP("Reparse unparsed DOM from first parsing:\n%s", s1.str().c_str());
+                DUMP("Reparse unparsed DOM from first parsing: %s\n", oss.str().c_str());
                 try
                 {
-                    p2.parse(s1.str().c_str());
+                    p2.parse(oss.str().c_str());
                 }
                 catch (std::runtime_error & e)
                 {
@@ -88,16 +89,11 @@ void nonreg()
                 DUMP("Compare second DOM unparsing with first one");
                 XmlNode * root2 = p2.get_root();
 
-                std::ostringstream s2;
-                root2->unparse(s2);
-
-                if (s1.str() != s2.str())
+                if (! root1->is_equal(* root2))
                 {
                     DUMP("\nFirst DOM:");
-                    DUMP("s1=\n%s", protect(s1.str()).c_str());
                     root1->dump(std::cout);
                     DUMP("\nSecond DOM:");
-                    DUMP("s2=\n%s", protect(s2.str()).c_str());
                     root2->dump(std::cout);
                     ERROR("DOMs are differents");
                 }

@@ -1,6 +1,6 @@
-TARGET = libellxml.a
+TARGET = libellxml.so
 TARGET_FILES = XmlParser/Source/*.cpp
-PCH = CommonHeaders.h
+PCH = libELL/Include/CommonHeaders.h
 
 CFLAGS = -IXmlParser/Include -IlibELL/Include
 LDFLAGS = -lstdc++

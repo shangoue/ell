@@ -39,7 +39,7 @@ struct Test
 
 void check(ell::Parser<char> & parser, const char * buffer, bool status, bool full)
 {
-    ELL_DISABLE_DUMP(parser);
+    ELL_ENABLE_DUMP(parser);
     printf("Parse %s\n", buffer);
 
     try

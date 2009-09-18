@@ -95,9 +95,25 @@ namespace ell
         };
 
 #       if ELL_DEBUG == 1
+        bool must_be_dumped(const Node<Token> * node)
+        {
+            bool must_be_dump = ELL_DUMP_NODES;
+            if (node->get_kind() == "rule")
+            {
+                must_be_dump = ! node->get_value().empty();
+            }
+            else if (node->get_child_at(0) &&
+                     node->get_child_at(1) == 0 &&
+                     node->get_value().empty())
+            {
+                must_be_dump = ELL_DUMP_ACTIONS;
+            }
+            return must_be_dump;
+        }
+
         void begin_of_parsing(const Node<Token> * node)
         {
-            if (flags.debug && node->must_be_dumped())
+            if (flags.debug && must_be_dumped(node))
             {
                 ++flags.level;
                 std::cout << std::string(flags.level, ' ')
@@ -108,7 +124,7 @@ namespace ell
 
         void end_of_parsing(const Node<Token> * node, bool match)
         {
-            if (flags.debug && node->must_be_dumped())
+            if (flags.debug && must_be_dumped(node))
             {
                 std::cout << std::string(flags.level, ' ')
                           << (match ? '/' : '#') << ' ' << * node << ": \t"

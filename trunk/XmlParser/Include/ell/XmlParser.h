@@ -149,11 +149,13 @@ namespace ell
 
         void on_data(const std::string & data)
         {
+            ELL_DUMP("Enqueue data `" + data + '`');
             current->enqueue_child(new XmlNode(this, line_number))->data = data;
         }
 
         void on_start_element(const std::string & name, const XmlAttributesMap & attrs)
         {
+            ELL_DUMP("Enqueue element `" + name + '`');
             current = current->enqueue_child(new XmlNode(this, line_number));
             current->name = name;
             current->attributes = attrs;

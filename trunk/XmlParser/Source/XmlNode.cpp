@@ -124,7 +124,7 @@ namespace ell
     {
         if (is_data())
         {
-            out << XmlGrammar::protect(data);
+            out << XmlGrammar::protect(data) << '\n';
         }
         else
         {
@@ -140,27 +140,21 @@ namespace ell
 
             if (! _first_child)
             {
-                out << " />";
-                if (not _next_sibling or not _next_sibling->is_data())
-                    out << '\n';
+                out << " />\n";
             }
             else
             {
-                out << '>';
+                out << ">\n";
                 XmlNode * last = _first_child;
                 for (XmlNode * p = _first_child;
                     p;
                     p = p->_next_sibling)
                 {
-                    if (not p->is_data())
-                        out << '\n';
                     p->unparse(out, indent + 1, shift);
                     last = p;
                 }
 
-                if (not last->is_data())
-                    out << indent_str;
-                out << "</" << name << '>';
+                out << indent_str << "</" << name << ">\n";
             }
         }
     }
@@ -257,5 +251,38 @@ namespace ell
         else
             oss << "Data \"" + protect(data) + "\"";
         return oss.str();
+    }
+
+    bool XmlNode::is_equal(const XmlNode & other) const
+    {
+        if (name != other.name ||
+            data != other.data ||
+            attributes.size() != other.attributes.size())
+            return false;
+
+        for (XmlAttributesMap::const_iterator io, i = attributes.begin();
+            i != attributes.end();
+            ++i)
+        {
+            io = other.attributes.find(i->first);
+            if (io == other.attributes.end() ||
+                i->second != io->second)
+                return false;
+        }
+
+        for (XmlNode * child = _first_child, * other_child = other._first_child;
+             child || other_child;
+             child = child->_next_sibling, other_child = other_child->_next_sibling)
+        {
+            if (! child || ! other_child)
+                return false;
+
+            bool r = child->is_equal(* other_child);
+
+            if (! r)
+                return false;
+        }
+
+        return true;
     }
 }

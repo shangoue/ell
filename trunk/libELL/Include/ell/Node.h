@@ -55,32 +55,19 @@ namespace ell
     struct LAl;
 
     template <typename Token>
+    struct Node;
+
+    /// Grammar node base class
+    template <typename Token>
     struct Node
     {
-        Node(const std::string & name = "")
-          : name(name)
-        { }
-
         virtual ~Node() { }
 
         virtual bool parse(Parser<Token> *) const = 0;
 
-        friend inline std::ostream & operator << (std::ostream & os, const Node & sr)
-        {
-            return os << sr.describe(false);
-        }
-
-#       if ELL_DEBUG == 1
-        virtual bool must_be_dumped() const { return ELL_DUMP_NODES; }
-#       endif
-
-        void get_value() { }
-
-        virtual std::string describe(bool need_parens) const = 0;
-
-        const std::string & get_name() const { return name; }
-
-		std::string name;
+        virtual std::string get_kind() const = 0;
+        virtual const Node<Token> * get_child_at(int index) const { return 0; }
+        virtual std::string get_value() const { return ""; }
     };
 
     template <typename Token, typename ConcreteNode>
@@ -160,6 +147,7 @@ namespace ell
 #include <ell/BinaryNodes.h>
 #include <ell/Primitives.h>
 #include <ell/Numerics.h>
+#include <ell/Dump.h>
 
 namespace ell
 {
