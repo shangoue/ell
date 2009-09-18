@@ -3,6 +3,6 @@ TARGET = calc
 TARGET_FILES = libELL/Test/calc.cpp
 CFLAGS += -IlibELL/Include
 LDFLAGS += -lstdc++
-PCH = libELL/Include/CommonHeaders.h
+PCH = CommonHeaders.h
 
 include Script/target.mk
