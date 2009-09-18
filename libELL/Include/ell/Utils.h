@@ -20,6 +20,7 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
 
 #include <wchar.h>
 #include <iso646.h>
