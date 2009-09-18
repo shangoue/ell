@@ -6,4 +6,6 @@ LDFLAGS = -lstdc++ -lellxml
 
 PCH = CommonHeaders.h
 
+DEPENDS = $(BUILD_FOOTPRINT)/libellxml.a
+
 include Script/target.mk
