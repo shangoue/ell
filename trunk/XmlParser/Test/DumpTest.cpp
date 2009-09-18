@@ -13,45 +13,25 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <ell/Grammar.h>
+#include <ell/XmlParser.h>
+#include <ell/XmlDump.h>
 
 using namespace ell;
 
-struct TestGrammar : public Grammar<char>
-{
-    TestGrammar()
-    {
-        ELL_NAME_RULE(sentence) =
-            (subjverb >> ! (ch(' ') >> target)) % (ch('.') >> ch(' '));
-
-        ELL_NAME_RULE(subjverb) =
-              ( str("il") | str("je") ) >> root 
-            | str("tu") >> root >> ch('s') 
-            | str("nous") >> root >> str("ons") 
-            | str("vous") >> root >> str("z")
-            | str("ils") >> root >> str("nt");
-
-        ELL_NAME_RULE(target) =
-            str("une pomme") | str("un saucisson") | str("du cassoulet");
-
-        ELL_NAME_RULE(root) =
-            str("mange") | str("cache") | str("donne");
-    }
-
-    Rule<char> sentence, subjverb, target, root;
-};
-
-#include <ell/XmlDump.h>
-
 int main()
 {
-    TestGrammar tg;
+    XmlGrammar g;
     RuleXmlDumper<char> rxd;
 
-    rxd.add_rule_def(tg.sentence);
-    rxd.add_rule_def(tg.subjverb);
-    rxd.add_rule_def(tg.target);
-    rxd.add_rule_def(tg.root);
+    rxd.add_rule_def(g.document);
+    rxd.add_rule_def(g.element);
+    rxd.add_rule_def(g.attribute);
+    rxd.add_rule_def(g.reference);
+    rxd.add_rule_def(g.comment);
+    rxd.add_rule_def(g.pi);
+    rxd.add_rule_def(g.cdata);
+    rxd.add_rule_def(g.data);
+    rxd.add_rule_def(g.ident);
 
     rxd.unparse(std::cout);
     
