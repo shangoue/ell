@@ -170,6 +170,7 @@ $(TARGET):
 	@mkdir -p $(dir $@)
 	@echo $(COL1)Create static library $@ $(COLE)
 	ar -rucs $@ $(TARGET_OBJ)
+	@touch $@
 else
 ifeq ($(suffix $(TARGET)),.so)
 $(TARGET): %.so:
