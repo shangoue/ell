@@ -34,7 +34,8 @@ namespace ell
             assert(rule.get_kind() == "rule");
             assert(rule.get_child_at(0) != 0);
             assert(rule.get_value().size());
-            assert(rule.get_value() != "<anonymous>");
+
+            rules[& rule] = true;
 
             current = enqueue_child(new XmlNode);
             current->name = "rule";
@@ -43,8 +44,32 @@ namespace ell
             add_node(* rule.get_child_at(0));
         }
 
+        void dump_grammar(const Rule<Token> & root, std::ostream & out)
+        {
+            rules[& root] = false;
+            bool cont = true;
+            while (cont)
+            {
+                cont = false;
+                for (typename std::map<const Node<Token> *,bool>::iterator i = rules.begin();
+                     i != rules.end();
+                     ++i)
+                {
+                    if (not i->second)
+                    {
+                        add_rule_def(* i->first);
+                        cont = true;
+                        break;
+                    }
+                }
+            }
+            out << * this;
+        }
+
     private:
         XmlNode * current;
+
+        std::map<const Node<Token> *,bool> rules;
         
         void add_node(const Node<Token> & node)
         {
@@ -58,6 +83,8 @@ namespace ell
             {
                 current->name = "subrule";
                 current->set_attrib("name", value);
+
+                rules[& node];
             }
             else
             {
