@@ -77,11 +77,7 @@ namespace ell
             }
             else
             {
-                std::string s = dump(* target, true);
-                s = s + value;
-                if (need_parens)
-                    s = '(' + s + ')';
-                return s;
+                return kind + '(' + dump(* target, false) + ',' + value + ')';
             }
         }
 
