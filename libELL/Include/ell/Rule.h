@@ -30,8 +30,10 @@ namespace ell
         Rule()
           : top(0)
         {
-            // Default name to anonymous to avoid infinite recursion in dump
-            name = "<anonymous>";
+            // Default unique name to avoid infinite recursion in dump
+            std::ostringstream oss;
+            oss << 'r' << this;
+            name = oss.str();
         }
 
         virtual ~Rule()

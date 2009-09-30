@@ -86,6 +86,7 @@ namespace ell
             alnum.set_name("alphanumeric char or underscore");
             blank.set_name("blank char");
             ident.set_name("identifier");
+            digit.set_name("digit");
             upper.set_name("upper case letter");
             lower.set_name("lower case letter");
             visible_ascii.set_name("visible ASCII char");
