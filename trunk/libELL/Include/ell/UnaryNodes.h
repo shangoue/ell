@@ -124,20 +124,7 @@ namespace ell
         std::string get_value() const
         {
             std::ostringstream os;
-            if (Max == -1 and Min == 0)
-                os << '*';
-            else if (Max == -1 and Min == 1)
-                os << '+';
-            else if (Max == 1 and Min == 0)
-                os << '!';
-            else if (Max == Min)
-                os << '{' << Min << '}';
-            else if (Min == 0)
-                os << "{," << Max << '}';
-            else if (Max == -1)
-                os << '{' << Max << ",}";
-            else
-                os << '{' << Min << ',' << Max << '}';
+            os << Min << ',' << Max;
             return os.str();
         }
     };
@@ -165,7 +152,7 @@ namespace ell
 #       define MAX (((CP *) parser)->*max)
 #       include "RepeatMatchTpl.h"
 
-        std::string get_value() const { return "{?,?}"; }
+        std::string get_value() const { return "?,?"; }
 
     private:
         const int CP::*min;
