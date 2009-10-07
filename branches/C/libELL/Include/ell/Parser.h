@@ -65,7 +65,7 @@ namespace ell
         void mismatch(const Node<Token> & mismatch) const
         {
             std::ostringstream oss;
-            oss << "expecting \"" << mismatch << "\"";
+            oss << "expecting " << mismatch;
             raise_error(oss.str());
         }
 
