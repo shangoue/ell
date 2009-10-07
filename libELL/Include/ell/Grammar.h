@@ -72,24 +72,28 @@ namespace ell
     struct CharGrammarBase : public GrammarBase<Token>
     {
         CharGrammarBase()
-          : alpha(chset("a-zA-Z_")),
-            alnum(chset("a-zA-Z0-9_")),
-            blank(chset(" \t\n\r")),
-            ident(lexeme(chset("a-zA-Z_") >> * alnum))
-        { }
+        {
+            alpha = chset("a-zA-Z_");
+            alnum = chset("a-zA-Z0-9_");
+            blank = chset(" \t\n\r");
+            ident = lexeme(chset("a-zA-Z_") >> * alnum);
+            digit = range<(Token) '0', (Token) '9'>();
+            upper = range<(Token) 'A', (Token) 'Z'>();
+            lower = range<(Token) 'a', (Token) 'z'>();
+            visible_ascii = range<(Token) '!', (Token) '~'>();
 
-        Rg<Token, (Token) '0', (Token) '9'> digit;
-        Rg<Token, (Token) 'A', (Token) 'Z'> upper;
-        Rg<Token, (Token) 'a', (Token) 'z'> lower;
-        ChS<Token>                          alpha;
-        ChS<Token>                          alnum;
+            alpha.set_name("alphabetic char");
+            alnum.set_name("alphanumeric char or underscore");
+            blank.set_name("blank char");
+            ident.set_name("identifier");
+            digit.set_name("digit");
+            upper.set_name("upper case letter");
+            lower.set_name("lower case letter");
+            visible_ascii.set_name("visible ASCII char");
+        }
 
-        ChS<Token>                          blank;
+        Rule<Token> alpha, alnum, blank, ident, digit, upper, lower, visible_ascii;
 
-        Lx<Token, Agg<Token, ChS<Token>, Rp<Token, ChS<Token>, 0, -1> > >
-                                            ident;
-
-        Rg<Token, (Token) '!', (Token) '~'> visible_ascii;
         UTF8NonASCII                        utf8nonascii;
 
         Int<Token, signed long>             signed_dec;
@@ -114,11 +118,9 @@ namespace ell
 
         IStr<Token>                         istr(const std::basic_string<Token> & arg) const { return IStr<Token>(arg); }
 
-        NSx<Token, Str<Token>, ChS<Token> >
-                                            kw(const std::basic_string<Token> & s) const { return no_suffix(str(s), alnum); }
+        Kw<Token>                           kw(const std::basic_string<Token> & s) const { return Kw<Token>(s); }
 
-        NSx<Token, IStr<Token>, ChS<Token> >
-                                            ikw(const std::basic_string<Token> & s) const { return no_suffix(istr(s), alnum); }
+        IKw<Token>                          ikw(const std::basic_string<Token> & s) const { return IKw<Token>(s); }
     };
 
     template <typename Token>

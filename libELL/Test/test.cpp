@@ -39,6 +39,7 @@ struct Test
 
 void check(ell::Parser<char> & parser, const char * buffer, bool status, bool full)
 {
+    ELL_DISABLE_DUMP(parser);
     printf("Parse %s\n", buffer);
 
     try
@@ -63,9 +64,7 @@ struct ListTest : public ell::Grammar<char>, public Test
     {
         Parser(ListTest * g)
           : ell::Parser<char>(& g->root, & g->blank)
-        {
-            ELL_DISABLE_DUMP(* this);
-        }
+        { }
 
         void doNothing(void)
         {
@@ -155,8 +154,6 @@ struct CalcTest : Calc, Test
 {
     CalcTest() : Test("CalcTest")
     {
-        ELL_DISABLE_DUMP(* this);
-
 #       define TEST(E) test(#E, E, true)
         TEST(4.0/5);
         TEST(10+3.0/6-(-3));
@@ -193,8 +190,6 @@ struct NoConsumeTest : ell::Grammar<char>, Test
         root = no_look_ahead(str("toto") >> no_consume(ch('[')) >> str("[]"));
 
         ell::Parser<char> p(& root);
-
-        ELL_DISABLE_DUMP(p);
 
         check(p, "toto[]", true, true);
     }
@@ -247,7 +242,6 @@ struct DirectRuleAssignTest : ell::Grammar<char>, Test
         r1 = r2;
         r2 = ikw("toto");
         ell::Parser<char> p(& r1);
-        ELL_DISABLE_DUMP(p);
         check(p, "toto", true, true);
     }
 
@@ -270,19 +264,33 @@ struct LongestOpTest : ell::Grammar<char>, Test
         {
             ELL_NAME_RULE(r1) = str("toto") [& Parser::fail] || str("totot");
             Parser p1(& r1);
-            ELL_ENABLE_DUMP(p1);
             check(p1, "totot", true, true);
         }
 
         {
             ELL_NAME_RULE(r2) = str("toto") [& Parser::fail] || str("totot") [& Parser::fail];
             Parser p2(& r2);
-            ELL_ENABLE_DUMP(p2);
             check(p2, "totot", false, true);
         }
     }
 
     ell::Rule<char> r1,r2;
+};
+
+struct GenericIntegerTest : ell::Grammar<char>, Test
+{
+    GenericIntegerTest() : Test("GenericIntegerTest")
+    {
+        ELL_NAME_RULE(root) = integer<unsigned, 16, 1, 3>();
+
+        ell::Parser<char> p(& root);
+        check(p, "AF0", true, true);
+        check(p, "0x0", false, false);
+        check(p, "", false, true);
+        check(p, "1234", true, false);
+    };
+
+    ell::Rule<char> root;
 };
 
 int main()

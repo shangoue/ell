@@ -67,8 +67,7 @@ namespace ell
 
         friend inline std::ostream & operator << (std::ostream & os, const Node & sr)
         {
-            os << sr.describe(false);
-            return os;
+            return os << sr.describe(false);
         }
 
 #       if ELL_DEBUG == 1
