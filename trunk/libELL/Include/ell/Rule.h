@@ -39,7 +39,10 @@ namespace ell
         virtual ~Rule()
         {
             if (not top)
-                throw std::runtime_error("Rule not used");
+            {
+                std::string msg = "Rule `" + name + "` not used";
+                throw std::runtime_error(msg.c_str());
+            }
         }
 
         template <typename N>
