@@ -48,7 +48,7 @@ namespace ell
         template <typename N>
         void operator = (const N & n)
         {
-            if (dynamic_cast<const Rule *>(& n))
+            if (n.get_kind() == "rule")
                 top = & n;
             else
                 top = new N(n);
