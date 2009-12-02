@@ -160,7 +160,7 @@ $(DCH): $(PCH)
 	@mkdir -p $(dir $@)
 	@echo $(COL3)PCHCOMPD - $< $(COLE)
 	@rm -f $(GCH)
-	$(COMPILER) -x $(PCHLANG) $(CFLAGS) -MG -MP -MMD -o $(GCH) -c $<
+	$(COMPILER) -x $(PCHLANG) $(CFLAGS) -MP -MMD -o $(GCH) -c $<
 
 -include $(DCH)
 endif
@@ -192,7 +192,7 @@ $(TARGET_OBJ): $(BUILD_DIR)/%.o: %$(EXT) $(DCH) $(BUILD_DIR)/%.d
 $(TARGET_DEP): $(BUILD_DIR)/%.d: %$(EXT) $(DCH)
 	@mkdir -p $(dir $@)
 	@echo $(COL3)COMPD - $< $(COLE)
-	$(COMPILER) $(CFLAGS) -MG -MP -MMD -o $(@:%.d=%.o) -c $<
+	$(COMPILER) $(CFLAGS) -MP -MMD -o $(@:%.d=%.o) -c $<
 
 -include $(TARGET_DEP)
 
