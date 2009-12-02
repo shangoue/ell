@@ -11,7 +11,7 @@ CFLAGS += -fPIC
 endif
 
 ifeq ($(MODE),Release)
-CFLAGS += -O3 -DNDEBUG -s
+CFLAGS += -O3 -DNDEBUG -s -fno-rtti
 else
 MODE = Debug
 CFLAGS += -g -O0 -fno-inline
