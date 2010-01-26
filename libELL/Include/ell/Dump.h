@@ -81,7 +81,9 @@ namespace ell
             }
         }
 
-        if (kind == "charset" || kind == "char" || kind == "range")
+        if (kind == "char")
+            return value;
+        else if (kind == "charset" || kind == "range")
             return '[' + value + ']';
         else if (kind == "error")
             return "error(" + value + ')';

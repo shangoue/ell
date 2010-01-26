@@ -27,11 +27,11 @@
 #include <stdlib.h>
 
 #ifndef ELL_DEBUG
-#ifdef NDEBUG
-#define ELL_DEBUG             0
-#else
-#define ELL_DEBUG             1
-#endif
+# ifdef NDEBUG
+#  define ELL_DEBUG             0
+# else
+#  define ELL_DEBUG             1
+# endif
 #endif
 
 #define ELL_DUMP_NODES        0
