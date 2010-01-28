@@ -37,8 +37,11 @@ namespace ell
         /// Destruction with children nodes deletion
         virtual ~XmlNode();
 
+        //@{
+        /// Kind of node enquirement
         bool is_element() const { return name.size() != 0; }
         bool is_data() const { return name.empty(); }
+        //@}
 
         //@{
         /// Attribute handling, raise error if attribute does not exist
@@ -54,11 +57,15 @@ namespace ell
         XmlNode * check_attrib_present(const std::string & name);
         //@}
 
+        //@{
+        /// Set output parameter 'value' only if attribute exists
         template <typename T>
         XmlNode * get_attrib_if_present(const std::string & name, T & value);
 
         XmlNode * set_attrib(const std::string & name, const std::string & value);
+        //@}
 
+        /// Enquire about the existence of an attribute
         bool has_attrib(const std::string & name) const;
 
         //@{
@@ -80,6 +87,7 @@ namespace ell
         XmlNode * check_data(const std::string & data);
         //@}
 
+        //@{
         /// Recursive write of resulting XML
         void unparse(std::ostream & out, int indent=0, int shift=1) const;
 
@@ -88,6 +96,7 @@ namespace ell
             node.unparse(os);
             return os;
         }
+        //@}
 
         /// Dump a visual representation of the DOM tree
         void dump(std::ostream & out, int indent=0, int shift=1) const;
@@ -110,23 +119,39 @@ namespace ell
         XmlNode * enqueue_child(XmlNode *);
         //@}
 
+        /// Attribute map
         XmlAttributesMap attributes;
 
+        /// Name of the node if this is an element
         std::string name;
+
+        /// Text of the node if this is a data node
         std::string data;
 
+        //@{
+        /// Links to sibbling, children and parent nodes
+        /// Null if does not exist
+        /// You can use them to iterate inside a loop
         XmlNode * _next_sibling, * _previous_sibling;
         XmlNode * _first_child, * _last_child;
         XmlNode * _parent;
+        //@}
 
-        int line;
-        Parser<char> * parser;
-
+        /// Textual representation of the tree startin at this node
         std::string describe() const;
 
+        /// Nodes recursive comparison
         bool is_equal(const XmlNode & other) const;
 
     private:
+        friend class XmlDomParser;
+
+        /// Line information in the original file
+        int line;
+
+        /// Reference to the parser which created this DOM
+        Parser<char> * parser;
+
         /// Forbidden
         XmlNode(const XmlNode &);
     };
