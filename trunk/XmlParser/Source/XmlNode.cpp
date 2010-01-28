@@ -26,7 +26,7 @@ namespace ell
         XmlAttributesMap::const_iterator i = attributes.find(name);
         if (i != attributes.end())
             return i->second;
-        parser->raise_error(describe() + ": no such attribute: " + name, line);
+        raise_error(describe() + ": no such attribute: " + name);
         return NULL;
     }
 
@@ -48,9 +48,9 @@ namespace ell
     {
         const std::string & val=get_attrib(name);
         if (val == value) return this;
-        parser->raise_error(describe() + ": " +
-                            name + "=\"" + val +
-                            "\", expecting \"" + value + "\"", line);
+        raise_error(describe() + ": " +
+                    name + "=\"" + val +
+                    "\", expecting \"" + value + "\"");
         return NULL;
     }
 
@@ -83,7 +83,7 @@ namespace ell
     {
         if (n == get_name())
             return this;
-        parser->raise_error(describe() + ": expecting element " + n, line);
+        raise_error(describe() + ": expecting element " + n);
         return NULL;
     }
 
@@ -104,7 +104,7 @@ namespace ell
     {
         if (d == get_data())
             return this;
-        parser->raise_error(describe() + ": value \"" + data + "\", expecting \"" + d + "\"", line);
+        raise_error(describe() + ": value \"" + data + "\", expecting \"" + d + "\"");
         return NULL;
     }
 
@@ -163,7 +163,7 @@ namespace ell
     {
         if (_next_sibling)
             return _next_sibling;
-        parser->raise_error(describe() + ": no next sibling", line);
+        raise_error(describe() + ": no next sibling");
         return NULL;
     }
 
@@ -171,7 +171,7 @@ namespace ell
     {
         if (_previous_sibling)
             return _previous_sibling;
-        parser->raise_error(describe() + ": no previous sibling", line);
+        raise_error(describe() + ": no previous sibling");
         return NULL;
     }
 
@@ -179,7 +179,7 @@ namespace ell
     {
         if (_first_child)
             return _first_child;
-        parser->raise_error(describe() + ": no child", line);
+        raise_error(describe() + ": no child");
         return NULL;
     }
 
@@ -187,14 +187,14 @@ namespace ell
     {
         if (_last_child)
             return _last_child;
-        parser->raise_error(describe() + ": no child", line);
+        raise_error(describe() + ": no child");
         return NULL;
     }
 
     XmlNode * XmlNode::parent() const
     {
         if (_parent) return _parent;
-        parser->raise_error(describe() + ": no parent", line);
+        raise_error(describe() + ": no parent");
         return NULL;
     }
 

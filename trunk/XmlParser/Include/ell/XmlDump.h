@@ -44,6 +44,7 @@ namespace ell
             add_node(* rule.get_child_at(0));
         }
 
+        /// Dump the full grammar, starting at the given entry point
         void dump_grammar(const Rule<Token> & root, std::ostream & out)
         {
             rules[& root] = false;

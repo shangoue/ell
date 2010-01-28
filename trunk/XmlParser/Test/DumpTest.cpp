@@ -22,19 +22,8 @@ int main()
 {
     XmlGrammar g;
     RuleXmlDumper<char> rxd;
+    rxd.dump_grammar(g.document, std::cout);
 
-    rxd.add_rule_def(g.document);
-    rxd.add_rule_def(g.element);
-    rxd.add_rule_def(g.attribute);
-    rxd.add_rule_def(g.reference);
-    rxd.add_rule_def(g.comment);
-    rxd.add_rule_def(g.pi);
-    rxd.add_rule_def(g.cdata);
-    rxd.add_rule_def(g.data);
-    rxd.add_rule_def(g.ident);
-
-    rxd.unparse(std::cout);
-    
     return 0;
 }
 

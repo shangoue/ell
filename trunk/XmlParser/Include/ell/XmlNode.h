@@ -143,6 +143,9 @@ namespace ell
         /// Nodes recursive comparison
         bool is_equal(const XmlNode & other) const;
 
+        /// Tell the parser to raise a syntax error on the given node
+        void raise_error(const std::string & msg) const { parser->raise_error(msg, line); }
+
     private:
         friend class XmlDomParser;
 
@@ -163,7 +166,7 @@ namespace ell
         {
             std::istringstream i(n.get_attrib(name));
             if (! (i >> value))
-                n.parser->raise_error("Wrong type for attribute " + name, n.line);
+                n.raise_error("Wrong type for attribute " + name);
         }
 
         template <>
@@ -202,7 +205,7 @@ namespace ell
         {
             std::istringstream i(n.get_data());
             if (! (i >> value))
-                n.parser->raise_error("Wrong type for data " + n.get_data(), n.line);
+                n.raise_error("Wrong type for data " + n.get_data());
         }
 
         template <>

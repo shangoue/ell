@@ -1,6 +1,5 @@
 TARGET = libell_test
 
-
 TARGET_FILES = libELL/Test/test.cpp
 CFLAGS += -IlibELL/Include
 LDFLAGS += -lstdc++
