@@ -58,10 +58,6 @@ namespace ell
             }
         }
 
-        /// Return the number of tokens consumed since the given context
-        /// (must be overriden with use of next() for non contiguous buffers)
-        //virtual size_t measure(Context & start) = 0;
-
         void mismatch(const Node<Token> & mismatch) const
         {
             std::ostringstream oss;
@@ -143,13 +139,13 @@ namespace ell
         const Node<Token> * skipper;
     };
 
-    /// You will have to write an explicit specialization of this class
-    /// if you do not parse a buffer of contiguous characters.
+    /// Parser for a null-terminated buffer of contiguous characters, with
+    /// handling of line number
     template <typename Char>
-    struct Parser : public ParserBase<Char>
+    struct CharParser : public ParserBase<Char>
     {
-        Parser(const Node<Char> * grammar,
-               const Node<Char> * skipper = 0)
+        CharParser(const Node<Char> * grammar,
+                   const Node<Char> * skipper = 0)
           : ParserBase<Char>(grammar, skipper),
             line_number(1),
             position(0)
@@ -176,7 +172,7 @@ namespace ell
             return ell::dump_position(position);
         }
 
-        void raise_error(const std::string & msg) const
+        /* overriden */ void raise_error(const std::string & msg) const
         {
             raise_error(msg, line_number);
         }
@@ -199,7 +195,6 @@ namespace ell
         };
 
         /// Return the number of tokens consumed since the given context
-        /// (must be overriden with use of next() for non contiguous buffers)
         size_t measure(Context & start)
         {
             return position - start.position;
@@ -224,6 +219,22 @@ namespace ell
 
         int line_number;
         const Char * position;
+    };
+
+    template <>
+    struct Parser<char> : public CharParser<char>
+    {
+        Parser(const Node<char> * grammar, const Node<char> * skipper = 0)
+          : CharParser<char>(grammar, skipper)
+        { }
+    };
+
+    template <>
+    struct Parser<wchar_t> : public CharParser<wchar_t>
+    { 
+        Parser(const Node<wchar_t> * grammar, const Node<wchar_t> * skipper = 0)
+          : CharParser<wchar_t>(grammar, skipper)
+        { }
     };
 }
 
