@@ -9,12 +9,12 @@ namespace koalang
     {
         Grammar();
 
-        ell::Character<Lex> op(const char * op)
+        ell::Ch<Lex> op(const char * op)
         {
-            return ell::Character<Lex>(Lex(op, Lex::OP));
+            return ell::Ch<Lex>(Lex(op, Lex::OP));
         }
 
-        ell::Character<Lex> number, string, identifier, newline;
+        ell::Ch<Lex> number, string, identifier, newline;
 
         ell::Rule<Lex> program, statement, define, assignation, expression,
                        logical, order, sum, product, unary, selection,

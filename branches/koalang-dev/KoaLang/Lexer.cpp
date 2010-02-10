@@ -33,9 +33,10 @@ namespace koalang
         blank = chset(" \t\r") 
               | (ch('\'') >> any * ch('\n')) [& Lexer::push<Lex::NL>];
 
-        ELL_TRANSPARENT_RULE(top)
-        ELL_TRANSPARENT_RULE(string_char)
-        ELL_NAME_RULE(punct)
-        ELL_NAME_RULE(string)
+        top.name.clear();
+        string_char.name.clear();
+
+        ELL_NAME_RULE(punct);
+        ELL_NAME_RULE(string);
     }
 }

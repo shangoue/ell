@@ -68,16 +68,15 @@ namespace koalang
         skipper = op(",") | newline;
 #       undef I
 
-        ELL_NAME_RULE(program)
-        ELL_NAME_RULE(statement)
-        ELL_NAME_RULE(define)
-        ELL_NAME_RULE(parameters)
-        ELL_NAME_RULE(assignation)
-        ELL_NAME_RULE(expression)
-        ELL_NAME_RULE(atome)
-        ELL_NAME_RULE(variable)
+        ELL_NAME_RULE(program);
+        ELL_NAME_RULE(statement);
+        ELL_NAME_RULE(define);
+        ELL_NAME_RULE(parameters);
+        ELL_NAME_RULE(assignation);
+        ELL_NAME_RULE(expression);
+        ELL_NAME_RULE(atome);
+        ELL_NAME_RULE(variable);
 
         logical.name = order.name = sum.name = product.name = unary.name = selection.name = "expression";
-
     }
 }
