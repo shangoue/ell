@@ -253,7 +253,7 @@ rule1 = str("foo") >> ( str("bar")
 This will prevent the parser from stepping-back to a token which has already been consumed.
 
 
-=== Detect errors ealrier ===
+=== Detect errors earlier ===
 
 Consider the following grammar:
 
@@ -272,12 +272,28 @@ Now, let's parse a meal which does not match this grammar, for exemple:
 bacon eggs kouign amann
 }}}
 
-By default, the parser is LL(n), so both branches will be evaluated before issuing an error. The dump below illustrate it. First character is one of:
+By default, the parser is LL(n), so both branches will be evaluated before issuing an error. 
+
+We get the following error:
+
+{{{
+1: before "bacon eggs kouign amann": expecting brunch or dinner
+}}}
+
+Not a useful message... What would you say if you forgot a semicolon at line 1384 and gcc was complaining that way:
+{{{
+inyourbigfile.c:1: Syntax error, expecting a completely valid C program file
+}}}
+
+
+Using macro ELL_ENABLE_DUMP, you can trace how the parser walks along the grammar. First character is one of:
   * `\`: parser starts trying the rule
   * `/`: parser succeeds at matching the rule
   * `#`: the rule did not match the input buffer
 
 Then, the name of the related rule follows, and the position inside the buffer to parse.
+
+In the dump below, you can notice than the parser first tries brunch branch, then step back to the root rule to try the dinner branch:
 
 {{{
  \ brunch or dinner: 	"bacon eggs kouign amann"
@@ -304,11 +320,7 @@ Then, the name of the related rule follows, and the position inside the buffer t
  # brunch or dinner: 	"bacon eggs kouign amann"
 }}}
 
-We get the following error:
 
-{{{
-1: before "bacon eggs kouign amann": expecting brunch or dinner
-}}}
 
 Now, let transform the grammar to tell the parser walking through it in a LL(1) manner :
 
@@ -320,7 +332,7 @@ brunch = str("bacon") >> str("eggs") >> str("beer");
 dinner = str("salad") >> str("cassoulet") >> str("kouign amann");
 }}}
 
-When look ahead is disabled, the >> operator issues an error each time its left operand has matched but not its right operand.
+When look ahead is disabled, the sequence grammar operator (>>) issues an error each time its left operand has matched but not its right operand.
 
 In other words, without look-ahead, a single token is enough to decide which branch of the LL grammar must be chosen. Once the choice is made, the first error will stop the parser.
 
@@ -345,4 +357,4 @@ terminate called after throwing an instance of 'std::runtime_error'
   what():  1: before "kouign amann": expecting "beer"
 }}}
 
-Error has been catched early and the user is told he should drink beer instead of eating kouign amann.
+Error has been catched earlier and the user is told he should drink beer instead of eating kouign amann, which appears a lot more natural, no ?
