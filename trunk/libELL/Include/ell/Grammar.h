@@ -76,7 +76,7 @@ namespace ell
             alpha = chset("a-zA-Z_");
             alnum = chset("a-zA-Z0-9_");
             blank = chset(" \t\n\r");
-            ident = lexeme(chset("a-zA-Z_") >> * alnum);
+            ident = lexeme(alpha >> * alnum);
             digit = range<(Token) '0', (Token) '9'>();
             upper = range<(Token) 'A', (Token) 'Z'>();
             lower = range<(Token) 'a', (Token) 'z'>();
