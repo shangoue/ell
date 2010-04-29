@@ -258,17 +258,91 @@ This will prevent the parser from stepping-back to a token which has already bee
 Consider the following grammar:
 
 {{{
-root = brunch | diner;
+root = brunch | dinner;
 
 brunch = str("bacon") >> str("eggs") >> str("beer");
 
-diner = str("salad") >> str("cassoulet") >> str("kouign amann");
+dinner = str("salad") >> str("cassoulet") >> str("kouign amann");
 }}}
 
 
-Now, let's parse a meal which does not match this grammar, for exemple `bacon eggs kouign amann`.
+Now, let's parse a meal which does not match this grammar, for exemple:
 
-By default, the parser is LL(n), so both branches will be evaluated before issuing an error :
+{{{
+bacon eggs kouign amann
+}}}
 
+By default, the parser is LL(n), so both branches will be evaluated before issuing an error. The dump below illustrate it. First character is one of:
+  * `\`: parser starts trying the rule
+  * `/`: parser succeeds at matching the rule
+  * `#`: the rule did not match the input buffer
 
+Then, the name of the related rule follows, and the position inside the buffer to parse.
 
+{{{
+ \ brunch or dinner: 	"bacon eggs kouign amann"
+  \ brunch: 	"bacon eggs kouign amann"
+   \ "bacon" "eggs" "beer": 	"bacon eggs kouign amann"
+    \ "bacon" "eggs": 	"bacon eggs kouign amann"
+     \ "bacon": 	"bacon eggs kouign amann"
+     / "bacon": 	" eggs kouign amann"
+     \ "eggs": 	"eggs kouign amann"
+     / "eggs": 	" kouign amann"
+    / "bacon" "eggs": 	" kouign amann"
+    \ "beer": 	"kouign amann"
+    # "beer": 	"kouign amann"
+   # "bacon" "eggs" "beer": 	"bacon eggs kouign amann"
+  # brunch: 	"bacon eggs kouign amann"
+  \ dinner: 	"bacon eggs kouign amann"
+   \ "salad" "cassoulet" "kouign amann": 	"bacon eggs kouign amann"
+    \ "salad" "cassoulet": 	"bacon eggs kouign amann"
+     \ "salad": 	"bacon eggs kouign amann"
+     # "salad": 	"bacon eggs kouign amann"
+    # "salad" "cassoulet": 	"bacon eggs kouign amann"
+   # "salad" "cassoulet" "kouign amann": 	"bacon eggs kouign amann"
+  # dinner: 	"bacon eggs kouign amann"
+ # brunch or dinner: 	"bacon eggs kouign amann"
+}}}
+
+We get the following error:
+
+{{{
+1: before "bacon eggs kouign amann": expecting brunch or dinner
+}}}
+
+Now, let transform the grammar to tell the parser walking through it in a LL(1) manner :
+
+{{{
+root = no_look_ahead(brunch | dinner);
+
+brunch = str("bacon") >> str("eggs") >> str("beer");
+
+dinner = str("salad") >> str("cassoulet") >> str("kouign amann");
+}}}
+
+When look ahead is disabled, the >> operator issues an error each time its left operand has matched but not its right operand.
+
+In other words, without look-ahead, a single token is enough to decide which branch of the LL grammar must be chosen. Once the choice is made, the first error will stop the parser.
+
+Matching "`bacon eggs`", if we get the `bacon` token, we are sure to be in the brunch branch. In this branch, we expect an `eggs` token.
+
+Allowing look-ahead is similar to allow the parser to step back in the grammar and try another branch.
+
+The related dump follows:
+{{{
+ \ brunch or dinner: 	"bacon eggs kouign amann"
+  \ brunch: 	"bacon eggs kouign amann"
+   \ "bacon" "eggs" "beer": 	"bacon eggs kouign amann"
+    \ "bacon" "eggs": 	"bacon eggs kouign amann"
+     \ "bacon": 	"bacon eggs kouign amann"
+     / "bacon": 	" eggs kouign amann"
+     \ "eggs": 	"eggs kouign amann"
+     / "eggs": 	" kouign amann"
+    / "bacon" "eggs": 	" kouign amann"
+    \ "beer": 	"kouign amann"
+    # "beer": 	"kouign amann"
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  1: before "kouign amann": expecting "beer"
+}}}
+
+Error has been catched early and the user is told he should drink beer instead of eating kouign amann.
