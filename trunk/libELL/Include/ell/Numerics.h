@@ -164,7 +164,7 @@ namespace ell
         std::string get_kind() const
         {
             std::ostringstream oss;
-            oss << (GetSign<Token, Sign>().is_signed() ? "" : "unsigned-")
+            oss << (GetSign<Token, Sign>().is_signed() ? "signed-" : "unsigned-")
                 << (Radix == 8 ? "octal" : Radix == 16 ? "hexadecimal" : "decimal")
                 << "-" << MinDigits << "-" << MaxDigits;
             return oss.str();
