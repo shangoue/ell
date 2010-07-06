@@ -57,7 +57,7 @@ namespace ell
     {
         typedef Parser<char> base_type;
 
-        XmlParser()
+        XmlParser(XmlGrammar & grammar)
           : Parser<char>(& grammar.document, & grammar.blank)
         { }
 
@@ -69,7 +69,6 @@ namespace ell
         //@}
 
     private:
-        static XmlGrammar grammar;
         friend struct XmlGrammar;
 
         void on_data_()
@@ -133,8 +132,9 @@ namespace ell
 
     struct XmlDomParser : public XmlParser
     {
-        XmlDomParser()
-          : document(),
+        XmlDomParser(XmlGrammar & grammar)
+          : XmlParser(grammar),
+            document(),
             current(& document)
         {
             document.parser = this;

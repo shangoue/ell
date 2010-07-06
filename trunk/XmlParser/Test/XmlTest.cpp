@@ -52,7 +52,8 @@ void nonreg()
             DUMP("\nTEST %d: %s", v->id, v->value);
 
             // Parse and check result
-            XmlDomParser p;
+            XmlGrammar g;
+            XmlDomParser p(g);
             ELL_ENABLE_DUMP(p);
 
             try
@@ -73,7 +74,7 @@ void nonreg()
                 XmlNode * root1 = p.get_root();
                 std::ostringstream oss;
                 oss << * root1;
-                XmlDomParser p2;
+                XmlDomParser p2(g);
                 ELL_ENABLE_DUMP(p2);
 
                 DUMP("Reparse unparsed DOM from first parsing: %s\n", oss.str().c_str());
@@ -129,7 +130,8 @@ int main(int argc, const char ** argv)
     while (std::getline(file, line))
         file_content += line + '\n';
 
-    XmlDomParser p;
+    XmlGrammar g;
+    XmlDomParser p(g);
 
     DUMP("Parse %s", argv[1]);
 
