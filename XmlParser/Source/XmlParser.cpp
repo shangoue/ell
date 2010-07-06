@@ -17,8 +17,6 @@
 
 namespace ell
 {
-    XmlGrammar XmlParser::grammar;
-
     std::string XmlGrammar::protect(const std::string & cdata)
     {
         std::string protected_data;
