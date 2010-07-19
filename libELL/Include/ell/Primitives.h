@@ -144,7 +144,7 @@ namespace ell
         }
 
         std::string get_kind() const { return "charset"; }
-        std::string get_value() const { return protect(set); }
+        std::string get_value() const { return set; }
         std::string set;
     };
 
@@ -180,12 +180,6 @@ namespace ell
         const Token c;
     };
 
-    template <>
-    inline std::string Ch<char>::get_value() const { return protect_char(c); }
-
-    template <>
-    inline std::string Ch<wchar_t>::get_value() const { return protect_char(c); }
-
     /// Token range
     template <typename Token, const Token C1, const Token C2>
     struct Rg : public TokenPrimitiveBase<Token, Rg<Token, C1, C2> >
@@ -206,7 +200,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string get_value() const { return protect_char(C1) + '-' + protect_char(C2); }
+        std::string get_value() const { return std::basic_string<Token>() + C1 + '-' + C2; }
         std::string get_kind() const { return "range"; }
     };
 
@@ -270,7 +264,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string get_value() const { return protect(str); }
+        std::string get_value() const { return str; }
         std::string get_kind() const { return "ignore-case-string"; }
         std::basic_string<Token> str;
     };
@@ -307,7 +301,7 @@ namespace ell
             ELL_END_PARSE
         }
 
-        std::string get_value() const { return protect(str); }
+        std::string get_value() const { return str; }
         std::string get_kind() const { return "string"; }
         std::basic_string<Token> str;
     };
@@ -326,7 +320,7 @@ namespace ell
             return decorated.parse(parser, v);
         }
 
-        std::string get_value() const { return protect(decorated.left.str); }
+        std::string get_value() const { return decorated.left.str; }
         std::string get_kind() const { return "keyword"; }
 
         NSx<Token, Str<Token>, ChS<Token> > decorated;
@@ -346,7 +340,7 @@ namespace ell
             return decorated.parse(parser, v);
         }
 
-        std::string get_value() const { return protect(decorated.left.str); }
+        std::string get_value() const { return decorated.left.str; }
         std::string get_kind() const { return "ignore-case-keyword"; }
 
         NSx<Token, IStr<Token>, ChS<Token> > decorated;

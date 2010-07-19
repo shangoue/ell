@@ -24,7 +24,7 @@ namespace ell
     std::string dump(const Node<Token> & node, bool need_parens)
     {
         std::string kind = node.get_kind();
-        std::string value = node.get_value();
+        std::string value = protect(node.get_value());
 
         if (kind == "rule")
         {
