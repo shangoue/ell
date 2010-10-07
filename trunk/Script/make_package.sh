@@ -2,14 +2,14 @@
 
 # Generate package name
 svn up || exit 1
-ver=`svnversion | sed "s/^[^:]*:\([0-9]\+\)/\1/" | sed "s/\([0-9]\+\)M\?/\1/"`
+ver=`LANG=C svnversion | sed "s/^[^:]*:\([0-9]\+\)/\1/" | sed "s/\([0-9]\+\)M\?/\1/"`
 
 pkg="Ell-`date +%Y%b%d`-r$ver"
 
 echo Generate $pkg
 rm -rf $pkg
-mkdir $pkg || exit 1
-mkdir $pkg/lib
+mkdir -p $pkg/lib/release || exit 1
+mkdir $pkg/lib/debug
 mkdir $pkg/include
 
 cp -v --parent COPYING.LESSER $pkg/ || exit 1
@@ -32,11 +32,25 @@ for m in */; do
     fi
 done
 
-ReleaseBuild=`find Build -type d -name Release`
-cp -v `find $ReleaseBuild -name "*.so" -o -name "*.a"` $pkg/lib || exit 1
-for lib in $pkg/lib/*; do
+rlibs=`find Build -type d -name Release`
+cp -v `find $rlibs -name "*.so" -o -name "*.a"` $pkg/lib/release || exit 1
+rlibs=`find Build -type d -name Debug`
+cp -v `find $rlibs -name "*.so" -o -name "*.a"` $pkg/lib/debug || exit 1
+for lib in $pkg/lib/release/*; do
     strip -s $lib
 done
+
+
+cat > $pkg/readme.txt << END
+Coming from:
+http://ell.google.com/svn/trunk
+Complete documentation can be found at:
+http://code.google.com/p/ell/wiki/ReferenceManualEn
+To compile with the release library, please define ELL_DEBUG=0 or NDEBUG
+To compile with the debug library, please define ELL_DEBUG=1 or undefine NDEBUG
+Thanks for using libELL!
+END
+
 
 # Generate dev package
 rm -f   $pkg-dev.tar.bz2
