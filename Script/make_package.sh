@@ -32,13 +32,15 @@ for m in */; do
     fi
 done
 
-rlibs=`find Build -type d -name Release`
-cp -v `find $rlibs -name "*.so" -o -name "*.a"` $pkg/lib/release || exit 1
-rlibs=`find Build -type d -name Debug`
-cp -v `find $rlibs -name "*.so" -o -name "*.a"` $pkg/lib/debug || exit 1
-for lib in $pkg/lib/release/*; do
-    strip -s $lib
-done
+# Notice: No more libraries to copy
+#
+#rlibs=`find Build -type d -name Release`
+#cp -v `find $rlibs -name "*.so" -o -name "*.a"` $pkg/lib/release || exit 1
+#rlibs=`find Build -type d -name Debug`
+#cp -v `find $rlibs -name "*.so" -o -name "*.a"` $pkg/lib/debug || exit 1
+#for lib in $pkg/lib/release/*; do
+#    strip -s $lib
+#done
 
 
 cat > $pkg/readme.txt << END

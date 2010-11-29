@@ -2,10 +2,8 @@ TARGET = xml_test
 TARGET_FILES = XmlParser/Test/XmlTest.cpp
 
 CFLAGS = -IXmlParser/Include -IlibELL/Include
-LDFLAGS = -lstdc++ -lellxml
+LDFLAGS = -lstdc++
 
 PCH = CommonHeaders.h
-
-DEPENDS = $(BUILD_FOOTPRINT)/libellxml.a
 
 include Script/target.mk

@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef INCLUDED_ELL_IMPL_XMLNODE_H
+#define INCLUDED_ELL_IMPL_XMLNODE_H
+
 #include <ell/XmlNode.h>
 #include <ell/XmlParser.h>
 
@@ -286,3 +289,5 @@ namespace ell
         return true;
     }
 }
+
+#endif // INCLUDED_ELL_IMPL_XMLNODE_H
