@@ -21,7 +21,7 @@
 #include <ell/Grammar.h>
 #include <ell/Parser.h>
 
-#include "XmlNode.h"
+#include <ell/XmlNode.h>
 
 namespace ell
 {
@@ -167,5 +167,8 @@ namespace ell
         }
     };
 }
+
+#include <ell/impl/XmlParser.h>
+#include <ell/impl/XmlNode.h>
 
 #endif // INCLUDED_ELL_XMLPARSER_H

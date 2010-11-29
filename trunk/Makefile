@@ -11,8 +11,5 @@ $(TARGET_FILES):
 	@echo Processing $@...
 	@$(MAKE) --no-print-directory -f $@
 
-XmlParser/xml_test.target: XmlParser/lib.target
-XmlParser/dump_test.target: XmlParser/lib.target
-
 clean:
 	rm -rf Build
