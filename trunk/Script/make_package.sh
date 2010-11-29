@@ -8,9 +8,9 @@ pkg="Ell-`date +%Y%b%d`-r$ver"
 
 echo Generate $pkg
 rm -rf $pkg
-mkdir -p $pkg/lib/release || exit 1
-mkdir $pkg/lib/debug
-mkdir $pkg/include
+mkdir -p $pkg/include || exit 1
+#mkdir $pkg/lib/release
+#mkdir $pkg/lib/debug
 
 cp -v --parent COPYING.LESSER $pkg/ || exit 1
 
