@@ -77,7 +77,7 @@ namespace ell
 
     XmlNode * XmlNode::set_name(const std::string & n)
     {
-        assert(is_element());
+        assert(data.empty());
         name=n;
         return this;
     }
@@ -205,10 +205,12 @@ namespace ell
     {
         p->_next_sibling=this;
         p->_previous_sibling=_previous_sibling;
-        _previous_sibling=p;
         p->_parent=_parent;
         if (_parent->_first_child == this)
             _parent->_first_child=p;
+        else
+            _previous_sibling->_next_sibling=p;
+        _previous_sibling=p;
         return p;
     }
 
@@ -216,10 +218,12 @@ namespace ell
     {
         p->_previous_sibling=this;
         p->_next_sibling=_next_sibling;
-        _next_sibling=p;
         p->_parent=_parent;
         if (_parent->_last_child == this)
             _parent->_last_child=p;
+        else
+            _next_sibling->_previous_sibling=p;
+        _next_sibling=p;
         return p;
     }
 
