@@ -46,6 +46,7 @@ void nonreg()
 
     try
     {
+        // Parser test
         for (unsigned int i = 0; i < sizeof(vectors) / sizeof(Vector); i++)
         {
             Vector * v = vectors + i;
@@ -102,6 +103,63 @@ void nonreg()
                     DUMP("Ok.");
             }
         }
+
+        // Test for DOM modification methods
+        {
+            XmlGrammar g;
+            XmlDomParser p(g);
+            ELL_ENABLE_DUMP(p);
+
+            DUMP("Parse initial xml");
+            p.parse("<html><head><meta1 /><style></style><script /></head><body></body></html>");
+
+            DUMP("Modify DOM");
+            XmlNode * document = p.get_root();
+            XmlNode * style = document->check_name("html")
+                              ->first_child()->check_name("head")
+                              ->first_child()->next_sibling()->check_name("style");
+            style->insert_sibling_node_before(new XmlNode)->set_name("other1");
+            style->insert_sibling_node_after(new XmlNode)->set_name("other2");
+            style->previous_sibling()->check_name("other1")->previous_sibling()->check_name("meta1")
+                 ->insert_sibling_node_before(new XmlNode)->set_name("otherother");
+            XmlNode * body = document->first_child()->next_sibling()->check_name("body");
+
+            body->enqueue_child(new XmlNode)->set_name("p")
+                ->enqueue_child(new XmlNode)->set_data("Hello, world!");
+            body->insert_sibling_node_after(new XmlNode)->set_name("magic");
+
+            DUMP("Unparse modified DOM");
+            
+            std::ostringstream oss;
+            oss << * document;
+
+            XmlDomParser p2(g);
+            ELL_ENABLE_DUMP(p2);
+
+            try
+            {
+                p2.parse("<html><head><otherother /><meta1 /><other1 /><style></style><other2 /><script /></head><body><p>Hello, world!</p></body><magic /></html>");
+            }
+            catch (std::runtime_error & e)
+            {
+                ERROR("Unexpected failure: %s", e.what());
+            }
+
+            DUMP("Compare second DOM unparsing with first one");
+            XmlNode * root2 = p2.get_root();
+
+            if (! document->is_equal(* root2))
+            {
+                DUMP("\nFirst DOM:");
+                document->dump(std::cout);
+                DUMP("\nSecond DOM:");
+                root2->dump(std::cout);
+                ERROR("DOMs are differents");
+            }
+            else
+                DUMP("Ok.");
+        }
+
     }
     catch(std::exception &e)
     {
