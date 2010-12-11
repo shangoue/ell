@@ -160,6 +160,18 @@ void nonreg()
                 DUMP("Ok.");
         }
 
+        // Test DOM iterator
+        {
+            DUMP("Check iterator");
+            XmlGrammar g;
+            XmlDomParser p(g);
+
+            p.parse("<racine><hello/><you />hi<How do=\"you\">do</How></racine>");
+            for (XmlIterator i=p.get_root()->first_child(); i; ++i)
+            {
+                std::cout << * i;
+            }
+        }
     }
     catch(std::exception &e)
     {

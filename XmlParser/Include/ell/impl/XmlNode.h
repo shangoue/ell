@@ -292,6 +292,36 @@ namespace ell
 
         return true;
     }
+
+    XmlIterator XmlIterator::operator ++ (int)
+    {
+        XmlIterator it(* this);
+        ++(* this);
+        return it;
+    }
+
+    XmlIterator XmlIterator::operator -- (int)
+    {
+        XmlIterator it(* this);
+        --(* this);
+        return it;
+    }
+
+    XmlIterator XmlIterator::operator + (int inc) const
+    {
+        XmlIterator it(*this);
+        for (int i = 0; i < inc; i++)
+            ++it;
+        return it;
+    }
+
+    XmlIterator XmlIterator::operator - (int dec) const
+    {
+        XmlIterator it(*this);
+        for (int i = 0; i < dec; i++)
+            --it;
+        return it;
+    }
 }
 
 #endif // INCLUDED_ELL_IMPL_XMLNODE_H

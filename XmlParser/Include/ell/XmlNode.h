@@ -128,15 +128,6 @@ namespace ell
         /// Text of the node if this is a data node
         std::string data;
 
-        //@{
-        /// Links to sibbling, children and parent nodes
-        /// Null if does not exist
-        /// You can use them to iterate inside a loop
-        XmlNode * _next_sibling, * _previous_sibling;
-        XmlNode * _first_child, * _last_child;
-        XmlNode * _parent;
-        //@}
-
         /// Textual representation of the tree startin at this node
         std::string describe() const;
 
@@ -148,6 +139,16 @@ namespace ell
 
     private:
         friend class XmlDomParser;
+        friend class XmlIterator;
+
+        //@{
+        /// Links to sibbling, children and parent nodes
+        /// Null if does not exist
+        /// You can use them to iterate inside a loop
+        XmlNode * _next_sibling, * _previous_sibling;
+        XmlNode * _first_child, * _last_child;
+        XmlNode * _parent;
+        //@}
 
         /// Line information in the original file
         int line;
@@ -157,6 +158,28 @@ namespace ell
 
         /// Forbidden
         XmlNode(const XmlNode &);
+    };
+
+    /// Iterator through XmlNode children
+    struct XmlIterator
+    {
+        XmlIterator(XmlNode * node)
+          : current(node)
+        { }
+
+        XmlNode & operator * () { return * current; }
+        operator bool () const { return current != 0; }
+
+        XmlIterator & operator ++ () { current=current->_next_sibling; return *this; }
+        XmlIterator & operator -- () { current=current->_previous_sibling; return *this; }
+
+        XmlIterator operator ++ (int);
+        XmlIterator operator -- (int);
+
+        XmlIterator operator + (int inc) const;
+        XmlIterator operator - (int dec) const;
+
+        XmlNode * current;
     };
 
     namespace
