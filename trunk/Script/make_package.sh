@@ -18,11 +18,7 @@ cp -v --parent COPYING.LESSER $pkg/ || exit 1
 make MODE=Debug || exit 1
 make MODE=Release || exit 1
 
-# Run non-regression test-suite for both modes
-for test in `find Build -name *_test`;
-do
-    $test || exit 1
-done
+for test in `find Build -name *_test`; do echo $test; $test || exit 1; done
 
 for m in */; do
     if [ -e $m/Include ]; then
@@ -32,27 +28,13 @@ for m in */; do
     fi
 done
 
-# Notice: No more libraries to copy
-#
-#rlibs=`find Build -type d -name Release`
-#cp -v `find $rlibs -name "*.so" -o -name "*.a"` $pkg/lib/release || exit 1
-#rlibs=`find Build -type d -name Debug`
-#cp -v `find $rlibs -name "*.so" -o -name "*.a"` $pkg/lib/debug || exit 1
-#for lib in $pkg/lib/release/*; do
-#    strip -s $lib
-#done
-
-
 cat > $pkg/readme.txt << END
 Coming from:
 http://ell.google.com/svn/trunk
-Complete documentation can be found at:
+Full documentation can be found at:
 http://code.google.com/p/ell/wiki/ReferenceManualEn
-To compile with the release library, please define ELL_DEBUG=0 or NDEBUG
-To compile with the debug library, please define ELL_DEBUG=1 or undefine NDEBUG
 Thanks for using libELL!
 END
-
 
 # Generate dev package
 rm -f   $pkg-dev.tar.bz2
