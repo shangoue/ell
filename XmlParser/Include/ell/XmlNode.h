@@ -27,6 +27,33 @@ namespace ell
 
     typedef std::map<std::string, std::string> XmlAttributesMap;
 
+    struct XmlNode;
+
+    /// Iterator through XmlNode children
+    /// Both normal and reverse iterator
+    /// (Warning: do not use first() or last() as exit condition!)
+    struct XmlIterator
+    {
+        explicit XmlIterator(XmlNode * pos = 0)
+          : current(pos)
+        { }
+
+        XmlNode * operator * () { return current; }
+        operator bool () const { return current != 0; }
+
+        XmlIterator & operator ++ ();
+        XmlIterator & operator -- ();
+
+        XmlIterator operator ++ (int);
+        XmlIterator operator -- (int);
+
+        XmlIterator operator + (int inc) const;
+        XmlIterator operator - (int dec) const;
+
+    private:
+        XmlNode * current;
+    };
+
     struct XmlNode
     {
         XmlNode(Parser<char> * _parser = 0, int _line = 0)
@@ -68,6 +95,8 @@ namespace ell
 
         template <typename T>
         XmlNode * set_attrib(const std::string & name, const T & value);
+
+        XmlNode * remove_attrib(const std::string & name);
         //@}
 
         /// Enquire about the existence of an attribute
@@ -120,6 +149,9 @@ namespace ell
         XmlNode * parent() const;
         //@}
 
+        XmlIterator first() { return XmlIterator(_first_child); }
+        XmlIterator last() { return XmlIterator(_last_child); }
+
         //@{
         /// Node insertion
         /// Return the address of the just-inserted node
@@ -152,10 +184,6 @@ namespace ell
         /// Tell the parser to raise a syntax error on the given node
         void raise_error(const std::string & msg) const { parser->raise_error(msg, line); }
 
-    private:
-        friend class XmlDomParser;
-        friend class XmlIterator;
-
         //@{
         /// Links to sibbling, children and parent nodes
         /// Null if does not exist
@@ -175,38 +203,15 @@ namespace ell
         XmlNode(const XmlNode &);
     };
 
-    /// Iterator through XmlNode children
-    struct XmlIterator
-    {
-        XmlIterator(XmlNode * node)
-          : current(node)
-        { }
-
-        XmlNode & operator * () { return * current; }
-        operator bool () const { return current != 0; }
-
-        XmlIterator & operator ++ () { current=current->_next_sibling; return *this; }
-        XmlIterator & operator -- () { current=current->_previous_sibling; return *this; }
-
-        XmlIterator operator ++ (int);
-        XmlIterator operator -- (int);
-
-        XmlIterator operator + (int inc) const;
-        XmlIterator operator - (int dec) const;
-
-    private:
-        XmlNode * current;
-    };
-
     /// XML DOM visitor
     struct XmlVisitor
     {
         void process(XmlNode * node)
         {
             enterNode(node);
-            for (XmlIterator i = node; i; ++i)
+            for (XmlIterator i = node->first(); i; ++i)
             {
-                process(&* i);
+                process(* i);
             }
             leaveNode(node);
         }
