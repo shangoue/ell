@@ -26,9 +26,9 @@ namespace ell
         const Node<Token> * get_child_at(int index) const
         {
             if (index == 0)
-                return & ((BinaryFlavour *) this)->left;
+                return & ((const BinaryFlavour *) this)->left;
             if (index == 1)
-                return & ((BinaryFlavour *) this)->right;
+                return & ((const BinaryFlavour *) this)->right;
             return 0;
         }
     };

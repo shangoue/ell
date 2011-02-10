@@ -13,11 +13,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <ell/XmlParser.h>
-
 namespace ell
 {
-    std::string XmlGrammar::protect(const std::string & cdata)
+    inline std::string XmlGrammar::protect(const std::string & cdata)
     {
         std::string protected_data;
         size_t pos = 0;
@@ -50,7 +48,7 @@ namespace ell
         return protected_data;
     }
 
-    XmlGrammar::XmlGrammar()
+    inline XmlGrammar::XmlGrammar()
     {
         document = no_look_ahead(+ ( element
                                    | comment
