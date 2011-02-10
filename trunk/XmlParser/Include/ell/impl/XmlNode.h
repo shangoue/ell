@@ -20,14 +20,22 @@
 
 namespace ell
 {
+    inline XmlNode * XmlNode::remove_attrib(const std::string & name)
+    {
+        XmlAttributesMap::iterator i = attributes.find(name);
+        if (i == attributes.end())
+            raise_error(describe() + ": no such attribute: " + name);
+        attributes.erase(i);
+        return this;
+    }
+
     inline const std::string XmlNode::get_attrib(const std::string & name) const
     {
         assert(is_element());
         XmlAttributesMap::const_iterator i = attributes.find(name);
-        if (i != attributes.end())
-            return i->second;
-        raise_error(describe() + ": no such attribute: " + name);
-        return NULL;
+        if (i == attributes.end())
+            raise_error(describe() + ": no such attribute: " + name);
+        return i->second;
     }
 
     inline XmlNode * XmlNode::set_attrib(const std::string & name, const std::string & value)
@@ -47,11 +55,11 @@ namespace ell
     inline XmlNode * XmlNode::check_attrib(const std::string & name, const std::string & value)
     {
         const std::string & val=get_attrib(name);
-        if (val == value) return this;
-        raise_error(describe() + ": " +
-                    name + "=\"" + val +
-                    "\", expecting \"" + value + "\"");
-        return NULL;
+        if (val != value)
+            raise_error(describe() + ": " +
+                        name + "=\"" + val +
+                        "\", expecting \"" + value + "\"");
+        return this;
     }
 
     inline XmlNode * XmlNode::check_attrib_present(const std::string & name)
@@ -81,10 +89,9 @@ namespace ell
 
     inline XmlNode * XmlNode::check_name(const std::string & n)
     {
-        if (n == get_name())
-            return this;
-        raise_error(describe() + ": expecting element " + n);
-        return NULL;
+        if (n != get_name())
+            raise_error(describe() + ": expecting element " + n);
+        return this;
     }
 
     inline const std::string & XmlNode::get_data() const
@@ -102,10 +109,9 @@ namespace ell
 
     inline XmlNode * XmlNode::check_data(const std::string & d)
     {
-        if (d == get_data())
-            return this;
-        raise_error(describe() + ": value \"" + data + "\", expecting \"" + d + "\"");
-        return NULL;
+        if (d != get_data())
+            raise_error(describe() + ": value \"" + data + "\", expecting \"" + d + "\"");
+        return this;
     }
 
     inline void XmlNode::dump(std::ostream & out, int indent, int shift) const
@@ -161,41 +167,37 @@ namespace ell
 
     inline XmlNode * XmlNode::next_sibling() const
     {
-        if (_next_sibling)
-            return _next_sibling;
-        raise_error(describe() + ": no next sibling");
-        return NULL;
+        if (! _next_sibling)
+            raise_error(describe() + ": no next sibling");
+        return _next_sibling;
     }
 
     inline XmlNode * XmlNode::previous_sibling() const
     {
-        if (_previous_sibling)
-            return _previous_sibling;
-        raise_error(describe() + ": no previous sibling");
-        return NULL;
+        if (! _previous_sibling)
+            raise_error(describe() + ": no previous sibling");
+        return _previous_sibling;
     }
 
     inline XmlNode * XmlNode::first_child() const
     {
-        if (_first_child)
-            return _first_child;
-        raise_error(describe() + ": no child");
-        return NULL;
+        if (! _first_child)
+            raise_error(describe() + ": no child");
+        return _first_child;
     }
 
     inline XmlNode * XmlNode::last_child() const
     {
-        if (_last_child)
-            return _last_child;
-        raise_error(describe() + ": no child");
-        return NULL;
+        if (! _last_child)
+            raise_error(describe() + ": no child");
+        return _last_child;
     }
 
     inline XmlNode * XmlNode::parent() const
     {
-        if (_parent) return _parent;
-        raise_error(describe() + ": no parent");
-        return NULL;
+        if (! _parent)
+            raise_error(describe() + ": no parent");
+        return _parent;
     }
 
     inline XmlNode * XmlNode::insert_sibling_node_before(XmlNode * p)
@@ -340,21 +342,33 @@ namespace ell
         }
     }
 
-    XmlIterator XmlIterator::operator ++ (int)
+    inline XmlIterator & XmlIterator::operator ++ ()
+    {
+        current=current->_next_sibling;
+        return *this;
+    }
+
+    inline XmlIterator & XmlIterator::operator -- ()
+    {
+        current=current->_previous_sibling;
+        return *this;
+    }
+
+    inline XmlIterator XmlIterator::operator ++ (int)
     {
         XmlIterator it(* this);
         ++(* this);
         return it;
     }
 
-    XmlIterator XmlIterator::operator -- (int)
+    inline XmlIterator XmlIterator::operator -- (int)
     {
         XmlIterator it(* this);
         --(* this);
         return it;
     }
 
-    XmlIterator XmlIterator::operator + (int inc) const
+    inline XmlIterator XmlIterator::operator + (int inc) const
     {
         XmlIterator it(*this);
         for (int i = 0; i < inc; i++)
@@ -362,7 +376,7 @@ namespace ell
         return it;
     }
 
-    XmlIterator XmlIterator::operator - (int dec) const
+    inline XmlIterator XmlIterator::operator - (int dec) const
     {
         XmlIterator it(*this);
         for (int i = 0; i < dec; i++)
