@@ -16,14 +16,11 @@
 #ifndef INCLUDED_ELL_IMPL_XMLNODE_H
 #define INCLUDED_ELL_IMPL_XMLNODE_H
 
-#include <ell/XmlNode.h>
-#include <ell/XmlParser.h>
-
 #include <cassert>
 
 namespace ell
 {
-    const std::string XmlNode::get_attrib(const std::string & name) const
+    inline const std::string XmlNode::get_attrib(const std::string & name) const
     {
         assert(is_element());
         XmlAttributesMap::const_iterator i = attributes.find(name);
@@ -33,21 +30,21 @@ namespace ell
         return NULL;
     }
 
-    XmlNode * XmlNode::set_attrib(const std::string & name, const std::string & value)
+    inline XmlNode * XmlNode::set_attrib(const std::string & name, const std::string & value)
     {
         assert(is_element());
         attributes[name] = value;
         return this;
     }
 
-    bool XmlNode::has_attrib(const std::string & name) const
+    inline bool XmlNode::has_attrib(const std::string & name) const
     {
         assert(is_element());
         XmlAttributesMap::const_iterator i = attributes.find(name);
         return i != attributes.end();
     }
 
-    XmlNode * XmlNode::check_attrib(const std::string & name, const std::string & value)
+    inline XmlNode * XmlNode::check_attrib(const std::string & name, const std::string & value)
     {
         const std::string & val=get_attrib(name);
         if (val == value) return this;
@@ -57,32 +54,32 @@ namespace ell
         return NULL;
     }
 
-    XmlNode * XmlNode::check_attrib_present(const std::string & name)
+    inline XmlNode * XmlNode::check_attrib_present(const std::string & name)
     {
         get_attrib(name);
         return this;
     }
 
-    const std::string & XmlNode::get_name() const
+    inline const std::string & XmlNode::get_name() const
     {
         assert(is_element());
         return name;
     }
 
-    XmlNode * XmlNode::get_name(std::string & n)
+    inline XmlNode * XmlNode::get_name(std::string & n)
     {
         n=get_name();
         return this;
     }
 
-    XmlNode * XmlNode::set_name(const std::string & n)
+    inline XmlNode * XmlNode::set_name(const std::string & n)
     {
         assert(data.empty());
         name=n;
         return this;
     }
 
-    XmlNode * XmlNode::check_name(const std::string & n)
+    inline XmlNode * XmlNode::check_name(const std::string & n)
     {
         if (n == get_name())
             return this;
@@ -90,20 +87,20 @@ namespace ell
         return NULL;
     }
 
-    const std::string & XmlNode::get_data() const
+    inline const std::string & XmlNode::get_data() const
     {
         assert(is_data());
         return data;
     }
 
-    XmlNode * XmlNode::set_data(const std::string & d)
+    inline XmlNode * XmlNode::set_data(const std::string & d)
     {
         assert(is_data());
         data=d;
         return this;
     }
 
-    XmlNode * XmlNode::check_data(const std::string & d)
+    inline XmlNode * XmlNode::check_data(const std::string & d)
     {
         if (d == get_data())
             return this;
@@ -111,7 +108,7 @@ namespace ell
         return NULL;
     }
 
-    void XmlNode::dump(std::ostream & out, int indent, int shift) const
+    inline void XmlNode::dump(std::ostream & out, int indent, int shift) const
     {
         std::string indent_str(indent * shift, ' ');
         out << indent_str << describe() << std::endl;
@@ -123,7 +120,7 @@ namespace ell
         }
     }
 
-    void XmlNode::unparse(std::ostream & out, int indent, int shift) const
+    inline void XmlNode::unparse(std::ostream & out, int indent, int shift) const
     {
         if (is_data())
         {
@@ -162,7 +159,7 @@ namespace ell
         }
     }
 
-    XmlNode * XmlNode::next_sibling() const
+    inline XmlNode * XmlNode::next_sibling() const
     {
         if (_next_sibling)
             return _next_sibling;
@@ -170,7 +167,7 @@ namespace ell
         return NULL;
     }
 
-    XmlNode * XmlNode::previous_sibling() const
+    inline XmlNode * XmlNode::previous_sibling() const
     {
         if (_previous_sibling)
             return _previous_sibling;
@@ -178,7 +175,7 @@ namespace ell
         return NULL;
     }
 
-    XmlNode * XmlNode::first_child() const
+    inline XmlNode * XmlNode::first_child() const
     {
         if (_first_child)
             return _first_child;
@@ -186,7 +183,7 @@ namespace ell
         return NULL;
     }
 
-    XmlNode * XmlNode::last_child() const
+    inline XmlNode * XmlNode::last_child() const
     {
         if (_last_child)
             return _last_child;
@@ -194,14 +191,14 @@ namespace ell
         return NULL;
     }
 
-    XmlNode * XmlNode::parent() const
+    inline XmlNode * XmlNode::parent() const
     {
         if (_parent) return _parent;
         raise_error(describe() + ": no parent");
         return NULL;
     }
 
-    XmlNode * XmlNode::insert_sibling_node_before(XmlNode * p)
+    inline XmlNode * XmlNode::insert_sibling_node_before(XmlNode * p)
     {
         p->_next_sibling=this;
         p->_previous_sibling=_previous_sibling;
@@ -214,7 +211,7 @@ namespace ell
         return p;
     }
 
-    XmlNode * XmlNode::insert_sibling_node_after(XmlNode * p)
+    inline XmlNode * XmlNode::insert_sibling_node_after(XmlNode * p)
     {
         p->_previous_sibling=this;
         p->_next_sibling=_next_sibling;
@@ -227,7 +224,7 @@ namespace ell
         return p;
     }
 
-    XmlNode * XmlNode::enqueue_child(XmlNode * p)
+    inline XmlNode * XmlNode::enqueue_child(XmlNode * p)
     {
         if (_last_child)
             _last_child->_next_sibling=p;
@@ -239,7 +236,32 @@ namespace ell
         return p;
     }
 
-    XmlNode::~XmlNode()
+    inline XmlNode * XmlNode::detach()
+    {
+        if (_previous_sibling)
+        {
+            _previous_sibling->_next_sibling = _next_sibling;
+        }
+        else if (_parent)
+        {
+            _parent->_first_child = _next_sibling;
+        }
+
+        if (_next_sibling)
+        {
+            _next_sibling->_previous_sibling = _previous_sibling;
+        }
+        else if (_parent)
+        {
+            _parent->_last_child = _previous_sibling;
+        }
+
+        _previous_sibling = _next_sibling = 0;
+        _parent = 0;
+        return this;
+    }
+
+    inline void XmlNode::delete_children()
     {
         XmlNode * sav_p, * p;
         for (p=_first_child; p; p=sav_p)
@@ -249,18 +271,27 @@ namespace ell
         }
     }
 
-    std::string XmlNode::describe() const
+    inline std::string XmlNode::describe() const
     {
         std::ostringstream oss;
-        oss << line << ": ";
+        if (line)
+            oss << line << ": ";
         if (is_element())
+        {
             oss << "Element `" << name << "`";
+            for (XmlAttributesMap::const_iterator io, i = attributes.begin();
+                i != attributes.end();
+                ++i)
+            {
+                oss << " " << i->first << "=" << i->second;
+            }
+        }
         else
             oss << "Data \"" + protect(data) + "\"";
         return oss.str();
     }
 
-    bool XmlNode::is_equal(const XmlNode & other) const
+    inline bool XmlNode::is_equal(const XmlNode & other) const
     {
         if (name != other.name ||
             data != other.data ||
@@ -291,6 +322,22 @@ namespace ell
         }
 
         return true;
+    }
+
+    inline void XmlNode::get_text(std::string & s) const
+    {
+        s.clear();
+        const char * sep = "";
+        for (XmlNode * p = _first_child;
+            p;
+            p = p->_next_sibling)
+        {
+            if (p->is_data())
+            {
+                s += sep + p->get_data();
+                sep = " ";
+            }
+        }
     }
 
     XmlIterator XmlIterator::operator ++ (int)

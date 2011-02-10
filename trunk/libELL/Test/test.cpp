@@ -262,6 +262,12 @@ struct LongestOpTest : ell::Grammar<char>, Test
     LongestOpTest() : Test("LongestOpTest")
     {
         {
+            ELL_NAME_RULE(r1) = str("toto") [& Parser::fail] | str("totot");
+            Parser p1(& r1);
+            check(p1, "totot", true, true);
+        }
+
+        {
             ELL_NAME_RULE(r1) = str("toto") [& Parser::fail] || str("totot");
             Parser p1(& r1);
             check(p1, "totot", true, true);
@@ -287,7 +293,8 @@ struct GenericIntegerTest : ell::Grammar<char>, Test
         check(p, "AF0", true, true);
         check(p, "0x0", false, false);
         check(p, "", false, true);
-        check(p, "1234", true, false);
+        check(p, "1234", false, false);
+        check(p, "123 4", true, false);
     };
 
     ell::Rule<char> root;
@@ -302,6 +309,7 @@ int main()
     NoConsumeTest();
     DirectRuleAssignTest();
     LongestOpTest();
+    GenericIntegerTest();
 
     printf("Everything is ok.\n");
     return 0;

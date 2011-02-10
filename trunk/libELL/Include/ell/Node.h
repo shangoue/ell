@@ -76,7 +76,7 @@ namespace ell
         bool parse(Parser<Token> * parser) const
         {
             Storage<void> s;
-            return ((ConcreteNode *) this)->parse(parser, s);
+            return ((const ConcreteNode *) this)->parse(parser, s);
         }
 
         bool parse(Parser<Token> * parser, Storage<std::basic_string<Token> > & s) const
@@ -155,95 +155,95 @@ namespace ell
     template <typename CP, typename V>
     Act<Token, CN, CP, V CP::*, V> ConcreteNodeBase<Token, CN>::operator [ ](V CP::*var) const
     {
-        return Act<Token, CN, CP, V CP::*, V>(* (CN *) this, var);
+        return Act<Token, CN, CP, V CP::*, V>(* (const CN *) this, var);
     }
 
     template <typename Token, typename CN>
     template <typename CP, typename R>
     Act<Token, CN, CP, R (CP::*)(), void> ConcreteNodeBase<Token, CN>::operator [ ](R (CP::*meth)()) const
     {
-        return Act<Token, CN, CP, R (CP::*)(), void>(* (CN *) this, meth);
+        return Act<Token, CN, CP, R (CP::*)(), void>(* (const CN *) this, meth);
     }
 
     template <typename Token, typename CN>
     template <typename CP, typename R, typename V>
     Act<Token, CN, CP, R (CP::*)(V), V> ConcreteNodeBase<Token, CN>::operator [ ](R (CP::*meth)(V)) const
     {
-        return Act<Token, CN, CP, R (CP::*)(V), V>(* (CN *) this, meth);
+        return Act<Token, CN, CP, R (CP::*)(V), V>(* (const CN *) this, meth);
     }
 
     template <typename Token, typename CN>
     template <typename CP, typename R, typename V>
     Act<Token, CN, CP, R (CP::*)(const V &), V> ConcreteNodeBase<Token, CN>::operator [ ](R (CP::*meth)(const V &)) const
     {
-        return Act<Token, CN, CP, R (CP::*)(const V &), V>(* (CN *) this, meth);
+        return Act<Token, CN, CP, R (CP::*)(const V &), V>(* (const CN *) this, meth);
     }
 
     template <typename Token, typename CN>
     Rp<Token, CN, 0, 1> ConcreteNodeBase<Token, CN>::operator ! () const
     {
-        return Rp<Token, CN, 0, 1>(* (CN *) this);
+        return Rp<Token, CN, 0, 1>(* (const CN *) this);
     }
 
     template <typename Token, typename CN>
     Rp<Token, CN, 1, -1> ConcreteNodeBase<Token, CN>::operator + () const
     {
-        return Rp<Token, CN, 1, -1>(* (CN *) this);
+        return Rp<Token, CN, 1, -1>(* (const CN *) this);
     }
 
     template <typename Token, typename CN>
     Rp<Token, CN, 0, -1> ConcreteNodeBase<Token, CN>::operator * () const
     {
-        return Rp<Token, CN, 0, -1>(* (CN *) this);
+        return Rp<Token, CN, 0, -1>(* (const CN *) this);
     }
 
     template <typename Token, typename CN>
     template <typename Right>
     Alt<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator | (const Right & r) const
     {
-        return Alt<Token, CN, Right>(* (CN *) this, r);
+        return Alt<Token, CN, Right>(* (const CN *) this, r);
     }
 
     template <typename Token, typename CN>
     template <typename Right>
     LAl<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator || (const Right & r) const
     {
-        return LAl<Token, CN, Right>(* (CN *) this, r);
+        return LAl<Token, CN, Right>(* (const CN *) this, r);
     }
 
     template <typename Token, typename CN>
     template <typename Right>
     Dif<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator - (const Right & r) const
     {
-        return Dif<Token, CN, Right>(* (CN *) this, r);
+        return Dif<Token, CN, Right>(* (const CN *) this, r);
     }
 
     template <typename Token, typename CN>
     template <typename Right>
     Agg<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator >> (const Right & r) const
     {
-        return Agg<Token, CN, Right>(* (CN *) this, r);
+        return Agg<Token, CN, Right>(* (const CN *) this, r);
     }
 
     template <typename Token, typename CN>
     template <typename Right>
     Lst<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator % (const Right & r) const
     {
-        return Lst<Token, CN, Right>(* (CN *) this, r);
+        return Lst<Token, CN, Right>(* (const CN *) this, r);
     }
 
     template <typename Token, typename CN>
     template <typename Right>
     BRp<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator * (const Right & r) const
     {
-        return BRp<Token, CN, Right>(* (CN *) this, r);
+        return BRp<Token, CN, Right>(* (const CN *) this, r);
     }
 
     template <typename Token, typename CN>
     template <typename Right>
     Asc<Token, CN, Right> ConcreteNodeBase<Token, CN>::operator & (const Right & r) const
     {
-        return Asc<Token, CN, Right>(* (CN *) this, r);
+        return Asc<Token, CN, Right>(* (const CN *) this, r);
     }
 }
 

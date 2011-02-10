@@ -13,11 +13,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <ell/XmlParser.h>
+
 #ifndef INCLUDED_ELL_XMLNODE_H
 #define INCLUDED_ELL_XMLNODE_H
 
 #include <map>
-#include <ell/Parser.h>
 
 namespace ell
 {
@@ -35,7 +36,7 @@ namespace ell
         { }
 
         /// Destruction with children nodes deletion
-        virtual ~XmlNode();
+        virtual ~XmlNode() { delete_children(); }
 
         //@{
         /// Kind of node enquirement
@@ -57,12 +58,16 @@ namespace ell
         XmlNode * check_attrib_present(const std::string & name);
         //@}
 
-        //@{
         /// Set output parameter 'value' only if attribute exists
         template <typename T>
         XmlNode * get_attrib_if_present(const std::string & name, T & value);
 
+        //@{
+        /// Set attribute value
         XmlNode * set_attrib(const std::string & name, const std::string & value);
+
+        template <typename T>
+        XmlNode * set_attrib(const std::string & name, const T & value);
         //@}
 
         /// Enquire about the existence of an attribute
@@ -86,6 +91,10 @@ namespace ell
         XmlNode * set_data(const std::string & data);
         XmlNode * check_data(const std::string & data);
         //@}
+
+        /// Concatenation of children data nodes,
+        /// raise error if not an element
+        void get_text(std::string & s) const;
 
         //@{
         /// Recursive write of resulting XML
@@ -116,8 +125,14 @@ namespace ell
         /// Return the address of the just-inserted node
         XmlNode * insert_sibling_node_before(XmlNode *);
         XmlNode * insert_sibling_node_after(XmlNode *);
-        XmlNode * enqueue_child(XmlNode *);
+        XmlNode * enqueue_child(XmlNode * node = new XmlNode);
         //@}
+
+        /// Remove this node from the DOM and transfer the ownership to caller
+        XmlNode * detach();
+
+        /// Delete all children of this node
+        void delete_children();
 
         /// Attribute map
         XmlAttributesMap attributes;
@@ -128,7 +143,7 @@ namespace ell
         /// Text of the node if this is a data node
         std::string data;
 
-        /// Textual representation of the tree startin at this node
+        /// Textual representation of the tree starting at this node
         std::string describe() const;
 
         /// Nodes recursive comparison
@@ -179,7 +194,44 @@ namespace ell
         XmlIterator operator + (int inc) const;
         XmlIterator operator - (int dec) const;
 
+    private:
         XmlNode * current;
+    };
+
+    /// XML DOM visitor
+    struct XmlVisitor
+    {
+        void process(XmlNode * node)
+        {
+            enterNode(node);
+            for (XmlIterator i = node; i; ++i)
+            {
+                process(&* i);
+            }
+            leaveNode(node);
+        }
+
+        virtual void enterNode(XmlNode *) { }
+        virtual void leaveNode(XmlNode *) { }
+    };
+
+    /// XML DOM visitor using callback
+    template <typename T>
+    struct XmlCallbackVisitor : public XmlVisitor
+    {
+        typedef void (T::*Callback)(XmlNode *); 
+
+        XmlCallbackVisitor(T * caller, Callback enter_callback = 0, Callback leave_callback = 0)
+          : caller(caller),
+            ec(enter_callback),
+            lc(leave_callback)
+        { }
+
+        virtual void enterNode(XmlNode * n) { if (ec) (caller->*ec)(n); }
+        virtual void leaveNode(XmlNode * n) { if (lc) (caller->*lc)(n); }
+
+        T * caller;
+        Callback ec, lc;
     };
 
     namespace
@@ -218,6 +270,30 @@ namespace ell
     XmlNode * XmlNode::get_attrib_if_present(const std::string & name, T & value)
     {
         if (has_attrib(name)) _get_attrib(* this, name, value);
+        return this;
+    }
+
+    namespace
+    {
+        template <typename T>
+        void _set_attrib(XmlNode & n, const std::string & name, const T & value)
+        {
+            std::ostringstream oss;
+            oss << value;
+            n.set_attrib(name, oss.str());
+        }
+
+        template <>
+        void _set_attrib<std::string>(XmlNode & n, const std::string & name, const std::string & value)
+        {
+            n.set_attrib(name, value);
+        }
+    }
+
+    template <typename T>
+    XmlNode * XmlNode::set_attrib(const std::string & name, const T & value)
+    {
+        _set_attrib<T>(* this, name, value);
         return this;
     }
 
