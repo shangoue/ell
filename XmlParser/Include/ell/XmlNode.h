@@ -182,7 +182,11 @@ namespace ell
         bool is_equal(const XmlNode & other) const;
 
         /// Tell the parser to raise a syntax error on the given node
-        void raise_error(const std::string & msg) const { parser->raise_error(msg, line); }
+        void raise_error(const std::string & msg) const
+        {
+            parser->line_number = line;
+            parser->raise_error(msg);
+        }
 
         //@{
         /// Links to sibbling, children and parent nodes

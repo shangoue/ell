@@ -94,10 +94,10 @@ namespace ell
         void on_end_double(const std::string & name)
         {
             if (elements.empty())
-                raise_error("Unexpected end of element `" + name + "`", line_number);
+                raise_error("Unexpected end of element `" + name + "`");
             const std::string & last = elements.top();
             if (name != last)
-                raise_error("End of element `" + last + "` expected instead of `" + name + "`", line_number);
+                raise_error("End of element `" + last + "` expected instead of `" + name + "`");
 
             on_end_element(name);
             elements.pop();
@@ -112,7 +112,7 @@ namespace ell
         void on_end_of_file()
         {
             if (not elements.empty())
-                raise_error("Unclosed element: `" + elements.top() + "`", line_number);
+                raise_error("Unclosed element: `" + elements.top() + "`");
         }
 
         void push_amp() { cdata += '&'; }
