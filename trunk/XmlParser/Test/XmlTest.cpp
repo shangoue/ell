@@ -169,7 +169,7 @@ void nonreg()
             p.parse("<racine><hello/><you />hi<How do=\"you\">do</How></racine>");
             for (XmlIterator i=p.get_root()->first(); i; ++i)
             {
-                std::cout << * i;
+                std::cout << ** i;
             }
         }
     }

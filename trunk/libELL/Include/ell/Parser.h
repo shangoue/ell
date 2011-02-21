@@ -158,15 +158,6 @@ namespace ell
             ParserBase<Char>::parse();
         }
 
-        void raise_error(const std::string & msg, int line_number) const
-        {
-            std::ostringstream oss;
-            if (line_number)
-                oss << line_number << ": ";
-            oss << "before " << dump_position() << ": " << msg << std::endl;
-            throw std::runtime_error(oss.str());
-        }
-
         std::string dump_position() const
         {
             return ell::dump_position(position);
@@ -174,7 +165,11 @@ namespace ell
 
         /* overriden */ void raise_error(const std::string & msg) const
         {
-            raise_error(msg, line_number);
+            std::ostringstream oss;
+            if (line_number)
+                oss << line_number << ": ";
+            oss << "before " << dump_position() << ": " << msg << std::endl;
+            throw std::runtime_error(oss.str());
         }
 
         struct Context
