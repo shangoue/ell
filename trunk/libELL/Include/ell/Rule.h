@@ -28,7 +28,7 @@ namespace ell
         using ConcreteNodeBase<Token, Rule<Token> >::parse;
 
         Rule()
-          : top(0)
+          : top(0), must_delete(false)
         {
             // Default unique name to avoid infinite recursion in dump
             std::ostringstream oss;
@@ -43,19 +43,38 @@ namespace ell
                 std::string msg = "Rule `" + name + "` not used";
                 throw std::runtime_error(msg.c_str());
             }
+            else
+            {
+                free();
+            }
+        }
+
+        void free()
+        {
+            if (top && must_delete)
+            {
+                delete top;
+            }
+            top = 0;
+            must_delete = false;
         }
 
         template <typename N>
         void operator = (const N & n)
         {
+            free();
+
             if (n.get_kind() == "rule")
+            {
                 top = & n;
+            }
             else
+            {
                 top = new N(n);
+                must_delete = true;
+            }
         }
 
-        // It seems that the default assignment operator is used instead of the
-        // template version above without this:
         const Rule & operator = (const Rule & r)
         {
             top = & r;
@@ -96,6 +115,7 @@ namespace ell
 
         const Node<Token> * top;
         std::string name;
+        bool must_delete;
     };
 }
 
