@@ -40,7 +40,7 @@ namespace ell
                     {
                         parser->next();
                     }
-                    while (parser->get() == ' ' or parser->get() == '\t');
+                    while ((parser->get() == ' ') | (parser->get() == '\t'));
                 }
                 return r;
             }

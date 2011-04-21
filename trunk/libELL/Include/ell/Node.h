@@ -87,6 +87,14 @@ namespace ell
             return match;
         }
 
+        bool parse(Parser<Token> * parser, Storage<ell::basic_string<Token> > & s) const
+        {
+            s.value.position = parser->position;
+            bool match = parse(parser);
+            s.value.size = parser->position - s.value.position;
+            return match;
+        }
+
         bool parse(Parser<Token> * parser, Storage<const Token *> & s) const
         {
             s.value = & * parser->position;
