@@ -63,6 +63,17 @@ namespace ell
     template <typename Token>
     struct basic_string
     {
+        basic_string()
+        { }
+
+        basic_string(const char * position, size_t size)
+          : position(position), size(size)
+        { }
+
+        basic_string(const char * position)
+          : position(position), size(strlen(position))
+        { }
+
         friend inline std::string operator + (const ell::basic_string<Token> & l, const std::basic_string<Token> & r)
         {
             return std::string(l.position, l.size) + r;
