@@ -300,6 +300,39 @@ struct GenericIntegerTest : ell::Grammar<char>, Test
     ell::Rule<char> root;
 };
 
+struct StringTest : ell::Grammar<char>, ell::Parser<char>, Test
+{
+    StringTest()
+    : ell::Parser<char>(&root,&blank), Test("StringText")
+    {
+        root = * ident[&StringTest::act];
+
+        check(* this, "hello helloyou hell a bouc aa hey", true, true);
+
+        std::string s;
+        for(std::set<ell::string>::iterator i = v.begin(); i != v.end(); ++i)
+        {
+            s += * i;
+            s += " ";
+        }
+
+        if (s != "a aa bouc hell hello helloyou hey ")
+        {
+            printf("Unexpected order\n");
+            exit(1);
+        }
+    }
+
+    void act(const ell::string & s)
+    {
+        v.insert(s);
+    }
+
+    std::set<ell::string> v;
+    ell::Rule<char> root;
+
+};
+
 int main()
 {
     ListTest();
@@ -310,6 +343,7 @@ int main()
     DirectRuleAssignTest();
     LongestOpTest();
     GenericIntegerTest();
+    StringTest();
 
     printf("Everything is ok.\n");
     return 0;
