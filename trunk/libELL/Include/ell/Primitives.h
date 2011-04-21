@@ -358,7 +358,6 @@ namespace ell
         {
             ELL_BEGIN_PARSE
             wchar_t c = parser->get();
-            asm("int3");
             if (((c >= 'a') & (c <= 'z')) |
                 ((c >= 'A') & (c <= 'Z')))
             {

@@ -73,6 +73,11 @@ namespace ell
             return l + std::string(r.position, r.size);
         }
 
+        friend inline std::string operator += (std::basic_string<Token> & l, const ell::basic_string<Token> & r)
+        {
+            return l.append(r.position, r.size);
+        }
+
         bool operator != (const basic_string<Token> & other) const
         {
             return (size != other.size) || memcmp(position, other.position, size) != 0;
@@ -81,6 +86,14 @@ namespace ell
         bool operator == (const basic_string<Token> & other) const
         {
             return (size == other.size) && memcmp(position, other.position, size) == 0;
+        }
+
+        bool operator < (const basic_string<Token> & other) const
+        {
+            int r = memcmp(position, other.position, std::min(size, other.size));
+            if (r == 0)
+                return size < other.size;
+            return r < 0;
         }
 
         const Token * position;
