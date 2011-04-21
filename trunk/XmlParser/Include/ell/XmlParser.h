@@ -96,10 +96,10 @@ namespace ell
         void on_end_double(const ell::string & name)
         {
             if (elements.empty())
-                raise_error("Unexpected end of element `" + name + "`");
+                raise_error("Unexpected end of element `" + name + "`", line_number);
             const ell::string & last = elements.top();
             if (name != last)
-                raise_error("End of element `" + last + "` expected instead of `" + name + "`");
+                raise_error("End of element `" + last + "` expected instead of `" + name + "`", line_number);
 
             on_end_element(name);
             elements.pop();
@@ -114,7 +114,7 @@ namespace ell
         void on_end_of_file()
         {
             if (not elements.empty())
-                raise_error("Unclosed element: `" + elements.top() + "`");
+                raise_error("Unclosed element: `" + elements.top() + "`", line_number);
         }
 
         void push_amp() { cdata += '&'; }
@@ -145,6 +145,11 @@ namespace ell
         /// Document node is not the XML root element
         /// It could also contain DOCTYPE, etc.
         XmlNode * get_root() { return document.first_child(); }
+
+        void write(std::ostream & os)
+        {
+            os << "<?xml version=\"1.0\"?>\n" << * get_root();
+        }
 
         XmlNode document;
         XmlNode * current;
