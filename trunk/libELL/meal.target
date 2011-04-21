@@ -3,6 +3,5 @@ TARGET = meal
 TARGET_FILES = libELL/Test/MealParser.cpp
 CFLAGS += -IlibELL/Include
 LDFLAGS += -lstdc++
-PCH = CommonHeaders.h
 
 include Script/target.mk
