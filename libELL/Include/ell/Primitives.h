@@ -359,7 +359,8 @@ namespace ell
             ELL_BEGIN_PARSE
             wchar_t c = parser->get();
             if (((c >= 'a') & (c <= 'z')) |
-                ((c >= 'A') & (c <= 'Z')))
+                ((c >= 'A') & (c <= 'Z')) |
+                (c == '_'))
             {
                 match = true;
                 do
@@ -369,7 +370,8 @@ namespace ell
                 }
                 while (((c >= 'a') & (c <= 'z')) |
                        ((c >= 'A') & (c <= 'Z')) |
-                       ((c >= '0') & (c <= '9')));
+                       ((c >= '0') & (c <= '9')) |
+                       (c == '_'));
             }
             ELL_END_PARSE
         }
