@@ -4,6 +4,4 @@ TARGET_FILES = XmlParser/Test/DumpTest.cpp
 CFLAGS = -IXmlParser/Include -IlibELL/Include
 LDFLAGS = -lstdc++
 
-PCH = CommonHeaders.h
-
 include Script/target.mk
