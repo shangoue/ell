@@ -202,6 +202,7 @@ int main(int argc, const char ** argv)
 
     XmlGrammar g;
     XmlDomParser p(g);
+    ELL_ENABLE_DUMP(p);
 
     DUMP("Parse %s", argv[1]);
 

@@ -23,8 +23,8 @@
 #include <algorithm>
 
 #include <wchar.h>
-#include <iso646.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef ELL_DEBUG
 # ifdef NDEBUG
@@ -35,8 +35,8 @@
 #endif
 
 #define ELL_DUMP_NODES        1
-#define ELL_DUMP_ACTIONS      0
-#define ELL_DUMP_SKIPPER      0
+#define ELL_DUMP_ACTIONS      1
+#define ELL_DUMP_SKIPPER      1
 
 # define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
 # define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;
@@ -45,6 +45,7 @@
     ELL_FLAG(look_ahead, LkA) \
     ELL_FLAG(action, Act)     \
     ELL_FLAG(skip, Skp)       \
+    ELL_FLAG(debug, Dbg)      \
 
 #if ELL_DEBUG == 1
 #define ELL_DUMP(arg) do { if (flags.debug) std::cout << arg << std::endl; } while (0)
@@ -58,6 +59,36 @@
 
 namespace ell
 {
+    /// std::basic_string replacement for allocation-free parsers
+    template <typename Token>
+    struct basic_string
+    {
+        friend inline std::string operator + (const ell::basic_string<Token> & l, const std::basic_string<Token> & r)
+        {
+            return std::string(l.position, l.size) + r;
+        }
+
+        friend inline std::string operator + (const std::basic_string<Token> & l, const ell::basic_string<Token> & r)
+        {
+            return l + std::string(r.position, r.size);
+        }
+
+        bool operator != (const basic_string<Token> & other) const
+        {
+            return (size != other.size) || memcmp(position, other.position, size) != 0;
+        }
+
+        bool operator == (const basic_string<Token> & other) const
+        {
+            return (size == other.size) && memcmp(position, other.position, size) == 0;
+        }
+
+        const Token * position;
+        size_t size;
+    };
+
+    typedef basic_string<char> string;
+
     /// Exception-safe temporary modification
     template <typename T = bool>
     struct SafeModify
@@ -82,11 +113,11 @@ namespace ell
 
         if (c == 0)
             oss << "\\0";
-        else if (c >= '\a' and c <= '\r')
+        else if ((c >= '\a') & (c <= '\r'))
             oss << '\\' << "abtnvfr"[c - '\a'];
         else if ((c == '\'') | (c == '"') | (c == '\\'))
             oss << '\\' << (char) c;
-        else if ((c > 0 and c < ' ') or (c & 0xFFFFFF80))
+        else if (((c > 0) & (c < ' ')) | ((c & 0xFFFFFF80) != 0))
             oss << "\\<" << std::hex << c << ">";
         else
             oss << (char) c;
@@ -125,7 +156,7 @@ namespace ell
     {
         std::string s = "\"";
         const Char * p = position;
-        while (* p and p - position < 31)
+        while (* p && p - position < 31)
         {
             s += protect_char(* p);
             ++p;

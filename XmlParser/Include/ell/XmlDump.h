@@ -80,7 +80,7 @@ namespace ell
             XmlNode * parent = current;
             current = parent->enqueue_child(new XmlNode);
 
-            if (kind == "rule" and value.size())
+            if (kind == "rule" && value.size())
             {
                 current->name = "subrule";
                 current->set_attrib("name", value);

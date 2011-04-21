@@ -75,8 +75,8 @@ namespace ell
         {
             alpha = chset("a-zA-Z_");
             alnum = chset("a-zA-Z0-9_");
-            blank = chset(" \t\n\r");
-            ident = lexeme(alpha >> * alnum);
+            blank = chset(" \t\n\r\t\v");
+            space = chset(" \t\r\t\v"); 
             digit = range<(Token) '0', (Token) '9'>();
             upper = range<(Token) 'A', (Token) 'Z'>();
             lower = range<(Token) 'a', (Token) 'z'>();
@@ -85,14 +85,16 @@ namespace ell
             alpha.set_name("alphabetic char");
             alnum.set_name("alphanumeric char or underscore");
             blank.set_name("blank char");
-            ident.set_name("identifier");
+            space.set_name("white space");
             digit.set_name("digit");
             upper.set_name("upper case letter");
             lower.set_name("lower case letter");
             visible_ascii.set_name("visible ASCII char");
         }
 
-        Rule<Token> alpha, alnum, blank, ident, digit, upper, lower, visible_ascii;
+        Rule<Token> alpha, alnum, blank, space, digit, upper, lower, visible_ascii;
+
+        Idt<Token>                          ident;                           
 
         UTF8NonASCII                        utf8nonascii;
 

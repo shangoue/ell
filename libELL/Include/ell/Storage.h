@@ -22,7 +22,8 @@
 
 namespace ell
 {
-    /// Storage class is used to propage output data of matched values through parse calls.
+    /// Storage class is used to propagate output data of matched values
+    /// through recursive 'parse' calls.
     template <typename T>
     struct Storage
     {

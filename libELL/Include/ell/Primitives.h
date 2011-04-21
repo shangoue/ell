@@ -130,7 +130,7 @@ namespace ell
                 {
                     const wchar_t second = * (p + 1);
 
-                    if (c >= first && c <= second)
+                    if ((c >= first) & (c <= second))
                     {
                         parser->next();
                         match = true;
@@ -247,9 +247,9 @@ namespace ell
                 const wchar_t c = * p;
                 const wchar_t gc = parser->get();
 
-                if (c == gc
-                    or (c >= 'A' and c <= 'Z' and c + 32 == gc)
-                    or (c >= 'a' and c <= 'z' and c - 32 == gc))
+                if ((c == gc) |
+                    ((c >= 'A') & (c <= 'Z') & (c + 32 == gc)) |
+                    ((c >= 'a') & (c <= 'z') & (c - 32 == gc)) )
                 {
                     parser->next();
                     ++p;
@@ -306,6 +306,7 @@ namespace ell
         std::basic_string<Token> str;
     };
 
+    /// Keywords
     template <typename Token>
     struct Kw : public ConcreteNodeBase<Token, Kw<Token> >
     {
@@ -326,6 +327,7 @@ namespace ell
         NSx<Token, Str<Token>, ChS<Token> > decorated;
     };
 
+    /// Case-insensitive keywords
     template <typename Token>
     struct IKw : public ConcreteNodeBase<Token, IKw<Token> >
     {
@@ -344,6 +346,37 @@ namespace ell
         std::string get_kind() const { return "ignore-case-keyword"; }
 
         NSx<Token, IStr<Token>, ChS<Token> > decorated;
+    };
+
+    /// C-like identifiers
+    template <typename Token>
+    struct Idt : public ConcreteNodeBase<Token, Idt<Token> >
+    {
+        using ConcreteNodeBase<Token, Idt<Token> >::parse;
+
+        bool parse(Parser<Token> * parser, Storage<void> & v) const
+        {
+            ELL_BEGIN_PARSE
+            wchar_t c = parser->get();
+            asm("int3");
+            if (((c >= 'a') & (c <= 'z')) |
+                ((c >= 'A') & (c <= 'Z')))
+            {
+                match = true;
+                do
+                {
+                  parser->next();
+                  c = parser->get();
+                }
+                while (((c >= 'a') & (c <= 'z')) |
+                       ((c >= 'A') & (c <= 'Z')) |
+                       ((c >= '0') & (c <= '9')));
+            }
+            ELL_END_PARSE
+        }
+
+        std::string get_kind() const { return "identifier"; }
+        std::string get_value() const { return "identifier"; }
     };
 
     /// Only for byte strings...

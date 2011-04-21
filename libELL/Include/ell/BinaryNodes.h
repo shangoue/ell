@@ -41,7 +41,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            match = left.parse(parser, s) or right.parse(parser, s);
+            match = left.parse(parser, s) || right.parse(parser, s);
             ELL_END_PARSE
         }
     };
@@ -83,7 +83,7 @@ namespace ell
               sav_pos.restore(parser);
             }
 
-            if (left_s != 0 or right_s != 0)
+            if ((left_s != 0) | (right_s != 0))
             {
                 // Reparse the right one with actions
                 if (left_s >= right_s)
@@ -277,7 +277,7 @@ namespace ell
             while (1)
             {
                 match = right.parse(parser);
-                if (match or not left.parse(parser, se))
+                if (match || not left.parse(parser, se))
                     break;
                 s.enqueue(se);
                 parser->skip();
@@ -308,7 +308,7 @@ namespace ell
             SafeModify<> m1(parser->flags.look_ahead, true);
             typename Parser<Token>::Context sav_pos(parser);
             match = left.parse(parser, s);
-            if (match and right.parse(parser))
+            if (match && right.parse(parser))
             {
                 sav_pos.restore(parser);
                 match = false;

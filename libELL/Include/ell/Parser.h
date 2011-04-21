@@ -72,12 +72,13 @@ namespace ell
         {
             Flags()
 #           if ELL_DEBUG == 1
-              : debug(false) , level(0)
+              : level(0)
 #           endif
             {
 #               define ELL_FLAG(FLAG, N) FLAG = true;
                 ELL_PARSER_FLAGS
 #               undef ELL_FLAG
+                debug = false;
             }
 
 #           define ELL_FLAG(FLAG, N) bool FLAG;
@@ -85,7 +86,6 @@ namespace ell
 #           undef ELL_FLAG
 
 #           if ELL_DEBUG == 1
-            bool debug;
             int level;
 #           endif
         };
@@ -158,6 +158,15 @@ namespace ell
             ParserBase<Char>::parse();
         }
 
+        void raise_error(const std::string & msg, int line_number) const
+        {
+            std::ostringstream oss;
+            if (line_number)
+                oss << line_number << ": ";
+            oss << "before " << dump_position() << ": " << msg << std::endl;
+            throw std::runtime_error(oss.str());
+        }
+
         std::string dump_position() const
         {
             return ell::dump_position(position);
@@ -165,11 +174,7 @@ namespace ell
 
         /* overriden */ void raise_error(const std::string & msg) const
         {
-            std::ostringstream oss;
-            if (line_number)
-                oss << line_number << ": ";
-            oss << "before " << dump_position() << ": " << msg << std::endl;
-            throw std::runtime_error(oss.str());
+            raise_error(msg, line_number);
         }
 
         struct Context

@@ -50,10 +50,10 @@ namespace ell
 
     inline XmlGrammar::XmlGrammar()
     {
-        document = no_look_ahead(+ ( element
-                                   | comment
-                                   | pi
-                                   | data ) >> end [& XmlParser::on_end_of_file]);
+        document = + ( element
+                     | comment
+                     | pi
+                     | data ) >> end [& XmlParser::on_end_of_file];
 
         element = str("</") >> ident [& XmlParser::on_end_double] >> ch('>') |
                   lexeme(ch('<') >> ident [& XmlParser::element_name])

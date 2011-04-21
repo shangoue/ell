@@ -59,13 +59,15 @@ namespace ell
 
         XmlParser(XmlGrammar & grammar)
           : Parser<char>(& grammar.document, & grammar.blank)
-        { }
+        { 
+            flags.look_ahead = false;
+        }
 
         //@{
         /// SAX API
-        virtual void on_start_element(const std::string & name, const XmlAttributesMap & attrs) = 0;
-        virtual void on_end_element(const std::string & name) = 0;
-        virtual void on_data(const std::string & data) = 0;
+        virtual void on_start_element(const ell::string & name, const XmlAttributesMap & attrs) = 0;
+        virtual void on_end_element(const ell::string & name) = 0;
+        virtual void on_data(std::string & data) = 0;
         //@}
 
     private:
@@ -91,11 +93,11 @@ namespace ell
             on_end_element(element_name);
         }
 
-        void on_end_double(const std::string & name)
+        void on_end_double(const ell::string & name)
         {
             if (elements.empty())
                 raise_error("Unexpected end of element `" + name + "`");
-            const std::string & last = elements.top();
+            const ell::string & last = elements.top();
             if (name != last)
                 raise_error("End of element `" + last + "` expected instead of `" + name + "`");
 
@@ -105,7 +107,7 @@ namespace ell
 
         void on_attribute()
         {
-            attributes[attribute_name] = cdata;
+            attributes[std::string(attribute_name.position, attribute_name.size)].swap(cdata);
             cdata.clear();
         }
 
@@ -121,12 +123,12 @@ namespace ell
         void push_lt() { cdata += '<'; }
         void push_gt() { cdata += '>'; }
 
-        void push_string(const std::string & s) { cdata += s; }
+        void push_string(const ell::string & s) { cdata.append(s.position, s.size); }
 
         XmlAttributesMap attributes;
-        std::stack<std::string> elements;
-        std::string element_name;
-        std::string attribute_name;
+        std::stack<ell::string> elements;
+        ell::string element_name;
+        ell::string attribute_name;
         std::string cdata;
     };
 
@@ -147,21 +149,21 @@ namespace ell
         XmlNode document;
         XmlNode * current;
 
-        void on_data(const std::string & data)
+        void on_data(std::string & data)
         {
             ELL_DUMP("Enqueue data `" + data + '`');
-            current->enqueue_child(new XmlNode(this, line_number))->data = data;
+            current->enqueue_child(new XmlNode(this, line_number))->data.swap(data);
         }
 
-        void on_start_element(const std::string & name, const XmlAttributesMap & attrs)
+        void on_start_element(const ell::string & name, const XmlAttributesMap & attrs)
         {
             ELL_DUMP("Enqueue element `" + name + '`');
             current = current->enqueue_child(new XmlNode(this, line_number));
-            current->name = name;
+            current->name.assign(name.position, name.size);
             current->attributes = attrs;
         }
 
-        void on_end_element(const std::string &)
+        void on_end_element(const ell::string &)
         {
             current = current->parent();
         }

@@ -54,6 +54,7 @@ else
 COMPILER = LANG=C g++
 CFLAGS += -Wall -pipe -Wno-parentheses
 CFLAGS += -Woverloaded-virtual
+CFLAGS += -Werror
 endif
 
 CFLAGS += $(if $(PCH),-include $(PCH))
