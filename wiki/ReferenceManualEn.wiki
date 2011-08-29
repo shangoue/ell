@@ -129,7 +129,8 @@ Ell library provides a set of predefined primitives:
 
 || Primitive || Meaning ||
 || end                  || matches the end of the input ||
-|| eps                  || always matches, never consumes ||
+|| eps                  || epsilon: always matches, never consumes ||
+|| nop                  || no-operation: never matches ||
 || any                  || matches any input token (eos excepted) ||
 || ch(token)            || matches the given token ||
 || str(s)               || matches a string of input tokens ||
