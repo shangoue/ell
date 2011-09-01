@@ -220,9 +220,15 @@ In addition to primitives and operators, you can use the following methods in yo
 || `look_ahead(rule)` || Allow parser step back when searching for the first matching branch along `rule` ||
 || `no_look_ahead(rule)` || Issue an error when the right operand of an aggregation operataor mismatch, ie. walk along the grammar in a LL(1) manner ||
 || `no_action(rule)` || Disable all semantic actions (inhibate operator[]) ||
+|| `action(rule)` || Enable all semantic actions ||
 || `no_consume(rule)` || Restore the position of the parser in the input token list after having parse along `rule` ||
+|| `no_skip(rule)` || Disable skipper ||
+|| `skip(rule)` || Enable skipper ||
+|| `no_debug(rule)` || Disable debug mode ||
+|| `debug(rule)` || Enable debug mode ||
 || `no_suffix(a, b)` || equivalent to `lexeme(a >> (eps - b))` ||
 || `lexeme(rule)` || Defines a new primitive by disabling skipper and allowing look-ahead inside `rule` ||
+
 
 == How to write your grammars ==
 
