@@ -91,6 +91,8 @@ namespace ell
             return '"' + value + '"';
         else if (kind == "ignore-case-string")
             return "icase(\"" + value + "\")";
+        else if (kind == "keyword" || kind == "ignore-case-keyword")
+            return "'" + value + "' keyword";
 
         return kind;
     }
