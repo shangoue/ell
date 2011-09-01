@@ -107,7 +107,7 @@ namespace ell
 
         void on_attribute()
         {
-            attributes[std::string(attribute_name.position, attribute_name.size)].swap(cdata);
+            attributes[std::string(attribute_name.position, attribute_name.size())].swap(cdata);
             cdata.clear();
         }
 
@@ -123,7 +123,7 @@ namespace ell
         void push_lt() { cdata += '<'; }
         void push_gt() { cdata += '>'; }
 
-        void push_string(const ell::string & s) { cdata.append(s.position, s.size); }
+        void push_string(const ell::string & s) { cdata.append(s.position, s.size()); }
 
         XmlAttributesMap attributes;
         std::stack<ell::string> elements;
@@ -164,7 +164,7 @@ namespace ell
         {
             ELL_DUMP("Enqueue element `" + name + '`');
             current = current->enqueue_child(new XmlNode(this, line_number));
-            current->name.assign(name.position, name.size);
+            current->name.assign(name.position, name.size());
             current->attributes = attrs;
         }
 
