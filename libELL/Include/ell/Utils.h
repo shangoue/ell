@@ -34,9 +34,9 @@
 # endif
 #endif
 
-#define ELL_DUMP_NODES        1
-#define ELL_DUMP_ACTIONS      1
-#define ELL_DUMP_SKIPPER      1
+#define ELL_DUMP_NODES        0
+#define ELL_DUMP_ACTIONS      0
+#define ELL_DUMP_SKIPPER      0
 
 # define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
 # define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;
@@ -106,6 +106,8 @@ namespace ell
                 return size < other.size;
             return r < 0;
         }
+
+        std::string str() const { return std::string(position, size); }
 
         const Token * position;
         size_t size;

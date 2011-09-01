@@ -354,7 +354,7 @@ namespace ell
     {
         using ConcreteNodeBase<Token, Idt<Token> >::parse;
 
-        bool parse(Parser<Token> * parser, Storage<void> & v) const
+        bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             wchar_t c = parser->get();
