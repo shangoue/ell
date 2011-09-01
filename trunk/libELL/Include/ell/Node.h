@@ -91,7 +91,7 @@ namespace ell
         {
             s.value.position = parser->position;
             bool match = parse(parser);
-            s.value.size = parser->position - s.value.position;
+            s.value.size_ = parser->position - s.value.position;
             return match;
         }
 

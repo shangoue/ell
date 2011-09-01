@@ -67,50 +67,54 @@ namespace ell
         { }
 
         basic_string(const char * position, size_t size)
-          : position(position), size(size)
+          : position(position), size_(size)
         { }
 
         basic_string(const char * position)
-          : position(position), size(strlen(position))
+          : position(position), size_(strlen(position))
         { }
 
         friend inline std::string operator + (const ell::basic_string<Token> & l, const std::basic_string<Token> & r)
         {
-            return std::string(l.position, l.size) + r;
+            return std::string(l.position, l.size_) + r;
         }
 
         friend inline std::string operator + (const std::basic_string<Token> & l, const ell::basic_string<Token> & r)
         {
-            return l + std::string(r.position, r.size);
+            return l + std::string(r.position, r.size_);
         }
 
         friend inline std::string operator += (std::basic_string<Token> & l, const ell::basic_string<Token> & r)
         {
-            return l.append(r.position, r.size);
+            return l.append(r.position, r.size_);
         }
 
         bool operator != (const basic_string<Token> & other) const
         {
-            return (size != other.size) || memcmp(position, other.position, size) != 0;
+            return (size_ != other.size_) || memcmp(position, other.position, size_) != 0;
         }
 
         bool operator == (const basic_string<Token> & other) const
         {
-            return (size == other.size) && memcmp(position, other.position, size) == 0;
+            return (size_ == other.size_) && memcmp(position, other.position, size_) == 0;
         }
 
         bool operator < (const basic_string<Token> & other) const
         {
-            int r = memcmp(position, other.position, std::min(size, other.size));
+            int r = memcmp(position, other.position, std::min(size_, other.size_));
             if (r == 0)
-                return size < other.size;
+                return size_ < other.size_;
             return r < 0;
         }
 
-        std::string str() const { return std::string(position, size); }
+        std::string str() const { return std::string(position, size_); }
+
+        size_t size() const { return size_; }
+
+        bool empty() const { return size_ == 0; }
 
         const Token * position;
-        size_t size;
+        size_t size_;
     };
 
     typedef basic_string<char> string;
