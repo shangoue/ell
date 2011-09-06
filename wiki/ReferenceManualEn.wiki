@@ -259,8 +259,7 @@ rule1 = str("foo") >> ( str("bar")
 
 This will prevent the parser from stepping-back to a token which has already been consumed.
 
-
-=== Detect errors earlier ===
+=== Debug your grammar ===
 
 Consider the following grammar:
 
@@ -273,25 +272,11 @@ dinner = str("salad") >> str("cassoulet") >> str("kouign amann");
 }}}
 
 
-Now, let's parse a meal which does not match this grammar, for exemple:
+Now, let's parse a meal which does not match this grammar, for example:
 
 {{{
 bacon eggs kouign amann
 }}}
-
-By default, the parser is LL(n), so both branches will be evaluated before issuing an error. 
-
-We get the following error:
-
-{{{
-1: before "bacon eggs kouign amann": expecting brunch or dinner
-}}}
-
-Not a useful message... What would you say if you forgot a semicolon at line 1384 and gcc was complaining that way:
-{{{
-inyourbigfile.c:1: Syntax error, expecting a completely valid C program file
-}}}
-
 
 Using macro ELL_ENABLE_DUMP, you can trace how the parser walks along the grammar. First character is one of:
   * `\`: parser starts trying the rule
@@ -300,7 +285,7 @@ Using macro ELL_ENABLE_DUMP, you can trace how the parser walks along the gramma
 
 Then, the name of the related rule follows, and the position inside the buffer to parse.
 
-In the dump below, you can notice than the parser first tries brunch branch, then step back to the root rule to try the dinner branch:
+In the dump below, you can notice than the parser first tries the `brunch` branch, then step back to the root rule to try the `dinner` branch:
 
 {{{
  \ brunch or dinner: 	"bacon eggs kouign amann"
@@ -329,7 +314,44 @@ In the dump below, you can notice than the parser first tries brunch branch, the
 
 
 
-Now, let transform the grammar to tell the parser walking through it in a LL(1) manner :
+=== Improve error messages ===
+
+There is two ways to manage syntax errors in your ell-based parser:
+  - Use the grammar directive `error` to emit a custom message at one point
+  - Rely on ell automatic messages
+
+The first method is straight-forward but requires a little more work and make your grammar bigger.
+
+That's why the second method can be time-saving. We will see it works fine provided that you disable the `look_ahead` flag to turn your the parser into LL(1).
+
+Let's examine again the meal grammar again:
+
+
+{{{
+root = brunch | dinner;
+
+brunch = str("bacon") >> str("eggs") >> str("beer");
+
+dinner = str("salad") >> str("cassoulet") >> str("kouign amann");
+}}}
+ 
+The following text will arises an error message:
+
+{{{
+bacon eggs kouign amann
+}}}
+
+{{{
+1: before "bacon eggs kouign amann": expecting brunch or dinner
+}}}
+
+Not a useful message... What would you say if you forgot a semicolon at line 1384 and gcc was complaining that way:
+{{{
+inyourbigfile.c:1: Syntax error, expecting a completely valid C program file
+}}}
+
+
+Now, we will add a `no_look_ahead` directive in the grammar to tell the parser walking through it in a LL(1) manner :
 
 {{{
 root = no_look_ahead(brunch | dinner);
@@ -339,13 +361,15 @@ brunch = str("bacon") >> str("eggs") >> str("beer");
 dinner = str("salad") >> str("cassoulet") >> str("kouign amann");
 }}}
 
-When look ahead is disabled, the sequence grammar operator (>>) issues an error each time its left operand has matched but not its right operand.
+When look-ahead is allowed, the parser will step back in the grammar and try another branch until it has explored every possibility.
+
+To the contrary, when look ahead is disabled, the sequence grammar operator (>>) issues an error each time its left operand has matched but not its right operand.
 
 In other words, without look-ahead, a single token is enough to decide which branch of the LL grammar must be chosen. Once the choice is made, the first error will stop the parser.
 
-Matching "`bacon eggs`", if we get the `bacon` token, we are sure to be in the brunch branch. In this branch, we expect an `eggs` token.
 
-Allowing look-ahead is similar to allow the parser to step back in the grammar and try another branch.
+
+For example, when parsing "`bacon eggs`", if we get the `bacon` token, we are sure to be in the `brunch` branch. In this branch, we expect an `eggs` token, else an error is arisen.
 
 The related dump follows:
 {{{
@@ -364,6 +388,8 @@ terminate called after throwing an instance of 'std::runtime_error'
   what():  1: before "kouign amann": expecting "beer"
 }}}
 
+
 Error has been catched earlier and the user is told he should drink beer instead of eating kouign amann, which appears a lot more natural, no ?
+
 
 You can look at the full exemple: http://code.google.com/p/ell/source/browse/trunk/libELL/Test/MealParser.cpp
