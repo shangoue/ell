@@ -34,9 +34,15 @@
 # endif
 #endif
 
-#define ELL_DUMP_NODES        0
-#define ELL_DUMP_ACTIONS      0
-#define ELL_DUMP_SKIPPER      0
+#ifndef ELL_DUMP_NODES
+# define ELL_DUMP_NODES        0
+#endif
+#ifndef ELL_DUMP_ACTIONS
+# define ELL_DUMP_ACTIONS      0
+#endif
+#ifndef ELL_DUMP_SKIPPER
+# define ELL_DUMP_SKIPPER      1
+#endif
 
 # define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
 # define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;
@@ -72,6 +78,10 @@ namespace ell
 
         basic_string(const char * position)
           : position(position), size_(strlen(position))
+        { }
+
+        basic_string(const std::string & s)
+          : position(s.c_str()), size_(s.size())
         { }
 
         friend inline std::string operator + (const ell::basic_string<Token> & l, const std::basic_string<Token> & r)
@@ -115,6 +125,11 @@ namespace ell
 
         const Token * position;
         size_t size_;
+
+        friend std::ostream & operator << (std::ostream & os, const basic_string & s)
+        {
+            return os.write(s.position, s.size_);
+        }
     };
 
     typedef basic_string<char> string;
