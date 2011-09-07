@@ -112,7 +112,7 @@ namespace ell
             if (flags.debug && must_be_dumped(node))
             {
                 ++flags.level;
-                std::cout << std::string(flags.level, ' ')
+                std::cerr << std::string(flags.level, ' ')
                           << "\\ " << * node << ": \t"
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
             }
@@ -122,7 +122,7 @@ namespace ell
         {
             if (flags.debug && must_be_dumped(node))
             {
-                std::cout << std::string(flags.level, ' ')
+                std::cerr << std::string(flags.level, ' ')
                           << (match ? '/' : '#') << ' ' << * node << ": \t"
                           << ((Parser<Token> *) this)->dump_position() << std::endl;
                 if (flags.level > 0)
