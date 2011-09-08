@@ -63,6 +63,10 @@ namespace ell
     {
         virtual ~Node() { }
 
+        /// Function called recursively to perform the parsing.
+        /// Return true if and only if it matches.
+        /// Each node is responsible for restoring the parser state as untouched,
+        /// unless it has matched.
         virtual bool parse(Parser<Token> *) const = 0;
 
         virtual std::string get_kind() const = 0;

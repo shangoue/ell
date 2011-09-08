@@ -46,10 +46,27 @@ namespace ell
         {                                                                        \
             ELL_BEGIN_PARSE                                                      \
             SafeModify<> m1(parser->flags.FLAG, NV);                             \
+            ELL_CUSTOM_##FLAG(NV);                                               \
             match = Base::target.parse(parser, s);                               \
             ELL_END_PARSE                                                        \
         }                                                                        \
     };
+
+#   define ELL_CUSTOM_look_ahead(new_value)
+#   define ELL_CUSTOM_action(new_value)
+#   define ELL_CUSTOM_debug(new_value)
+
+    // Re-enabling skipper in the middle of a grammar needs one more skipping (like at parsing init)
+#   define ELL_CUSTOM_skip(new_value)                        \
+        if (! m1.sav && new_value)                           \
+        {                                                    \
+            typename Parser<Token>::Context sav_pos(parser); \
+            parser->skip();                                  \
+            match = Base::target.parse(parser, s);           \
+            if (! match)                                     \
+                sav_pos.restore(parser);                     \
+        }                                                    \
+        else                                                 
 
     ELL_PARSER_FLAGS
 #   undef ELL_FLAG
@@ -162,52 +179,52 @@ namespace ell
     template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
     struct Act
     { };
-    
+
     namespace
     {
         template <typename CP, typename V>
         bool make_action(CP * parser, V CP::*var, Storage<V> & s)
-        { 
+        {
             parser->*var = s.value;
             return true;
         }
 
         template <typename CP, typename V>
         bool make_action(CP * parser, void(CP::*method)(const V &), Storage<V> & s)
-        { 
+        {
             (parser->*method)(s.value);
             return true;
         }
 
         template <typename CP, typename V>
         bool make_action(CP * parser, bool(CP::*method)(const V &), Storage<V> & s)
-        { 
+        {
             return (parser->*method)(s.value);
         }
 
         template <typename CP, typename V>
         bool make_action(CP * parser, void(CP::*method)(V), Storage<V> & s)
-        { 
+        {
             (parser->*method)(s.value);
             return true;
         }
 
         template <typename CP, typename V>
         bool make_action(CP * parser, bool(CP::*method)(V), Storage<V> & s)
-        { 
+        {
             return (parser->*method)(s.value);
         }
 
         template <typename CP>
         bool make_action(CP * parser, void(CP::*method)(), Storage<void> &)
-        { 
+        {
             (parser->*method)();
             return true;
         }
 
         template <typename CP>
         bool make_action(CP * parser, bool(CP::*method)(), Storage<void> &)
-        { 
+        {
             return (parser->*method)();
         }
     }
@@ -232,7 +249,7 @@ namespace ell
         {
             ELL_BEGIN_PARSE
             if (parser->flags.action)
-            {                                         
+            {
                 Storage<Value> sa;
                 typename Parser<Token>::Context sav_pos(parser);
 
