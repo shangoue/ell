@@ -52,7 +52,7 @@ ifneq ($(findstring icc,$(COMPILER)),)
 CFLAGS += -Wbrief
 else
 COMPILER = LANG=C g++
-CFLAGS += -Wall -pipe -Wno-parentheses
+CFLAGS += -Wall -pipe -Wno-parentheses -Wextra
 CFLAGS += -Woverloaded-virtual
 CFLAGS += -Werror
 endif
