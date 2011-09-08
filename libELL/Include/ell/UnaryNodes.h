@@ -46,7 +46,7 @@ namespace ell
         {                                                                        \
             ELL_BEGIN_PARSE                                                      \
             SafeModify<> m1(parser->flags.FLAG, NV);                             \
-            ELL_CUSTOM_##FLAG(NV);                                               \
+            ELL_CUSTOM_##FLAG(NV)                                                \
             match = Base::target.parse(parser, s);                               \
             ELL_END_PARSE                                                        \
         }                                                                        \
