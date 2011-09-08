@@ -41,7 +41,7 @@
 # define ELL_DUMP_ACTIONS      0
 #endif
 #ifndef ELL_DUMP_SKIPPER
-# define ELL_DUMP_SKIPPER      1
+# define ELL_DUMP_SKIPPER      0
 #endif
 
 # define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
