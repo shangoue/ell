@@ -330,7 +330,20 @@ struct StringTest : ell::Grammar<char>, ell::Parser<char>, Test
 
     std::set<ell::string> v;
     ell::Rule<char> root;
+};
 
+struct SkipperSubst : ell::Grammar<char>, ell::Parser<char>, Test
+{
+    ell::Rule<char> root;
+    SkipperSubst()
+     : ell::Parser<char>(&root,&blank), Test("SkipperSubst")
+     {
+         root = ch('a') >> ch('b')
+                >> ell::Grammar<char>::skip((ch('c') >> ! ch('d')), space) >> ch('d');
+
+        check(* this, "a\nbc\ndd", true, false);
+        check(* this, "a\nbcd\nd", true, true);
+     }
 };
 
 int main()
@@ -344,6 +357,7 @@ int main()
     LongestOpTest();
     GenericIntegerTest();
     StringTest();
+    SkipperSubst();
 
     printf("Everything is ok.\n");
     return 0;

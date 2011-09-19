@@ -95,6 +95,7 @@ namespace ell
         }
     };
 
+    /// Combination (equivalent to a >> b | b >> a)
     template <typename Token, typename Left, typename Right>
     struct Asc : public BinaryNode<Token, Asc<Token, Left, Right>, Left, Right>
     {
@@ -106,7 +107,7 @@ namespace ell
           : Base(left, right)
         { }
 
-        std::string get_kind() const { return "association"; }
+        std::string get_kind() const { return "combination"; }
 
         using Base::parse;
         template <typename T>
@@ -312,6 +313,45 @@ namespace ell
             {
                 sav_pos.restore(parser);
                 match = false;
+            }
+            ELL_END_PARSE
+        }
+    };
+
+    /// Skipper enabling directive, like the skip() directive, but taking the skipper to use as a second parameter.
+    template <typename Token, typename Left, typename Right>
+    struct SSk : public BinaryNode<Token, SSk<Token, Left, Right>, Left, Right>
+    {
+        typedef BinaryNode<Token, SSk<Token, Left, Right>, Left, Right> Base;
+        using Base::right;
+        using Base::left;
+
+        SSk(const Left & left, const Right & right)
+          : Base(left, right)
+        { }
+
+        std::string get_kind() const { return "with-skipper"; }
+
+        using Base::parse;
+        template <typename T>
+        bool parse(Parser<Token> * parser, Storage<T> & s) const
+        {
+            ELL_BEGIN_PARSE
+            typename Parser<Token>::Context sav_pos(parser);
+            {
+                SafeModify<const Node<Token> *> m1(parser->skipper, &right);
+                SafeModify<> m2(parser->flags.skip, true);
+
+                parser->skip();
+                match = left.parse(parser, s);
+            }
+            if (match)
+            {
+                parser->skip(); // Advance with restored skipper
+            }
+            else
+            {
+                sav_pos.restore(parser);
             }
             ELL_END_PARSE
         }

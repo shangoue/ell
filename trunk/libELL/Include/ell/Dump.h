@@ -31,15 +31,15 @@ namespace ell
             if (value.empty())
                 return dump(* node.get_child_at(0), need_parens);
             else
-                return value;
+                return node.get_value();  // Want unprotected
         }
 
         std::string binop;
 
         if (kind == "alternative" || kind == "longest")
             binop = " or ";
-        else if (kind == "association")
-            binop = " followed or preceded by ";
+        else if (kind == "combination")
+            binop = " combined with ";
         else if (kind == "aggregation")
             binop = " ";
         else if (kind == "exclusion")
