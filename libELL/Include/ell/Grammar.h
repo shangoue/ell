@@ -44,6 +44,9 @@ namespace ell
         ELL_PARSER_FLAGS
 #       undef ELL_FLAG
 
+        template <typename P, typename SK>
+        SSk<Token, P, SK>                  skip(const P & p, const SK & skipper) { return SSk<Token, P, SK>(p, skipper); }
+
         template <typename P>
         NCs<Token, P>                       no_consume(const P & p) const { return NCs<Token, P>(p); }
 
