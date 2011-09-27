@@ -151,13 +151,11 @@ namespace ell
             else
             {
                 out << ">\n";
-                XmlNode * last = _first_child;
                 for (XmlNode * p = _first_child;
                     p;
                     p = p->_next_sibling)
                 {
                     p->unparse(out, indent + 1, shift);
-                    last = p;
                 }
 
                 out << indent_str << "</" << name << ">\n";
