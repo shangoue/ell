@@ -262,6 +262,10 @@ This will prevent the parser from stepping-back to a token which has already bee
 
 === Debug your grammar ===
 
+Do not try to step inside ELL code using a debugger : you will be plagued by meaningless recursive calls !
+
+To the contrary, you can use the dump of ELL parser. To enable it, use the `debug` directive inside your grammar definition, or just assign `flags.debug` to `true` in the constructor of your parser. The latter can be done using ELL_ENABLE_DUMP macro (which takes a reference on your parser).
+
 Consider the following grammar:
 
 {{{
