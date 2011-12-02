@@ -54,7 +54,7 @@
     ELL_FLAG(debug, Dbg)      \
 
 #if ELL_DEBUG == 1
-#define ELL_DUMP(arg) do { if (flags.debug) std::cout << arg << std::endl; } while (0)
+#define ELL_DUMP(arg) do { if (flags.debug) std::cerr << arg << std::endl; } while (0)
 #define ELL_ENABLE_DUMP(parser) do { (parser).flags.debug = true; } while (0)
 #define ELL_DISABLE_DUMP(parser) do { (parser).flags.debug = false; } while (0)
 #else
@@ -72,15 +72,19 @@ namespace ell
         basic_string()
         { }
 
-        basic_string(const char * position, size_t size)
+        basic_string(const Token * begin, const Token * end)
+          : position(begin), size_(end - begin)
+        { }
+
+        basic_string(const Token * position, size_t size)
           : position(position), size_(size)
         { }
 
-        basic_string(const char * position)
+        basic_string(const Token * position)
           : position(position), size_(strlen(position))
         { }
 
-        basic_string(const std::string & s)
+        basic_string(const std::basic_string<Token> & s)
           : position(s.c_str()), size_(s.size())
         { }
 
@@ -97,6 +101,46 @@ namespace ell
         friend inline std::string operator += (std::basic_string<Token> & l, const ell::basic_string<Token> & r)
         {
             return l.append(r.position, r.size_);
+        }
+
+        friend bool operator == (const basic_string<Token> & a, const std::basic_string<Token> & b)
+        {
+            return basic_string<Token>(b.c_str(), b.size()) == a;
+        }
+
+        friend bool operator == (const std::basic_string<Token> & b, const basic_string<Token> & a)
+        {
+            return basic_string<Token>(b.c_str(), b.size()) == a;
+        }
+
+        friend bool operator != (const basic_string<Token> & a, const std::basic_string<Token> & b)
+        {
+            return basic_string<Token>(b.c_str(), b.size()) != a;
+        }
+
+        friend bool operator != (const std::basic_string<Token> & b, const basic_string<Token> & a)
+        {
+            return basic_string<Token>(b.c_str(), b.size()) != a;
+        }
+
+        friend bool operator == (const basic_string<Token> & a, const char * b)
+        {
+            return basic_string<Token>(b) == a;
+        }
+
+        friend bool operator == (const char * b, const basic_string<Token> & a)
+        {
+            return basic_string<Token>(b) == a;
+        }
+
+        friend bool operator != (const basic_string<Token> & a, const char * b)
+        {
+            return basic_string<Token>(b) != a;
+        }
+
+        friend bool operator != (const char * b, const basic_string<Token> & a)
+        {
+            return basic_string<Token>(b) != a;
         }
 
         bool operator != (const basic_string<Token> & other) const
@@ -117,16 +161,18 @@ namespace ell
             return r < 0;
         }
 
-        std::string str() const { return std::string(position, size_); }
+        std::basic_string<Token> str() const { return std::basic_string<Token>(position, size_); }
 
         size_t size() const { return size_; }
 
         bool empty() const { return size_ == 0; }
 
+        void clear() { position = 0; size_ = 0; }
+
         const Token * position;
         size_t size_;
 
-        friend std::ostream & operator << (std::ostream & os, const basic_string & s)
+        friend std::ostream & operator << (std::ostream & os, const ell::basic_string<Token> & s)
         {
             return os.write(s.position, s.size_);
         }
