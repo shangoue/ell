@@ -147,7 +147,7 @@ For character parsers (ie. when input tokens are C++ primitives like `char`, `in
 || alpha                || `[a-zA-Z_]` ||
 || alnum                || `[a-zA-Z0-9_]` ||
 || blank                || `[ \t\n\r]` ||
-|| ident                || `lexeme(alpha) >> * alnum)` ||
+|| ident                || `lexeme(alpha >> * alnum)` ||
 || istr(s)              || matches the given string, ignoring case ||
 || visible_ascii        || `[!-~]` (visibles ASCII character) ||
 || utf8nonascii         || valid UTF-8 character outside the ASCII character set ||
