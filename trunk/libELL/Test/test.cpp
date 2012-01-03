@@ -54,7 +54,7 @@ void check(ell::Parser<char> & parser, const char * buffer, bool status, bool fu
             printf("  Expected message catched: %s\n", e.what());
     }
 
-    if (not full xor (parser.get() != '\0'))
+    if ((! full) ^ (parser.get() != '\0'))
         ERROR("  Expecting %s at %s", (full ? "<EOS>" : "not <EOS>"), parser.dump_position().c_str());
 }
 

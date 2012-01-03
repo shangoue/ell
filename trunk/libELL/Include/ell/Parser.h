@@ -40,7 +40,7 @@ namespace ell
         void parse()
         {
             ((Parser<Token> *) this)->skip();
-            if (not grammar->parse((Parser<Token> *) this))
+            if (! grammar->parse((Parser<Token> *) this))
                 mismatch(* grammar);
         }
 

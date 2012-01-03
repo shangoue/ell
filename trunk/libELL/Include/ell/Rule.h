@@ -38,7 +38,7 @@ namespace ell
 
         virtual ~Rule()
         {
-            if (not top)
+            if (! top)
             {
                 std::string msg = "Rule `" + name + "` not used";
                 throw std::runtime_error(msg.c_str());

@@ -113,7 +113,7 @@ namespace ell
 
         void on_end_of_file()
         {
-            if (not elements.empty())
+            if (! elements.empty())
                 raise_error("Unclosed element: `" + elements.top() + "`", line_number);
         }
 
