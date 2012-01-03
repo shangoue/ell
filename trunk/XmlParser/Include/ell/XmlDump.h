@@ -56,7 +56,7 @@ namespace ell
                      i != rules.end();
                      ++i)
                 {
-                    if (not i->second)
+                    if (! i->second)
                     {
                         add_rule_def(* i->first);
                         cont = true;

@@ -71,6 +71,8 @@ namespace ell
     ELL_PARSER_FLAGS
 #   undef ELL_FLAG
 
+    /// No-consume : parse along the nested branch but restore the parser position
+    /// even if matched.
     template <typename Token, typename Child>
     struct NCs : public UnaryNode<Token, NCs<Token, Child>, Child>
     {
@@ -229,6 +231,7 @@ namespace ell
         }
     }
 
+    /// Semantic action
     template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
     struct Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>
       : public UnaryNode<Token, Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child>
