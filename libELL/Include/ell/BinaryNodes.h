@@ -173,7 +173,7 @@ namespace ell
                 }
                 else
                 {
-                    if (not parser->flags.look_ahead)
+                    if (! parser->flags.look_ahead)
                         parser->mismatch(right);
 
                     sav_pos.restore(parser);
@@ -278,7 +278,7 @@ namespace ell
             while (1)
             {
                 match = right.parse(parser);
-                if (match || not left.parse(parser, se))
+                if (match || ! left.parse(parser, se))
                     break;
                 s.enqueue(se);
                 parser->skip();

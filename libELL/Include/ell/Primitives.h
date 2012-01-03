@@ -74,7 +74,7 @@ namespace ell
         bool parse(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
-            if (not parser->end())
+            if (! parser->end())
             {
                 match = true;
                 parser->next();
