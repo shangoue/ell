@@ -48,27 +48,27 @@ namespace ell
         SSk<Token, P, SK>                  skip(const P & p, const SK & skipper) { return SSk<Token, P, SK>(p, skipper); }
 
         template <typename P>
-        NCs<Token, P>                       no_consume(const P & p) const { return NCs<Token, P>(p); }
+        NCs<Token, P>                      no_consume(const P & p) const { return NCs<Token, P>(p); }
 
         template <typename P>
-        Lx<Token, P>                        lexeme(const P & p) const { return Lx<Token, P>(p); }
+        Lx<Token, P>                       lexeme(const P & p) const { return Lx<Token, P>(p); }
 
         template <const int exact, typename P>
-        Rp<Token, P, exact, exact>          repeat(const P & p) const { return Rp<Token, P, exact, exact>(p); }
+        Rp<Token, P, exact, exact>         repeat(const P & p) const { return Rp<Token, P, exact, exact>(p); }
 
         template <const int min, const int max, typename P>
-        Rp<Token, P, min, max>              repeat(const P & p) const { return Rp<Token, P, min, max>(p); }
+        Rp<Token, P, min, max>             repeat(const P & p) const { return Rp<Token, P, min, max>(p); }
 
         template <typename P, typename CP>
-        DRp<Token, P, CP>                   repeat(const int CP::*exact, const P & p) const { return DRp<Token, P, CP>(p, exact, exact); }
+        DRp<Token, P, CP>                  repeat(const int CP::*exact, const P & p) const { return DRp<Token, P, CP>(p, exact, exact); }
 
         template <typename P, typename CP>
-        DRp<Token, P, CP>                   repeat(const int CP::*min, const int CP::*max, const P & p) const { return DRp<Token, P, CP>(p, min, max); }
+        DRp<Token, P, CP>                  repeat(const int CP::*min, const int CP::*max, const P & p) const { return DRp<Token, P, CP>(p, min, max); }
 
         template <typename P, typename Suffix>
-        NSx<Token, P, Suffix>               no_suffix(const P & p, const Suffix & s) const { return NSx<Token, P, Suffix>(p, s); }
+        NSx<Token, P, Suffix>              no_suffix(const P & p, const Suffix & s) const { return NSx<Token, P, Suffix>(p, s); }
 
-        Err<Token>                          error(const std::string & msg) const { return Err<Token>(msg); }
+        Err<Token>                         error(const std::string & msg) const { return Err<Token>(msg); }
     };
 
     template <typename Token>
