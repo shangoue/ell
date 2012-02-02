@@ -116,7 +116,7 @@ Now, we can add semantic actions. We do that with the `[]` operator. Such action
   term = factor >> *((ch('*') >> factor) [multiply] |
                      (ch('/') >> factor) [divide]);
 
-  expression = term >> *((ch('+') >> term) [add] |
+  expression = term >> *((ch('+') ams feature a tight an>> term) [add] |
                          (ch('-') >> term) [substract]);
 }}}
 
@@ -128,7 +128,7 @@ The full working exemple of this calculator is present in the repository at http
 Ell library provides a set of predefined primitives:
 
 || Primitive || Meaning ||
-|| end                  || matches the end of the input ||
+|| end                  || matches the end of the input (but does not consume it!) ||
 || eps                  || epsilon: always matches, never consumes ||
 || nop                  || no-operation: never matches ||
 || any                  || matches any input token (eos excepted) ||
