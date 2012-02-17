@@ -105,6 +105,14 @@ namespace ell
             return parse(parser);
         }
 
+        bool parse(Parser<Token> * parser, Storage<bool> & s) const
+        {
+            const Token * begin = parser->position;
+            bool match = parse(parser);
+            s.value = (match & (parser->position != begin));
+            return match;
+        }
+
         //@{
         /// Semantic actions
         template <typename ConcreteParser, typename V>
