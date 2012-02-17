@@ -19,6 +19,8 @@
 #define INCLUDED_ELL_XMLNODE_H
 
 #include <map>
+#include <cassert>
+
 
 namespace ell
 {
@@ -276,7 +278,14 @@ namespace ell
     template <typename T>
     XmlNode * XmlNode::get_attrib_if_present(const std::string & name, T & value)
     {
-        if (has_attrib(name)) _get_attrib(* this, name, value);
+        assert(is_element());
+        XmlAttributesMap::const_iterator i = attributes.find(name);
+        if (i != attributes.end())
+        {
+            std::istringstream is(i->second);
+            if (! (i >> value))
+                raise_error("Wrong type for attribute " + name);
+        }
         return this;
     }
 
