@@ -16,8 +16,6 @@
 #ifndef INCLUDED_ELL_IMPL_XMLNODE_H
 #define INCLUDED_ELL_IMPL_XMLNODE_H
 
-#include <cassert>
-
 namespace ell
 {
     inline XmlNode * XmlNode::remove_attrib(const std::string & name)
