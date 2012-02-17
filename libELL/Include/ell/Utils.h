@@ -98,6 +98,16 @@ namespace ell
             return l + std::string(r.position, r.size_);
         }
 
+        friend inline std::string operator + (const ell::basic_string<Token> & l, const char * r)
+        {
+            return std::string(l.position, l.size_) + std::string(r);
+        }
+
+        friend inline std::string operator + (const char * l, const ell::basic_string<Token> & r)
+        {
+            return std::string(l) + std::string(r.position, r.size_);
+        }
+
         friend inline std::string operator += (std::basic_string<Token> & l, const ell::basic_string<Token> & r)
         {
             return l.append(r.position, r.size_);
