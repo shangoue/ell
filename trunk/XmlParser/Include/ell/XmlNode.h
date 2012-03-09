@@ -21,7 +21,6 @@
 #include <map>
 #include <cassert>
 
-
 namespace ell
 {
     template <typename Token>
