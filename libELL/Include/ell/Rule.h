@@ -22,6 +22,7 @@ namespace ell
 {
     /// A rule allows to introduce recursive definitions in a grammar as
     /// it breaks the expression templates chain.
+    /// This class may not be derived
     template <typename Token>
     struct Rule : public ConcreteNodeBase<Token, Rule<Token> >
     {
@@ -36,7 +37,8 @@ namespace ell
             name = oss.str();
         }
 
-        virtual ~Rule()
+        // Not virtual
+        ~Rule()
         {
             if (! top)
             {
@@ -51,12 +53,15 @@ namespace ell
 
         void free()
         {
-            if (top && must_delete)
-            {
-                delete top;
-            }
+            bool md = must_delete;
+            const Node<Token> * t = top;
             top = 0;
             must_delete = false;
+
+            if (t && md)
+            {
+                delete t;
+            }
         }
 
         template <typename N>
@@ -77,6 +82,7 @@ namespace ell
 
         const Rule & operator = (const Rule & r)
         {
+            free();
             top = & r;
             return r;
         }
@@ -116,6 +122,9 @@ namespace ell
         const Node<Token> * top;
         std::string name;
         bool must_delete;
+
+    private:
+        Rule(const Rule & other);
     };
 }
 
