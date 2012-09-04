@@ -171,7 +171,7 @@ The tables below lists all the operators which can be used to write a grammar. O
 || Sequence || `a >> b` || a followed by b ||
 || Choice || `a | b` || a or b ||
 || Exclusion || `a - b` || a bereft of b (match a but not b) ||
-|| List (with separator) || `a % b` || one or more a separated by b (similar to `a >> * (b >> a)` but left an eventual trailing separator unconsumed) ||
+|| List (with separator) || `a % b` || one or more a separated by b (similar to `a >> * (b >> a)` but lefts an eventual trailing separator unconsumed) ||
 || Bound repetition || `a * b` || zero or more a until b (similar to `* (a - b) >> b` but much more efficient) ||
 || Combination || `a & b` || a followed or preceded by b (similar to `(a >> b) | (b >> a)`) ||
 || Longest || `a |``| b` || the longest of a or b (take a if equal). Avoid using it if you care in performance ||
