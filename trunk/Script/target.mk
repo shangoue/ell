@@ -195,6 +195,9 @@ $(TARGET_OBJ): $(BUILD_DIR)/%.o: %$(EXT) $(DCH) $(BUILD_DIR)/%.d
 ifneq ($(findstring sun,$(COMPILER)),)
 # SunCC => no dependency handling :(
 .PHONY: $(TARGET_DEP)
+
+$(TARGET_DEP): $(BUILD_DIR)/%.d: %$(EXT) $(DCH)
+	@mkdir -p $(dir $@)
 else
 $(TARGET_DEP): $(BUILD_DIR)/%.d: %$(EXT) $(DCH)
 	@mkdir -p $(dir $@)

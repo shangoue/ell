@@ -2,6 +2,9 @@ TARGET = meal
 
 TARGET_FILES = libELL/Test/MealParser.cpp
 CFLAGS += -IlibELL/Include
+
+ifeq ($(findstring sun,$(COMPILER)),)
 LDFLAGS += -lstdc++
+endif
 
 include Script/target.mk
