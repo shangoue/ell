@@ -72,11 +72,16 @@ namespace ell
         virtual std::string get_kind() const = 0;
         virtual const Node<Token> * get_child_at(int /*index*/) const { return 0; }
         virtual std::string get_value() const { return ""; }
+
+        template <typename V>
+        bool parse(Parser<Token> * parser, Storage<V> & s) const;
     };
 
     template <typename Token, typename ConcreteNode>
     struct ConcreteNodeBase : public Node<Token>
     {
+        using Node<Token>::parse;
+
         bool parse(Parser<Token> * parser) const
         {
             Storage<void> s;

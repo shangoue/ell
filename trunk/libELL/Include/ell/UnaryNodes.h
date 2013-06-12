@@ -272,7 +272,8 @@ namespace ell
         }
 
     private:
-        Var ConcreteParser::*var;
+        typedef Var ConcreteParser::*MethodAction;
+        MethodAction var;
     };
 }
 
