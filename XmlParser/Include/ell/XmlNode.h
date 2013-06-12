@@ -35,12 +35,18 @@ namespace ell
     /// (Warning: do not use first() or last() as exit condition!)
     struct XmlIterator
     {
-        explicit XmlIterator(XmlNode * pos = 0)
-          : current(pos)
+        explicit XmlIterator (XmlNode * pos = 0)
+            : current (pos)
         { }
 
-        XmlNode * operator * () { return current; }
-        operator bool () const { return current != 0; }
+        XmlNode * operator * ()
+        {
+            return current;
+        }
+        operator bool () const
+        {
+            return current != 0;
+        }
 
         XmlIterator & operator ++ ();
         XmlIterator & operator -- ();
@@ -57,58 +63,67 @@ namespace ell
 
     struct XmlNode
     {
-        XmlNode(Parser<char> * _parser = 0, int _line = 0)
-          : _next_sibling(NULL), _previous_sibling(NULL),
-            _first_child(NULL), _last_child(NULL),
-            _parent(NULL), line(_line), parser(_parser)
+        XmlNode (Parser<char> * _parser = 0, int _line = 0)
+            : _next_sibling (NULL), _previous_sibling (NULL),
+              _first_child (NULL), _last_child (NULL),
+              _parent (NULL), line (_line), parser (_parser)
         { }
 
         /// Destruction with children nodes deletion
-        virtual ~XmlNode() { delete_children(); }
+        virtual ~XmlNode()
+        {
+            delete_children();
+        }
 
         //@{
         /// Kind of node enquirement
-        bool is_element() const { return name.size() != 0; }
-        bool is_data() const { return name.empty(); }
+        bool is_element() const
+        {
+            return name.size() != 0;
+        }
+        bool is_data() const
+        {
+            return name.empty();
+        }
         //@}
 
         //@{
         /// Attribute handling, raise error if attribute does not exist
-        const std::string get_attrib(const std::string & name) const;
+        const std::string get_attrib (const std::string & name) const;
 
         template <typename T>
-        T get_attrib(const std::string & name) const;
+        T get_attrib (const std::string & name) const;
 
         template <typename T>
-        XmlNode * get_attrib(const std::string & name, T & value);
+        XmlNode * get_attrib (const std::string & name, T & value);
 
-        XmlNode * check_attrib(const std::string & name, const std::string & value);
-        XmlNode * check_attrib_present(const std::string & name);
+        XmlNode * check_attrib (const std::string & name, const std::string & value);
+        XmlNode * check_attrib_present (const std::string & name);
         //@}
 
         /// Set output parameter 'value' only if attribute exists
         template <typename T>
-        XmlNode * get_attrib_if_present(const std::string & name, T & value);
+        XmlNode * get_attrib_if_present (const std::string & name, T & value);
 
         //@{
         /// Set attribute value
-        XmlNode * set_attrib(const std::string & name, const std::string & value);
+        XmlNode * set_attrib (const std::string & name, const std::string & value);
 
         template <typename T>
-        XmlNode * set_attrib(const std::string & name, const T & value);
+        XmlNode * set_attrib (const std::string & name, const T & value);
 
-        XmlNode * remove_attrib(const std::string & name);
+        XmlNode * remove_attrib (const std::string & name);
         //@}
 
         /// Enquire about the existence of an attribute
-        bool has_attrib(const std::string & name) const;
+        bool has_attrib (const std::string & name) const;
 
         //@{
         /// Element name handling, raise error if not an element
         const std::string & get_name() const;
-        XmlNode * get_name(std::string & name);
-        XmlNode * set_name(const std::string & name);
-        XmlNode * check_name(const std::string & name);
+        XmlNode * get_name (std::string & name);
+        XmlNode * set_name (const std::string & name);
+        XmlNode * check_name (const std::string & name);
         //@}
 
         //@{
@@ -116,29 +131,29 @@ namespace ell
         const std::string & get_data() const;
 
         template <typename T>
-        XmlNode * get_data(T & data);
+        XmlNode * get_data (T & data);
 
-        XmlNode * set_data(const std::string & data);
-        XmlNode * check_data(const std::string & data);
+        XmlNode * set_data (const std::string & data);
+        XmlNode * check_data (const std::string & data);
         //@}
 
         /// Concatenation of children data nodes,
         /// raise error if not an element
-        void get_text(std::string & s) const;
+        void get_text (std::string & s) const;
 
         //@{
         /// Recursive write of resulting XML
-        void unparse(std::ostream & out, int indent=0, int shift=1) const;
+        void unparse (std::ostream & out, int indent = 0, int shift = 1) const;
 
         friend std::ostream & operator << (std::ostream & os, const XmlNode & node)
         {
-            node.unparse(os);
+            node.unparse (os);
             return os;
         }
         //@}
 
         /// Dump a visual representation of the DOM tree
-        void dump(std::ostream & out, int indent=0, int shift=1) const;
+        void dump (std::ostream & out, int indent = 0, int shift = 1) const;
 
         //@{
         /// Tree walking
@@ -150,15 +165,21 @@ namespace ell
         XmlNode * parent() const;
         //@}
 
-        XmlIterator first() { return XmlIterator(_first_child); }
-        XmlIterator last() { return XmlIterator(_last_child); }
+        XmlIterator first()
+        {
+            return XmlIterator (_first_child);
+        }
+        XmlIterator last()
+        {
+            return XmlIterator (_last_child);
+        }
 
         //@{
         /// Node insertion
         /// Return the address of the just-inserted node
-        XmlNode * insert_sibling_node_before(XmlNode *);
-        XmlNode * insert_sibling_node_after(XmlNode *);
-        XmlNode * enqueue_child(XmlNode * node = new XmlNode);
+        XmlNode * insert_sibling_node_before (XmlNode *);
+        XmlNode * insert_sibling_node_after (XmlNode *);
+        XmlNode * enqueue_child (XmlNode * node = new XmlNode);
         //@}
 
         /// Remove this node from the DOM and transfer the ownership to caller
@@ -180,10 +201,13 @@ namespace ell
         std::string describe() const;
 
         /// Nodes recursive comparison
-        bool is_equal(const XmlNode & other) const;
+        bool is_equal (const XmlNode & other) const;
 
         /// Tell the parser to raise a syntax error on the given node
-        void raise_error(const std::string & msg) const { parser->raise_error(msg, line); }
+        void raise_error (const std::string & msg) const
+        {
+            parser->raise_error (msg, line);
+        }
 
         //@{
         /// Links to sibbling, children and parent nodes
@@ -201,7 +225,7 @@ namespace ell
         Parser<char> * parser;
 
         /// Forbidden
-        XmlNode(const XmlNode &);
+        XmlNode (const XmlNode &);
     };
 
     /// XML DOM visitor
@@ -209,130 +233,134 @@ namespace ell
     {
         virtual ~XmlVisitor() { }
 
-        void process(XmlNode * node)
+        void process (XmlNode * node)
         {
-            enterNode(node);
+            enterNode (node);
+
             for (XmlIterator i = node->first(); i; ++i)
             {
-                process(* i);
+                process (* i);
             }
-            leaveNode(node);
+
+            leaveNode (node);
         }
 
-        virtual void enterNode(XmlNode *) { }
-        virtual void leaveNode(XmlNode *) { }
+        virtual void enterNode (XmlNode *) { }
+        virtual void leaveNode (XmlNode *) { }
     };
 
     /// XML DOM visitor using callback
     template <typename T>
     struct XmlCallbackVisitor : public XmlVisitor
     {
-        typedef void (T::*Callback)(XmlNode *); 
+        typedef void (T::*Callback) (XmlNode *);
 
-        XmlCallbackVisitor(T * caller, Callback enter_callback = 0, Callback leave_callback = 0)
-          : caller(caller),
-            ec(enter_callback),
-            lc(leave_callback)
+        XmlCallbackVisitor (T * caller, Callback enter_callback = 0, Callback leave_callback = 0)
+            : caller (caller),
+              ec (enter_callback),
+              lc (leave_callback)
         { }
 
-        virtual void enterNode(XmlNode * n) { if (ec) (caller->*ec)(n); }
-        virtual void leaveNode(XmlNode * n) { if (lc) (caller->*lc)(n); }
+        virtual void enterNode (XmlNode * n)
+        {
+            if (ec) (caller->*ec) (n);
+        }
+        virtual void leaveNode (XmlNode * n)
+        {
+            if (lc) (caller->*lc) (n);
+        }
 
         T * caller;
         Callback ec, lc;
     };
 
-    namespace
+    template <typename T>
+    inline void _get_attrib (const XmlNode & n, const std::string & name, T & value)
     {
-        template <typename T>
-        void _get_attrib(const XmlNode & n, const std::string & name, T & value)
-        {
-            std::istringstream i(n.get_attrib(name));
-            if (! (i >> value))
-                n.raise_error("Wrong type for attribute " + name);
-        }
+        std::istringstream i (n.get_attrib (name));
 
-        template <>
-        inline void _get_attrib<std::string>(const XmlNode & n, const std::string & name, std::string & value)
-        {
-            value = n.get_attrib(name);
-        }
+        if (! (i >> value))
+            n.raise_error ("Wrong type for attribute " + name);
+    }
+
+    template <>
+    inline void _get_attrib<std::string> (const XmlNode & n, const std::string & name, std::string & value)
+    {
+        value = n.get_attrib (name);
     }
 
     template <typename T>
-    T XmlNode::get_attrib(const std::string & name) const
+    T XmlNode::get_attrib (const std::string & name) const
     {
         T value;
-        _get_attrib<T>(* this, name, value);
+        _get_attrib<T> (* this, name, value);
         return value;
     }
 
     template <typename T>
-    XmlNode * XmlNode::get_attrib(const std::string & name, T & value)
+    XmlNode * XmlNode::get_attrib (const std::string & name, T & value)
     {
-        _get_attrib<T>(* this, name, value);
+        _get_attrib<T> (* this, name, value);
         return this;
     }
 
     template <typename T>
-    XmlNode * XmlNode::get_attrib_if_present(const std::string & name, T & value)
+    XmlNode * XmlNode::get_attrib_if_present (const std::string & name, T & value)
     {
-        assert(is_element());
-        XmlAttributesMap::const_iterator i = attributes.find(name);
+        assert (is_element());
+        XmlAttributesMap::const_iterator i = attributes.find (name);
+
         if (i != attributes.end())
         {
-            std::istringstream is(i->second);
+            std::istringstream is (i->second);
+
             if (! (i >> value))
-                raise_error("Wrong type for attribute " + name);
+                raise_error ("Wrong type for attribute " + name);
         }
+
         return this;
     }
 
-    namespace
+    template <typename T>
+    inline void _set_attrib (XmlNode & n, const std::string & name, const T & value)
     {
-        template <typename T>
-        void _set_attrib(XmlNode & n, const std::string & name, const T & value)
-        {
-            std::ostringstream oss;
-            oss << value;
-            n.set_attrib(name, oss.str());
-        }
+        std::ostringstream oss;
+        oss << value;
+        n.set_attrib (name, oss.str());
+    }
 
-        template <>
-        void _set_attrib<std::string>(XmlNode & n, const std::string & name, const std::string & value)
-        {
-            n.set_attrib(name, value);
-        }
+    template <>
+    inline void _set_attrib<std::string> (XmlNode & n, const std::string & name, const std::string & value)
+    {
+        n.set_attrib (name, value);
     }
 
     template <typename T>
-    XmlNode * XmlNode::set_attrib(const std::string & name, const T & value)
+    XmlNode * XmlNode::set_attrib (const std::string & name, const T & value)
     {
-        _set_attrib<T>(* this, name, value);
+        _set_attrib<T> (* this, name, value);
         return this;
     }
 
-    namespace
+    template <typename T>
+    inline void _get_data (XmlNode & n, T & value)
     {
-        template <typename T>
-        void _get_data(XmlNode & n, T & value)
-        {
-            std::istringstream i(n.get_data());
-            if (! (i >> value))
-                n.raise_error("Wrong type for data " + n.get_data());
-        }
+        std::istringstream i (n.get_data());
 
-        template <>
-        inline void _get_data<std::string>(XmlNode & n, std::string & d)
-        {
-            d=n.get_data();
-        }
+        if (! (i >> value))
+            n.raise_error ("Wrong type for data " + n.get_data());
+    }
+
+    template <>
+    inline void _get_data<std::string> (XmlNode & n, std::string & d)
+    {
+        d = n.get_data();
     }
 
     template <typename T>
-    XmlNode * XmlNode::get_data(T & value)
+    XmlNode * XmlNode::get_data (T & value)
     {
-        _get_data(* this, value);
+        _get_data (* this, value);
         return this;
     }
 }

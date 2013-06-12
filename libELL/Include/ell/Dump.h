@@ -82,7 +82,7 @@ namespace ell
         }
 
         if (kind == "char")
-            return value;
+            return "'"+value+"'";
         else if (kind == "charset" || kind == "range")
             return '[' + value + ']';
         else if (kind == "error")
@@ -92,7 +92,7 @@ namespace ell
         else if (kind == "ignore-case-string")
             return "icase(\"" + value + "\")";
         else if (kind == "keyword" || kind == "ignore-case-keyword")
-            return "'" + value + "' keyword";
+            return "'" + value + "'";
 
         return kind;
     }
