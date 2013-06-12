@@ -2,6 +2,8 @@ TARGET = dump_test
 TARGET_FILES = XmlParser/Test/DumpTest.cpp
 
 CFLAGS = -IXmlParser/Include -IlibELL/Include
+ifeq ($(findstring sun,$(COMPILER)),)
 LDFLAGS = -lstdc++
+endif
 
 include Script/target.mk
