@@ -14,7 +14,10 @@ ifeq ($(MODE),Release)
 CFLAGS += -O3 -DNDEBUG -s -fno-rtti
 else
 MODE = Debug
-CFLAGS += -g -O0 -fno-inline
+CFLAGS += -g -O0
+ifeq ($(findstring sun,$(COMPILER)),)
+CFLAGS += -fno-inline
+endif
 endif
 
 BUILD_FOOTPRINT = Build/$(OS)/$(ARCH)/$(MODE)
@@ -25,7 +28,6 @@ ifeq ($(MOLDUR_BUILD_TARGET),)
 
 # prevent environment variable interferences
 TARGET=
-COMPILER=
 MAKEFILES=
 EXT=
 BUILD_DIR=
@@ -47,11 +49,11 @@ clean:
 else
 LDFLAGS += -L$(BUILD_FOOTPRINT)
 
-#COMPILER = LANG=C icc
 ifneq ($(findstring icc,$(COMPILER)),)
 CFLAGS += -Wbrief
-else
-COMPILER = LANG=C g++
+endif
+
+ifneq ($(findstring g++,$(COMPILER)),)
 CFLAGS += -Wall -pipe -Wno-parentheses -Wextra
 CFLAGS += -Woverloaded-virtual
 CFLAGS += -Werror
@@ -190,12 +192,16 @@ $(TARGET_OBJ): $(BUILD_DIR)/%.o: %$(EXT) $(DCH) $(BUILD_DIR)/%.d
 	@echo $(COL2)COMP - $< $(COLE)
 	$(COMPILER) $(CFLAGS) $< -c -o $@
 
+ifneq ($(findstring sun,$(COMPILER)),)
+# SunCC => no dependency handling :(
+.PHONY: $(TARGET_DEP)
+else
 $(TARGET_DEP): $(BUILD_DIR)/%.d: %$(EXT) $(DCH)
 	@mkdir -p $(dir $@)
 	@echo $(COL3)COMPD - $< $(COLE)
 	$(COMPILER) $(CFLAGS) -MP -MMD -o $(@:%.d=%.o) -c $<
-
 -include $(TARGET_DEP)
+endif
 
 ifeq ($(BUILD_DIR),.)
 clean:
