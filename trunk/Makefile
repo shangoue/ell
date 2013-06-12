@@ -4,8 +4,8 @@
 TARGET_FILES = $(wildcard */*.target *.target)
 
 #COMPILER = icc
-COMPILER = sunCC
-#COMPILER = LANG=C g++
+#COMPILER = sunCC
+COMPILER = LANG=C g++
 
 all: $(TARGET_FILES)
 
