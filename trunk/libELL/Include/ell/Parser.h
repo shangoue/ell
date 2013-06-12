@@ -151,6 +151,8 @@ namespace ell
             position(0)
         { }
 
+        using ParserBase<Char>::parse;
+
         void parse(const Char * buffer, int start_line = 1)
         {
             position = buffer;
