@@ -158,11 +158,11 @@ namespace ell
             ParserBase<Char>::parse();
         }
 
-        void raise_error(const std::string & msg, int line_number) const
+        void raise_error(const std::string & msg, int ln) const
         {
             std::ostringstream oss;
-            if (line_number)
-                oss << line_number << ": ";
+            if (ln)
+                oss << ln << ": ";
             oss << "before " << dump_position() << ": " << msg << std::endl;
             throw std::runtime_error(oss.str());
         }
