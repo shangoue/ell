@@ -73,14 +73,18 @@ namespace ell
         virtual const Node<Token> * get_child_at(int /*index*/) const { return 0; }
         virtual std::string get_value() const { return ""; }
 
+#ifdef __sun
         template <typename V>
         bool parse(Parser<Token> * parser, Storage<V> & s) const;
+#endif
     };
 
     template <typename Token, typename ConcreteNode>
     struct ConcreteNodeBase : public Node<Token>
     {
+#ifdef __sun
         using Node<Token>::parse;
+#endif
 
         bool parse(Parser<Token> * parser) const
         {

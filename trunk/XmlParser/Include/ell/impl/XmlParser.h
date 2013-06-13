@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Ell library.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifndef INCLUDED_ELL_IMPL_XMLPARSER_H
+#define INCLUDED_ELL_IMPL_XMLPARSER_H
+
 namespace ell
 {
     inline std::string XmlGrammar::protect(const std::string & cdata)
@@ -99,3 +102,5 @@ namespace ell
         ELL_NAME_RULE(ident);
     }
 }
+
+#endif // INCLUDED_ELL_IMPL_XMLPARSER_H
