@@ -45,7 +45,14 @@ int main()
     ell::Parser<char> p(& gram.root, & gram.blank);
     ELL_ENABLE_DUMP(p);
 
-    p.parse("bacon eggs kouign amann");
+    try
+    {
+        p.parse("bacon eggs kouign amann");
+    }
+    catch (std::exception & e)
+    {
+        std::cerr << "Expected error caught:\n" << e.what() << "\n";
+    }
 
     return 0;
 }
