@@ -183,7 +183,7 @@ The tables below lists all the operators which can be used to write a grammar. O
 || `+ a` || One or more repetition ||
 || `* a` || Zero or more repetition ||
 || `a [& Class::variable]` || Assign the result of matching into a variable. ||
-|| `a [& Class::method]` || Call the given (non-const) member function passing the matching result. ||
+|| `a [& Class::method]` || Call the given (non-const) member function passing the matching result. The method can return a boolean type to confirm (or not) the matching of the node to which it applies. ||
 
 *Note:*
 
