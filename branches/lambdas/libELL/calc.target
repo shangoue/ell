@@ -1,0 +1,6 @@
+TARGET = calc
+
+TARGET_FILES = libELL/Test/calc.cpp
+CFLAGS += -IlibELL/Include
+
+include Script/target.mk

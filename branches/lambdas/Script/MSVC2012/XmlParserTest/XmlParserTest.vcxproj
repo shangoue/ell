@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\libELL\Include\ell\BinaryNode.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\BinaryNodes.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Dump.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Grammar.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Node.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Numerics.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Parser.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Primitives.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\RepeatMatchTpl.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Rule.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Storage.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\UnaryNode.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\UnaryNodes.h" />
+    <ClInclude Include="..\..\..\libELL\Include\ell\Utils.h" />
+    <ClInclude Include="..\..\..\XmlParser\Include\ell\impl\XmlNode.h" />
+    <ClInclude Include="..\..\..\XmlParser\Include\ell\impl\XmlParser.h" />
+    <ClInclude Include="..\..\..\XmlParser\Include\ell\XmlDump.h" />
+    <ClInclude Include="..\..\..\XmlParser\Include\ell\XmlNode.h" />
+    <ClInclude Include="..\..\..\XmlParser\Include\ell\XmlParser.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\XmlParser\Test\XmlTest.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3FCE1D1B-4BEB-4BAC-8ECD-125025B11F55}</ProjectGuid>
+    <RootNamespace>XmlParserTest</RootNamespace>
+    <SccProjectName>Svn</SccProjectName>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\..\libELL\Include;$(SolutionDir)\..\..\XmlParser\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\..\..\libELL\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

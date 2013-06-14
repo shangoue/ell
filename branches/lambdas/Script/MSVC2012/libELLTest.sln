@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libELLTest", "libELLTest\libELLTest.vcxproj", "{6A75A1AF-286B-4826-8665-B66E3B625054}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XmlParserTest", "XmlParserTest\XmlParserTest.vcxproj", "{3FCE1D1B-4BEB-4BAC-8ECD-125025B11F55}"
+EndProject
+Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A75A1AF-286B-4826-8665-B66E3B625054}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6A75A1AF-286B-4826-8665-B66E3B625054}.Debug|Win32.Build.0 = Debug|Win32
+		{6A75A1AF-286B-4826-8665-B66E3B625054}.Release|Win32.ActiveCfg = Release|Win32
+		{6A75A1AF-286B-4826-8665-B66E3B625054}.Release|Win32.Build.0 = Release|Win32
+		{3FCE1D1B-4BEB-4BAC-8ECD-125025B11F55}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3FCE1D1B-4BEB-4BAC-8ECD-125025B11F55}.Debug|Win32.Build.0 = Debug|Win32
+		{3FCE1D1B-4BEB-4BAC-8ECD-125025B11F55}.Release|Win32.ActiveCfg = Release|Win32
+		{3FCE1D1B-4BEB-4BAC-8ECD-125025B11F55}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
