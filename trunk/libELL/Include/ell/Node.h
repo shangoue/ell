@@ -72,27 +72,19 @@ namespace ell
         virtual std::string get_kind() const = 0;
         virtual const Node<Token> * get_child_at(int /*index*/) const { return 0; }
         virtual std::string get_value() const { return ""; }
-
-#ifdef __SUNPRO_CC
-        template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const;
-#endif
     };
 
     template <typename Token, typename ConcreteNode>
     struct ConcreteNodeBase : public Node<Token>
     {
-#ifdef __SUNPRO_CC
-        using Node<Token>::parse;
-#endif
-
         bool parse(Parser<Token> * parser) const
         {
+            const ConcreteNode * instance = ((const ConcreteNode *) this);
             Storage<void> s;
-            return ((const ConcreteNode *) this)->parse(parser, s);
+            return instance->match(parser, s);
         }
 
-        bool parse(Parser<Token> * parser, Storage<std::basic_string<Token> > & s) const
+        bool match(Parser<Token> * parser, Storage<std::basic_string<Token> > & s) const
         {
             const Token * begin = parser->position;
             bool match = parse(parser);
@@ -100,7 +92,7 @@ namespace ell
             return match;
         }
 
-        bool parse(Parser<Token> * parser, Storage<ell::basic_string<Token> > & s) const
+        bool match(Parser<Token> * parser, Storage<ell::basic_string<Token> > & s) const
         {
             s.value.position = parser->position;
             bool match = parse(parser);
@@ -108,13 +100,13 @@ namespace ell
             return match;
         }
 
-        bool parse(Parser<Token> * parser, Storage<const Token *> & s) const
+        bool match(Parser<Token> * parser, Storage<const Token *> & s) const
         {
             s.value = & * parser->position;
             return parse(parser);
         }
 
-        bool parse(Parser<Token> * parser, Storage<bool> & s) const
+        bool match(Parser<Token> * parser, Storage<bool> & s) const
         {
             const Token * begin = parser->position;
             bool match = parse(parser);

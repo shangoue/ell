@@ -24,10 +24,10 @@ namespace ell
     template <typename Token, typename ConcreteNode>
     struct TokenPrimitiveBase : public ConcreteNodeBase<Token, ConcreteNode>
     {
-        using ConcreteNodeBase<Token, ConcreteNode>::parse;
+        using ConcreteNodeBase<Token, ConcreteNode>::match;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             Storage<Token> si;
             si.value = parser->get();
@@ -40,8 +40,8 @@ namespace ell
     template <typename Token>
     struct Eps : public TokenPrimitiveBase<Token, Eps<Token> >
     {
-        using TokenPrimitiveBase<Token, Eps<Token> >::parse;
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        using TokenPrimitiveBase<Token, Eps<Token> >::match;
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             match = true;
@@ -55,8 +55,8 @@ namespace ell
     template <typename Token>
     struct Nop : public ConcreteNodeBase<Token, Nop<Token> >
     {
-        using ConcreteNodeBase<Token, Nop<Token> >::parse;
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        using ConcreteNodeBase<Token, Nop<Token> >::match;
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             ELL_END_PARSE
@@ -69,9 +69,9 @@ namespace ell
     template <typename Token>
     struct Any : public TokenPrimitiveBase<Token, Any<Token> >
     {
-        using TokenPrimitiveBase<Token, Any<Token> >::parse;
+        using TokenPrimitiveBase<Token, Any<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             if (! parser->end())
@@ -89,9 +89,9 @@ namespace ell
     template <typename Token>
     struct EoS : public TokenPrimitiveBase<Token, EoS<Token> >
     {
-        using TokenPrimitiveBase<Token, EoS<Token> >::parse;
+        using TokenPrimitiveBase<Token, EoS<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             match = parser->end();
@@ -109,9 +109,9 @@ namespace ell
             : set(s)
         { }
 
-        using TokenPrimitiveBase<Token, ChS<Token> >::parse;
+        using TokenPrimitiveBase<Token, ChS<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             const char * p = & set[0];
@@ -157,9 +157,9 @@ namespace ell
         { }
 
         std::string get_kind() const { return "char"; }
-        using TokenPrimitiveBase<Token, Ch<Token> >::parse;
+        using TokenPrimitiveBase<Token, Ch<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             if (parser->get() == c)
@@ -184,9 +184,9 @@ namespace ell
     template <typename Token, const Token C1, const Token C2>
     struct Rg : public TokenPrimitiveBase<Token, Rg<Token, C1, C2> >
     {
-        using TokenPrimitiveBase<Token, Rg<Token, C1, C2> >::parse;
+        using TokenPrimitiveBase<Token, Rg<Token, C1, C2> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             const Token c = parser->get();
@@ -212,9 +212,9 @@ namespace ell
             : str(s)
         { }
 
-        using ConcreteNodeBase<Token, Err<Token> >::parse;
+        using ConcreteNodeBase<Token, Err<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             parser->raise_error(str);
@@ -234,9 +234,9 @@ namespace ell
           : str(s)
         { }
 
-        using ConcreteNodeBase<Token, IStr<Token> >::parse;
+        using ConcreteNodeBase<Token, IStr<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
@@ -279,9 +279,9 @@ namespace ell
           : str(s)
         { }
 
-        using ConcreteNodeBase<Token, Str<Token> >::parse;
+        using ConcreteNodeBase<Token, Str<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
@@ -314,11 +314,11 @@ namespace ell
           : decorated(Str<Token>(s), ChS<Token>("a-zA-Z0-9_"))
         { }
 
-        using ConcreteNodeBase<Token, Kw<Token> >::parse;
+        using ConcreteNodeBase<Token, Kw<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> & v) const
+        bool match(Parser<Token> * parser, Storage<void> & v) const
         {
-            return decorated.parse(parser, v);
+            return decorated.match(parser, v);
         }
 
         std::string get_value() const { return decorated.left.str; }
@@ -335,11 +335,11 @@ namespace ell
           : decorated(IStr<Token>(s), ChS<Token>("a-zA-Z0-9_"))
         { }
 
-        using ConcreteNodeBase<Token, IKw<Token> >::parse;
+        using ConcreteNodeBase<Token, IKw<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> & v) const
+        bool match(Parser<Token> * parser, Storage<void> & v) const
         {
-            return decorated.parse(parser, v);
+            return decorated.match(parser, v);
         }
 
         std::string get_value() const { return decorated.left.str; }
@@ -352,9 +352,9 @@ namespace ell
     template <typename Token>
     struct Idt : public ConcreteNodeBase<Token, Idt<Token> >
     {
-        using ConcreteNodeBase<Token, Idt<Token> >::parse;
+        using ConcreteNodeBase<Token, Idt<Token> >::match;
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             wchar_t c = parser->get();
@@ -383,9 +383,9 @@ namespace ell
     /// Only for byte strings...
     struct UTF8NonASCII : public ConcreteNodeBase<char, UTF8NonASCII>
     {
-        using ConcreteNodeBase<char, UTF8NonASCII>::parse;
+        using ConcreteNodeBase<char, UTF8NonASCII>::match;
 
-        bool parse(Parser<char> * parser, Storage<void> &) const
+        bool match(Parser<char> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             Parser<char>::Context sav_pos(parser);

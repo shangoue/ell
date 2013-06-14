@@ -17,7 +17,7 @@
 # error "MIN and MAX parameters must be defined before inclusion"
 #else
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
@@ -26,7 +26,7 @@
 
             while (count < MIN)
             {
-                if (! target.parse(parser, se))
+                if (! target.match(parser, se))
                 {
                     sav_pos.restore(parser);
                     break;
@@ -42,7 +42,7 @@
                 if (MAX == -1)
                 {
                     match = true;
-                    while (target.parse(parser, se))
+                    while (target.match(parser, se))
                     {
                         s.enqueue(se);
                         parser->skip();

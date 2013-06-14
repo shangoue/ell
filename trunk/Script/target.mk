@@ -1,26 +1,4 @@
-# MOLDUR: modular, env-free build system for unix using GNU make
-# by Samuel Hangouët
-
-ARCH = $(shell uname -m)
-OS = $(shell uname -o | sed "s/[^A-Za-z0-9]/_/g")
-
-ifneq ($(ARCH),x86_64)
-ARCH = x86
-else
-CFLAGS += -fPIC
-endif
-
-ifeq ($(MODE),Release)
-CFLAGS += -O3 -DNDEBUG -s -fno-rtti
-else
-MODE = Debug
-CFLAGS += -g -O0
-ifeq ($(findstring sun,$(COMPILER)),)
-CFLAGS += -fno-inline
-endif
-endif
-
-BUILD_FOOTPRINT = Build/$(OS)/$(ARCH)/$(MODE)
+include Script/prefix.mk
 
 ########################################
 ifeq ($(MOLDUR_BUILD_TARGET),)
@@ -49,16 +27,6 @@ clean:
 else
 LDFLAGS += -L$(BUILD_FOOTPRINT)
 
-ifneq ($(findstring icc,$(COMPILER)),)
-CFLAGS += -Wbrief
-endif
-
-ifneq ($(findstring g++,$(COMPILER)),)
-CFLAGS += -Wall -pipe -Wno-parentheses -Wextra
-CFLAGS += -Woverloaded-virtual
-CFLAGS += -Werror
-endif
-
 CFLAGS += $(if $(PCH),-include $(PCH))
 
 BUILD_DIR = $(BUILD_FOOTPRINT)/$(MODULE)
@@ -77,9 +45,6 @@ LDFLAGS += -Wl,-rpath,$(shell pwd)/$(BUILD_FOOTPRINT)
 
 # BEGIN OF SYSTEM
 
-# MOLDUR: modular, env-free build system using GNU make
-# by Samuel Hangouët
-#
 # Input variables:
 #
 # TARGET:       pathname of generated file (.a, .so or runable) (eg. "Binary/i686/Release/AITest")

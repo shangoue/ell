@@ -3,10 +3,4 @@ TARGET = calc
 TARGET_FILES = libELL/Test/calc.cpp
 CFLAGS += -IlibELL/Include
 
-ifeq ($(findstring sun,$(COMPILER)),)
-LDFLAGS += -lstdc++
-else
-LDFLAGS += -L/usr/lib
-endif
-
 include Script/target.mk

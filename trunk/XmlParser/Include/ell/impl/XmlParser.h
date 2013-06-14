@@ -104,3 +104,4 @@ namespace ell
 }
 
 #endif // INCLUDED_ELL_IMPL_XMLPARSER_H
+
