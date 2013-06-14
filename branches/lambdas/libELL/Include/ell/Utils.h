@@ -44,8 +44,8 @@
 # define ELL_DUMP_SKIPPER      0
 #endif
 
-# define ELL_BEGIN_PARSE bool match = false; parser->begin_of_parsing(this);
-# define ELL_END_PARSE   parser->end_of_parsing(this, match); return match;
+# define ELL_BEGIN_PARSE bool res = false; parser->begin_of_parsing(this);
+# define ELL_END_PARSE   parser->end_of_parsing(this, res); return res;
 
 # define ELL_PARSER_FLAGS     \
     ELL_FLAG(look_ahead, LkA) \

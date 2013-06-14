@@ -23,3 +23,7 @@ test: libELL/test.target XmlParser/xml_test.target
 
 cleanall:
 	rm -rf Build
+
+calc:
+	@$(MAKE) -f libELL/calc.target
+	$(BUILD_FOOTPRINT)/calc

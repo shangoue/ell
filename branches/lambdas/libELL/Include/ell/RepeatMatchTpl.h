@@ -41,7 +41,7 @@
             {
                 if (MAX == -1)
                 {
-                    match = true;
+                    res = true;
                     while (target.match(parser, se))
                     {
                         s.enqueue(se);
@@ -51,7 +51,7 @@
                 else
                 {
                     if (count <= MAX)
-                        match = true;
+                        res = true;
 
                     while (count < MAX)
                     {

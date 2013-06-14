@@ -153,7 +153,7 @@ namespace ell
                 }
                 else
                 {
-                    match = true;
+                    res = true;
                     s.value *= sign;
                     assign(se, s);
                 }
@@ -193,7 +193,7 @@ namespace ell
             {
                 s.value = s.value * Radix + d;
                 parser->next();
-                match = true;
+                res = true;
 
                 while (1)
                 {
@@ -240,7 +240,7 @@ namespace ell
             {
                 assign(s, sd);
                 parser->position = endptr;
-                match = true;
+                res = true;
             }
             ELL_END_PARSE
         }

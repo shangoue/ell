@@ -27,7 +27,7 @@ namespace ell
     template <typename Token, typename Child, const int Min, const int Max>
     struct Rp;
 
-    template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
+    template <typename Token, typename Child, typename Action>
     struct Act;
 
     template <typename Token, typename Left, typename Right>
@@ -87,17 +87,17 @@ namespace ell
         bool match(Parser<Token> * parser, Storage<std::basic_string<Token> > & s) const
         {
             const Token * begin = parser->position;
-            bool match = parse(parser);
+            bool res = parse(parser);
             s.value.assign(begin, parser->position);
-            return match;
+            return res;
         }
 
         bool match(Parser<Token> * parser, Storage<ell::basic_string<Token> > & s) const
         {
             s.value.position = parser->position;
-            bool match = parse(parser);
+            bool res = parse(parser);
             s.value.size_ = parser->position - s.value.position;
-            return match;
+            return res;
         }
 
         bool match(Parser<Token> * parser, Storage<const Token *> & s) const
@@ -109,24 +109,15 @@ namespace ell
         bool match(Parser<Token> * parser, Storage<bool> & s) const
         {
             const Token * begin = parser->position;
-            bool match = parse(parser);
+            bool res = parse(parser);
             s.value = (match & (parser->position != begin));
-            return match;
+            return res;
         }
 
         //@{
         /// Semantic actions
-        template <typename ConcreteParser, typename V>
-        Act<Token, ConcreteNode, ConcreteParser, V ConcreteParser::*, V> operator [ ] (V ConcreteParser::*var) const;
-
-        template <typename ConcreteParser, typename R>
-        Act<Token, ConcreteNode, ConcreteParser, R (ConcreteParser::*)(), void> operator [ ] (R (ConcreteParser::*meth)()) const;
-
-        template <typename ConcreteParser, typename R, typename V>
-        Act<Token, ConcreteNode, ConcreteParser, R (ConcreteParser::*)(V), V> operator [ ] (R (ConcreteParser::*meth)(V)) const;
-
-        template <typename ConcreteParser, typename R, typename V>
-        Act<Token, ConcreteNode, ConcreteParser, R (ConcreteParser::*)(const V &), V> operator [ ] (R (ConcreteParser::*meth)(const V &)) const;
+        template <typename Action>
+        Act<Token, ConcreteNode, Action> operator [ ] (Action var) const;
         //@}
 
         //@{
@@ -173,31 +164,10 @@ namespace ell
 namespace ell
 {
     template <typename Token, typename CN>
-    template <typename CP, typename V>
-    Act<Token, CN, CP, V CP::*, V> ConcreteNodeBase<Token, CN>::operator [ ](V CP::*var) const
+    template <typename Action>
+    Act<Token, CN, Action> ConcreteNodeBase<Token, CN>::operator [ ](Action act) const
     {
-        return Act<Token, CN, CP, V CP::*, V>(* (const CN *) this, var);
-    }
-
-    template <typename Token, typename CN>
-    template <typename CP, typename R>
-    Act<Token, CN, CP, R (CP::*)(), void> ConcreteNodeBase<Token, CN>::operator [ ](R (CP::*meth)()) const
-    {
-        return Act<Token, CN, CP, R (CP::*)(), void>(* (const CN *) this, meth);
-    }
-
-    template <typename Token, typename CN>
-    template <typename CP, typename R, typename V>
-    Act<Token, CN, CP, R (CP::*)(V), V> ConcreteNodeBase<Token, CN>::operator [ ](R (CP::*meth)(V)) const
-    {
-        return Act<Token, CN, CP, R (CP::*)(V), V>(* (const CN *) this, meth);
-    }
-
-    template <typename Token, typename CN>
-    template <typename CP, typename R, typename V>
-    Act<Token, CN, CP, R (CP::*)(const V &), V> ConcreteNodeBase<Token, CN>::operator [ ](R (CP::*meth)(const V &)) const
-    {
-        return Act<Token, CN, CP, R (CP::*)(const V &), V>(* (const CN *) this, meth);
+        return Act<Token, CN, Action>(* (const CN *) this, act);
     }
 
     template <typename Token, typename CN>

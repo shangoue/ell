@@ -44,7 +44,7 @@ namespace ell
         bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
-            match = true;
+            res = true;
             ELL_END_PARSE
         }
 
@@ -76,7 +76,7 @@ namespace ell
             ELL_BEGIN_PARSE
             if (! parser->end())
             {
-                match = true;
+                res = true;
                 parser->next();
             }
             ELL_END_PARSE
@@ -94,7 +94,7 @@ namespace ell
         bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
-            match = parser->end();
+            res = parser->end();
             ELL_END_PARSE
         }
 
@@ -121,7 +121,7 @@ namespace ell
                 const wchar_t first = * p;
                 if (c == first)
                 {
-                    match = true;
+                    res = true;
                     parser->next();
                     break;
                 }
@@ -133,7 +133,7 @@ namespace ell
                     if ((c >= first) & (c <= second))
                     {
                         parser->next();
-                        match = true;
+                        res = true;
                         break;
                     }
 
@@ -165,7 +165,7 @@ namespace ell
             if (parser->get() == c)
             {
                 parser->next();
-                match = true;
+                res = true;
             }
             ELL_END_PARSE
         }
@@ -195,7 +195,7 @@ namespace ell
             if (d1 >= 0 && d2 <= 0)
             {
                 parser->next();
-                match = true;
+                res = true;
             }
             ELL_END_PARSE
         }
@@ -241,7 +241,7 @@ namespace ell
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
             const Token * p = & str[0];
-            match = true;
+            res = true;
             while (* p)
             {
                 const wchar_t c = * p;
@@ -256,7 +256,7 @@ namespace ell
                 }
                 else
                 {
-                    match = false;
+                    res = false;
                     sav_pos.restore(parser);
                     break;
                 }
@@ -286,12 +286,12 @@ namespace ell
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
             const Token * p = str.c_str();
-            match = true;
+            res = true;
             while (* p)
             {
                 if (! (* p == parser->get()))
                 {
-                    match = false;
+                    res = false;
                     sav_pos.restore(parser);
                     break;
                 }
@@ -362,7 +362,7 @@ namespace ell
                 ((c >= 'A') & (c <= 'Z')) |
                 (c == '_'))
             {
-                match = true;
+                res = true;
                 do
                 {
                   parser->next();
@@ -392,10 +392,10 @@ namespace ell
 
             unsigned char c = parser->get();
             if (c < 0xC0 || c > 0xFD)
-                match = false;
+                res = false;
             else
             {
-                match = true;
+                res = true;
                 parser->next();
                 c = parser->get();
                 int n = 1;
@@ -415,7 +415,7 @@ namespace ell
                     parser->next();
                     if (c < 0x80 || c > 0xBF)
                     {
-                        match = false;
+                        res = false;
                         sav_pos.restore(parser);
                         break;
                     }

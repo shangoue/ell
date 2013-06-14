@@ -10,7 +10,9 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
         flags.look_ahead = false;
 
         factor = ch('(') >> expression >> ch(')') 
+
                | (ch('-') >> factor) [& Calc::negate] 
+//               | (ch('-') >> factor) [[&](){push(-pop());}] 
                | (ch('+') >> factor) 
                | real [& Calc::push];
 
@@ -25,7 +27,7 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
         ELL_NAME_RULE(factor);
         ELL_NAME_RULE(term);
         ELL_NAME_RULE(expression);
-        ELL_NAME_RULE(root);
+        root.set_name("expression");
     }
 
     double eval(const char * expr)

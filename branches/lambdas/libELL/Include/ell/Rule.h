@@ -106,7 +106,7 @@ namespace ell
         bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
-            match = top->parse(parser);
+            res = top->parse(parser);
             ELL_END_PARSE
         }
 

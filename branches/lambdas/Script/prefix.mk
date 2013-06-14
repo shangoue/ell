@@ -40,7 +40,7 @@ endif
 ifneq ($(findstring g++,$(COMPILER)),)
 CFLAGS += -Wall -pipe -Wno-parentheses -Wextra
 CFLAGS += -Woverloaded-virtual
-CFLAGS += -Werror
+CFLAGS += -Werror -std=c++11
 endif
 
 ifneq ($(findstring clang,$(COMPILER)),)

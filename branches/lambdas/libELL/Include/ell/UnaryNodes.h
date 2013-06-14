@@ -47,7 +47,7 @@ namespace ell
             ELL_BEGIN_PARSE                                                      \
             SafeModify<> m1(parser->flags.FLAG, NV);                             \
             ELL_CUSTOM_##FLAG(NV)                                                \
-            match = Base::target.match(parser, s);                               \
+            res = Base::target.match(parser, s);                                 \
             ELL_END_PARSE                                                        \
         }                                                                        \
     };
@@ -62,8 +62,8 @@ namespace ell
         {                                                    \
             typename Parser<Token>::Context sav_pos(parser); \
             parser->skip();                                  \
-            match = Base::target.match(parser, s);           \
-            if (! match)                                     \
+            res = Base::target.match(parser, s);             \
+            if (! res)                                       \
                 sav_pos.restore(parser);                     \
         }                                                    \
         else                                                 
@@ -90,7 +90,7 @@ namespace ell
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
-            match = Base::target.match(parser, s);
+            res = Base::target.match(parser, s);
             sav_pos.restore(parser);
             ELL_END_PARSE
         }
@@ -116,7 +116,7 @@ namespace ell
             ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.look_ahead, true);
             SafeModify<> m2(parser->flags.skip, false);
-            match = Base::target.match(parser, s);
+            res = Base::target.match(parser, s);
             ELL_END_PARSE
         }
     };
@@ -178,69 +178,131 @@ namespace ell
         const int CP::*max;
     };
 
-    template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
-    struct Act
-    { };
-
     namespace
     {
-        template <typename CP, typename V>
-        bool make_action(CP * parser, V CP::*var, Storage<V> & s)
+        // Member variable
+        template <typename Token, typename Child, typename CP, typename VAction, typename VOut>
+        bool make_action(Child & target, Parser<Token> * parser, VAction CP::*var, Storage<VOut> & s_out)
         {
-            parser->*var = s.value;
-            return true;
+            Storage<VAction> s_action;
+            bool res = target.match(parser, s_action);
+            if (res)
+            {
+                ((CP*)parser)->*var = s_action.value;
+                assign(s_out, s_action);
+            }
+            return res;
         }
 
-        template <typename CP, typename V>
-        bool make_action(CP * parser, void(CP::*method)(const V &), Storage<V> & s)
+        // Method returning void and taking by ref
+        template <typename Token, typename Child, typename CP, typename VAction, typename VOut>
+        bool make_action(Child & target, Parser<Token> * parser, void(CP::*meth)(const VAction&), Storage<VOut> & s_out)
         {
-            (parser->*method)(s.value);
-            return true;
+            Storage<VAction> s_action;
+            bool res = target.match(parser, s_action);
+            if (res)
+            {
+                (((CP*)parser)->*meth)(s_action.value);
+                assign(s_out, s_action);
+            }
+            return res;
         }
 
-        template <typename CP, typename V>
-        bool make_action(CP * parser, bool(CP::*method)(const V &), Storage<V> & s)
+        // Method returning bool and taking by ref
+        template <typename Token, typename Child, typename CP, typename VAction, typename VOut>
+        bool make_action(Child & target, Parser<Token> * parser, bool(CP::*meth)(const VAction&), Storage<VOut> & s_out)
         {
-            return (parser->*method)(s.value);
+            Storage<VAction> s_action;
+            if (target.match(parser, s_action))
+            {
+                if ((((CP*)parser)->*meth)(s_action.value))
+                {
+                    assign(s_out, s_action);
+                    return true;
+                }
+            }
+            return false;
         }
 
-        template <typename CP, typename V>
-        bool make_action(CP * parser, void(CP::*method)(V), Storage<V> & s)
+        // Method returning void and taking by value
+        template <typename Token, typename Child, typename CP, typename VAction, typename VOut>
+        bool make_action(Child & target, Parser<Token> * parser, void(CP::*meth)(VAction), Storage<VOut> & s_out)
         {
-            (parser->*method)(s.value);
-            return true;
+            Storage<VAction> s_action;
+            bool res = target.match(parser, s_action);
+            if (res)
+            {
+                (((CP*)parser)->*meth)(s_action.value);
+                assign(s_out, s_action);
+            }
+            return res;
         }
 
-        template <typename CP, typename V>
-        bool make_action(CP * parser, bool(CP::*method)(V), Storage<V> & s)
+        // Method returning bool and taking by value
+        template <typename Token, typename Child, typename CP, typename VAction, typename VOut>
+        bool make_action(Child & target, Parser<Token> * parser, bool(CP::*meth)(VAction), Storage<VOut> & s_out)
         {
-            return (parser->*method)(s.value);
+            Storage<VAction> s_action;
+            if (target.match(parser, s_action))
+            {
+                if ((((CP*)parser)->*meth)(s_action.value))
+                {
+                    assign(s_out, s_action);
+                    return true;
+                }
+            }
+            return false;
         }
 
-        template <typename CP>
-        bool make_action(CP * parser, void(CP::*method)(), Storage<void> &)
+        // Method returning void and taking nothing
+        template <typename Token, typename Child, typename CP, typename VOut>
+        bool make_action(Child & target, Parser<Token> * parser, void(CP::*meth)(), Storage<VOut> & s_out)
         {
-            (parser->*method)();
-            return true;
+            bool res = target.match(parser, s_out);
+            if (res)
+                (((CP*)parser)->*meth)();
+            return res;
         }
 
-        template <typename CP>
-        bool make_action(CP * parser, bool(CP::*method)(), Storage<void> &)
+        // Function returning void and taking nothing
+        template <typename Token, typename Child, typename VOut>
+        bool make_action(Child & target, Parser<Token> * parser, void(*func)(), Storage<VOut> & s_out)
         {
-            return (parser->*method)();
+            bool res = target.match(parser, s_out);
+            if (res)
+                (*func)();
+            return res;
+        }
+
+        // Method returning bool and taking nothing
+        template <typename Token, typename Child, typename CP, typename VOut>
+        bool make_action(Child & target, Parser<Token> * parser, bool(CP::*meth)(), Storage<VOut> & s_out)
+        {
+            Storage<VOut> s_action;
+            bool res = target.match(parser, s_action);
+            if (res)
+            {
+                res = (((CP*)parser)->*meth)();
+                if (res)
+                {
+                    assign(s_out, s_action);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
     /// Semantic action
-    template <typename Token, typename Child, typename ConcreteParser, typename Var, typename Value>
-    struct Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>
-      : public UnaryNode<Token, Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child>
+    template <typename Token, typename Child, typename Action>
+    struct Act
+      : public UnaryNode<Token, Act<Token, Child, Action>, Child>
     {
-        typedef UnaryNode<Token, Act<Token, Child, ConcreteParser, Var ConcreteParser::*, Value>, Child> Base;
+        typedef UnaryNode<Token, Act<Token, Child, Action>, Child> Base;
 
-        Act(const Child & target, Var ConcreteParser::*v)
+        Act(const Child & target, Action act)
           : Base(target),
-            var(v)
+            action(act)
         { }
 
         std::string get_kind() const { return "action"; }
@@ -252,28 +314,14 @@ namespace ell
         {
             ELL_BEGIN_PARSE
             if (parser->flags.action)
-            {
-                Storage<Value> sa;
-                typename Parser<Token>::Context sav_pos(parser);
-
-                match = Base::target.match(parser, sa);
-                if (match)
-                {
-                    match = make_action((ConcreteParser *) parser, var, sa);
-                    if (match)
-                        assign(s, sa);
-                    else
-                        sav_pos.restore(parser);
-                }
-            }
+                res = make_action(Base::target, parser, action, s);
             else
-                match = Base::target.parse(parser);
+                res = Base::target.parse(parser);
             ELL_END_PARSE
         }
 
     private:
-        typedef Var ConcreteParser::*MethodAction;
-        MethodAction var;
+        Action action;
     };
 }
 
