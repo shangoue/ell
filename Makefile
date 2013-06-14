@@ -3,9 +3,8 @@
 
 TARGET_FILES = $(wildcard */*.target *.target)
 
-#COMPILER = icc
-#COMPILER = sunCC
-COMPILER = LANG=C g++
+# You can adjust your compiler and options in this file:
+include Script/prefix.mk
 
 all: $(TARGET_FILES)
 
@@ -16,4 +15,11 @@ $(TARGET_FILES):
 	@$(MAKE) --no-print-directory -f $@ COMPILER="${COMPILER}"
 
 clean:
+	rm -rf $(BUILD_FOOTPRINT)
+
+test: libELL/test.target XmlParser/xml_test.target
+	$(BUILD_FOOTPRINT)/libell_test
+	$(BUILD_FOOTPRINT)/xml_test
+
+cleanall:
 	rm -rf Build

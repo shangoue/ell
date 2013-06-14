@@ -23,13 +23,13 @@
 namespace ell
 {
     /// Storage class is used to propagate output data of matched values
-    /// through recursive 'parse' calls.
+    /// through recursive 'match' calls.
     template <typename T>
     struct Storage
     {
+        typedef Storage<void> Unit;
         Storage() : value() { }
         T value;
-        typedef Storage<void> Unit;
     };
 
     template <>
@@ -49,15 +49,14 @@ namespace ell
         void clear() { value.clear(); }
     };
 
-#   define D(container)                                                                \
-    template <typename T>                                                              \
-    struct Storage<std::container<T> > : public ContainerStorage<std::container<T>, T> \
-    { };                                                                               \
+#   define D(container)                                                      \
+    template <typename T>                                                    \
+    struct Storage<container<T> > : public ContainerStorage<container<T>, T> \
+    { };
 
-    D(vector)
-    D(set)
-    D(list)
-
+    D(std::vector)
+    D(std::set)
+    D(std::list)
 #   undef D
 
     template <typename V1, typename V2>

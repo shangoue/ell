@@ -41,7 +41,7 @@ void nonreg()
         {3, "<not open=\"error\"></not></hum>", false},
         {4, "   <white>  space 2 \r\n  </white> \r\n  \t<top /> ", true},
         {5, "<entities inside_att=\"&quot;'&lt;'\\\"><![CDATA[]]&gt;<>\"]]>&lt;a&gt;</entities>", true},
-        {6, "<specialé char_in_ident_é=\"é\"></specialé>", true}
+        {6, "<special\x00e9 char_in_ident_\x00e9=\"\x00e9\"></special\x00e9>", true}
     };
 
     try

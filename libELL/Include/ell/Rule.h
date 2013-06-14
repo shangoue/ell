@@ -26,7 +26,7 @@ namespace ell
     template <typename Token>
     struct Rule : public ConcreteNodeBase<Token, Rule<Token> >
     {
-        using ConcreteNodeBase<Token, Rule<Token> >::parse;
+        using ConcreteNodeBase<Token, Rule<Token> >::match;
 
         Rule()
           : top(0), must_delete(false)
@@ -103,7 +103,7 @@ namespace ell
             return * this;
         }
 
-        bool parse(Parser<Token> * parser, Storage<void> &) const
+        bool match(Parser<Token> * parser, Storage<void> &) const
         {
             ELL_BEGIN_PARSE
             match = top->parse(parser);

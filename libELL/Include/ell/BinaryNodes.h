@@ -35,13 +35,13 @@ namespace ell
 
         std::string get_kind() const { return "alternative"; }
 
-        using Base::parse;
+        using Base::match;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
-            match = left.parse(parser, s) || right.parse(parser, s);
+            match = left.match(parser, s) || right.match(parser, s);
             ELL_END_PARSE
         }
     };
@@ -60,10 +60,10 @@ namespace ell
          
         std::string get_kind() const { return "longest"; }
 
-        using Base::parse;
+        using Base::match;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
@@ -74,11 +74,11 @@ namespace ell
             {
               SafeModify<> no_actions(parser->flags.action, false);
 
-              if (left.parse(parser, s))
+              if (left.match(parser, s))
                   left_s = parser->measure(sav_pos);
               sav_pos.restore(parser);
 
-              if (right.parse(parser, s))
+              if (right.match(parser, s))
                   right_s = parser->measure(sav_pos);
               sav_pos.restore(parser);
             }
@@ -87,9 +87,9 @@ namespace ell
             {
                 // Reparse the right one with actions
                 if (left_s >= right_s)
-                    match = left.parse(parser, s);
+                    match = left.match(parser, s);
                 else
-                    match = right.parse(parser, s);
+                    match = right.match(parser, s);
             }
             ELL_END_PARSE
         }
@@ -109,26 +109,26 @@ namespace ell
 
         std::string get_kind() const { return "combination"; }
 
-        using Base::parse;
+        using Base::match;
         template <typename T>
-        bool parse(Parser<Token> * parser, Storage<T> & s) const
+        bool match(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
             s.clear();
             typename Storage<T>::Unit se;
-            if (left.parse(parser, se))
+            if (left.match(parser, se))
             {
                 s.enqueue(se);
-                if (right.parse(parser, se))
+                if (right.match(parser, se))
                 {
                     s.enqueue(se);
                     match = true;
                 }
             }
-            else if (right.parse(parser, se))
+            else if (right.match(parser, se))
             {
                 s.enqueue(se);
-                if (left.parse(parser, se))
+                if (left.match(parser, se))
                 {
                     s.enqueue(se);
                     match = true;
@@ -152,20 +152,20 @@ namespace ell
 
         std::string get_kind() const { return "aggregation"; }
 
-        using Base::parse;
+        using Base::match;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
 
             typename Storage<V>::Unit s1;
-            if (left.parse(parser, s1))
+            if (left.match(parser, s1))
             {
                 parser->skip();
                 typename Storage<V>::Unit s2;
-                if (right.parse(parser, s2))
+                if (right.match(parser, s2))
                 {
                     s.enqueue(s1);
                     s.enqueue(s2);
@@ -198,17 +198,17 @@ namespace ell
 
         std::string get_kind() const { return "exclusion"; }
 
-        using Base::parse;
+        using Base::match;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
             if (right.parse(parser))
                 sav_pos.restore(parser);
             else
-                match = left.parse(parser, s);
+                match = left.match(parser, s);
             ELL_END_PARSE
         }
     };
@@ -226,17 +226,17 @@ namespace ell
 
         std::string get_kind() const { return "list"; }
 
-        using Base::parse;
+        using Base::match;
 
         template <typename T>
-        bool parse(Parser<Token> * parser, Storage<T> & s) const
+        bool match(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
             typename Storage<T>::Unit se;
             s.clear();
 
-            while (left.parse(parser, se))
+            while (left.match(parser, se))
             {
                 s.enqueue(se);
                 match = true;
@@ -268,9 +268,9 @@ namespace ell
 
         std::string get_kind() const { return "bound-repetition"; }
 
-        using Base::parse;
+        using Base::match;
         template <typename T>
-        bool parse(Parser<Token> * parser, Storage<T> & s) const
+        bool match(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
             s.clear();
@@ -278,7 +278,7 @@ namespace ell
             while (1)
             {
                 match = right.parse(parser);
-                if (match || ! left.parse(parser, se))
+                if (match || ! left.match(parser, se))
                     break;
                 s.enqueue(se);
                 parser->skip();
@@ -301,14 +301,14 @@ namespace ell
 
         std::string get_kind() const { return "no-suffix"; }
 
-        using Base::parse;
+        using Base::match;
         template <typename T>
-        bool parse(Parser<Token> * parser, Storage<T> & s) const
+        bool match(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.look_ahead, true);
             typename Parser<Token>::Context sav_pos(parser);
-            match = left.parse(parser, s);
+            match = left.match(parser, s);
             if (match && right.parse(parser))
             {
                 sav_pos.restore(parser);
@@ -332,9 +332,9 @@ namespace ell
 
         std::string get_kind() const { return "with-skipper"; }
 
-        using Base::parse;
+        using Base::match;
         template <typename T>
-        bool parse(Parser<Token> * parser, Storage<T> & s) const
+        bool match(Parser<Token> * parser, Storage<T> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
@@ -343,7 +343,7 @@ namespace ell
                 SafeModify<> m2(parser->flags.skip, true);
 
                 parser->skip();
-                match = left.parse(parser, s);
+                match = left.match(parser, s);
             }
             if (match)
             {

@@ -18,51 +18,51 @@
 
 namespace ell
 {
-    inline XmlNode * XmlNode::remove_attrib(const std::string & name)
+    inline XmlNode * XmlNode::remove_attrib(const std::string & attr_name)
     {
-        XmlAttributesMap::iterator i = attributes.find(name);
+        XmlAttributesMap::iterator i = attributes.find(attr_name);
         if (i == attributes.end())
-            raise_error(describe() + ": no such attribute: " + name);
+            raise_error(describe() + ": no such attribute: " + attr_name);
         attributes.erase(i);
         return this;
     }
 
-    inline const std::string XmlNode::get_attrib(const std::string & name) const
+    inline const std::string XmlNode::get_attrib(const std::string & attr_name) const
     {
         assert(is_element());
-        XmlAttributesMap::const_iterator i = attributes.find(name);
+        XmlAttributesMap::const_iterator i = attributes.find(attr_name);
         if (i == attributes.end())
-            raise_error(describe() + ": no such attribute: " + name);
+            raise_error(describe() + ": no such attribute: " + attr_name);
         return i->second;
     }
 
-    inline XmlNode * XmlNode::set_attrib(const std::string & name, const std::string & value)
+    inline XmlNode * XmlNode::set_attrib(const std::string & attr_name, const std::string & value)
     {
         assert(is_element());
-        attributes[name] = value;
+        attributes[attr_name] = value;
         return this;
     }
 
-    inline bool XmlNode::has_attrib(const std::string & name) const
+    inline bool XmlNode::has_attrib(const std::string & attr_name) const
     {
         assert(is_element());
-        XmlAttributesMap::const_iterator i = attributes.find(name);
+        XmlAttributesMap::const_iterator i = attributes.find(attr_name);
         return i != attributes.end();
     }
 
-    inline XmlNode * XmlNode::check_attrib(const std::string & name, const std::string & value)
+    inline XmlNode * XmlNode::check_attrib(const std::string & attr_name, const std::string & value)
     {
-        const std::string & val=get_attrib(name);
+        const std::string & val = get_attrib(attr_name);
         if (val != value)
             raise_error(describe() + ": " +
-                        name + "=\"" + val +
+                        attr_name + "=\"" + val +
                         "\", expecting \"" + value + "\"");
         return this;
     }
 
-    inline XmlNode * XmlNode::check_attrib_present(const std::string & name)
+    inline XmlNode * XmlNode::check_attrib_present(const std::string & attr_name)
     {
-        get_attrib(name);
+        get_attrib(attr_name);
         return this;
     }
 
@@ -74,14 +74,14 @@ namespace ell
 
     inline XmlNode * XmlNode::get_name(std::string & n)
     {
-        n=get_name();
+        n = get_name();
         return this;
     }
 
     inline XmlNode * XmlNode::set_name(const std::string & n)
     {
         assert(data.empty());
-        name=n;
+        name = n;
         return this;
     }
 
@@ -101,7 +101,7 @@ namespace ell
     inline XmlNode * XmlNode::set_data(const std::string & d)
     {
         assert(is_data());
-        data=d;
+        data = d;
         return this;
     }
 

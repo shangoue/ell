@@ -100,10 +100,10 @@ namespace ell
     template <typename Token, typename Sign = unsigned long, const int Radix = 10, const int MinDigits = 1, const int MaxDigits = 200>
     struct Int : public ConcreteNodeBase<Token, Int<Token, Sign, Radix, MinDigits, MaxDigits> >
     {
-        using ConcreteNodeBase<Token, Int<Token, Sign, Radix, MinDigits, MaxDigits> >::parse;
+        using ConcreteNodeBase<Token, Int<Token, Sign, Radix, MinDigits, MaxDigits> >::match;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & se) const
+        bool match(Parser<Token> * parser, Storage<V> & se) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
@@ -176,10 +176,10 @@ namespace ell
     struct Int<Token, Sign, Radix, 1, 200>
       : public ConcreteNodeBase<Token, Int<Token, Sign, Radix, 1, 200> >
     {
-        using ConcreteNodeBase<Token, Int<Token, Sign, Radix, 1, 200> >::parse;
+        using ConcreteNodeBase<Token, Int<Token, Sign, Radix, 1, 200> >::match;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & se) const
+        bool match(Parser<Token> * parser, Storage<V> & se) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
@@ -226,10 +226,10 @@ namespace ell
     template <typename Size=double>
     struct Rl : public ConcreteNodeBase<char, Rl<Size> >
     {
-        using ConcreteNodeBase<char, Rl<Size> >::parse;
+        using ConcreteNodeBase<char, Rl<Size> >::match;
 
         template <typename V>
-        bool parse(Parser<char> * parser, Storage<V> & s) const
+        bool match(Parser<char> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             char * endptr;

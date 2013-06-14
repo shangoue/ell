@@ -39,15 +39,15 @@ namespace ell
             return NV ? s : "no-" + s;                                           \
         }                                                                        \
                                                                                  \
-        using Base::parse;                                                       \
+        using Base::match;                                                       \
                                                                                  \
         template <typename V>                                                    \
-        bool parse(Parser<Token> * parser, Storage<V> & s) const                 \
+        bool match(Parser<Token> * parser, Storage<V> & s) const                 \
         {                                                                        \
             ELL_BEGIN_PARSE                                                      \
             SafeModify<> m1(parser->flags.FLAG, NV);                             \
             ELL_CUSTOM_##FLAG(NV)                                                \
-            match = Base::target.parse(parser, s);                               \
+            match = Base::target.match(parser, s);                               \
             ELL_END_PARSE                                                        \
         }                                                                        \
     };
@@ -62,7 +62,7 @@ namespace ell
         {                                                    \
             typename Parser<Token>::Context sav_pos(parser); \
             parser->skip();                                  \
-            match = Base::target.parse(parser, s);           \
+            match = Base::target.match(parser, s);           \
             if (! match)                                     \
                 sav_pos.restore(parser);                     \
         }                                                    \
@@ -84,13 +84,13 @@ namespace ell
 
         std::string get_kind() const { return "no-consume"; }
 
-        using Base::parse;
+        using Base::match;
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             typename Parser<Token>::Context sav_pos(parser);
-            match = Base::target.parse(parser, s);
+            match = Base::target.match(parser, s);
             sav_pos.restore(parser);
             ELL_END_PARSE
         }
@@ -109,14 +109,14 @@ namespace ell
 
         std::string get_kind() const { return "lexeme"; }
 
-        using Base::parse;
+        using Base::match;
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             SafeModify<> m1(parser->flags.look_ahead, true);
             SafeModify<> m2(parser->flags.skip, false);
-            match = Base::target.parse(parser, s);
+            match = Base::target.match(parser, s);
             ELL_END_PARSE
         }
     };
@@ -128,7 +128,7 @@ namespace ell
         typedef UnaryNode<Token, Rp<Token, Child, Min, Max>, Child> Base;
 
         using Base::target;
-        using Base::parse;
+        using Base::match;
 
         Rp(const Child & target)
           : Base(target)
@@ -155,7 +155,7 @@ namespace ell
         typedef UnaryNode<Token, DRp<Token, Child, CP>, Child> Base;
 
         using Base::target;
-        using Base::parse;
+        using Base::match;
 
         DRp(const Child & target,
                   const int CP::*min,
@@ -245,10 +245,10 @@ namespace ell
 
         std::string get_kind() const { return "action"; }
 
-        using Base::parse;
+        using Base::match;
 
         template <typename V>
-        bool parse(Parser<Token> * parser, Storage<V> & s) const
+        bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
             if (parser->flags.action)
@@ -256,7 +256,7 @@ namespace ell
                 Storage<Value> sa;
                 typename Parser<Token>::Context sav_pos(parser);
 
-                match = Base::target.parse(parser, sa);
+                match = Base::target.match(parser, sa);
                 if (match)
                 {
                     match = make_action((ConcreteParser *) parser, var, sa);
