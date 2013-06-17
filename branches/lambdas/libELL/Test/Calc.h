@@ -11,8 +11,8 @@ struct Calc : ell::Parser<char>, ell::Grammar<char>
 
         factor = ch('(') >> expression >> ch(')') 
 
-               | (ch('-') >> factor) [& Calc::negate] 
-//               | (ch('-') >> factor) [[&](){push(-pop());}] 
+              | (ch('-') >> factor) [& Calc::negate] 
+               //| (ch('-') >> factor) [[&](){push(-pop());}] 
                | (ch('+') >> factor) 
                | real [& Calc::push];
 

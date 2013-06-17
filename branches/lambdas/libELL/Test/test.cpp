@@ -262,18 +262,21 @@ struct LongestOpTest : ell::Grammar<char>, Test
     LongestOpTest() : Test("LongestOpTest")
     {
         {
+            std::cerr << "|:\n";
             ELL_NAME_RULE(r1) = str("toto") [& Parser::fail] | str("totot");
             Parser p1(& r1);
             check(p1, "totot", true, true);
         }
 
         {
+            std::cerr << "||1:\n";
             ELL_NAME_RULE(r1) = str("toto") [& Parser::fail] || str("totot");
             Parser p1(& r1);
             check(p1, "totot", true, true);
         }
 
         {
+            std::cerr << "||2:\n";
             ELL_NAME_RULE(r2) = str("toto") [& Parser::fail] || str("totot") [& Parser::fail];
             Parser p2(& r2);
             check(p2, "totot", false, false);

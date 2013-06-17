@@ -185,13 +185,13 @@ namespace ell
         bool make_action(Child & target, Parser<Token> * parser, VAction CP::*var, Storage<VOut> & s_out)
         {
             Storage<VAction> s_action;
-            bool res = target.match(parser, s_action);
-            if (res)
+            if (target.match(parser, s_action))
             {
                 ((CP*)parser)->*var = s_action.value;
                 assign(s_out, s_action);
+                return true;
             }
-            return res;
+            return false;
         }
 
         // Method returning void and taking by ref
@@ -199,19 +199,20 @@ namespace ell
         bool make_action(Child & target, Parser<Token> * parser, void(CP::*meth)(const VAction&), Storage<VOut> & s_out)
         {
             Storage<VAction> s_action;
-            bool res = target.match(parser, s_action);
-            if (res)
+            if (target.match(parser, s_action))
             {
                 (((CP*)parser)->*meth)(s_action.value);
                 assign(s_out, s_action);
+                return true;
             }
-            return res;
+            return false;
         }
 
         // Method returning bool and taking by ref
         template <typename Token, typename Child, typename CP, typename VAction, typename VOut>
         bool make_action(Child & target, Parser<Token> * parser, bool(CP::*meth)(const VAction&), Storage<VOut> & s_out)
         {
+            typename Parser<Token>::Context sav_pos(parser);
             Storage<VAction> s_action;
             if (target.match(parser, s_action))
             {
@@ -221,6 +222,7 @@ namespace ell
                     return true;
                 }
             }
+            sav_pos.restore(parser);
             return false;
         }
 
@@ -229,19 +231,20 @@ namespace ell
         bool make_action(Child & target, Parser<Token> * parser, void(CP::*meth)(VAction), Storage<VOut> & s_out)
         {
             Storage<VAction> s_action;
-            bool res = target.match(parser, s_action);
-            if (res)
+            if (target.match(parser, s_action))
             {
                 (((CP*)parser)->*meth)(s_action.value);
                 assign(s_out, s_action);
+                return true;
             }
-            return res;
+            return false;
         }
 
         // Method returning bool and taking by value
         template <typename Token, typename Child, typename CP, typename VAction, typename VOut>
         bool make_action(Child & target, Parser<Token> * parser, bool(CP::*meth)(VAction), Storage<VOut> & s_out)
         {
+            typename Parser<Token>::Context sav_pos(parser);
             Storage<VAction> s_action;
             if (target.match(parser, s_action))
             {
@@ -251,6 +254,7 @@ namespace ell
                     return true;
                 }
             }
+            sav_pos.restore(parser);
             return false;
         }
 
@@ -258,37 +262,41 @@ namespace ell
         template <typename Token, typename Child, typename CP, typename VOut>
         bool make_action(Child & target, Parser<Token> * parser, void(CP::*meth)(), Storage<VOut> & s_out)
         {
-            bool res = target.match(parser, s_out);
-            if (res)
+            if (target.match(parser, s_out))
+            {
                 (((CP*)parser)->*meth)();
-            return res;
+                return true;
+            }
+            return false;
         }
 
         // Function returning void and taking nothing
         template <typename Token, typename Child, typename VOut>
         bool make_action(Child & target, Parser<Token> * parser, void(*func)(), Storage<VOut> & s_out)
         {
-            bool res = target.match(parser, s_out);
-            if (res)
+            if (target.match(parser, s_out))
+            {
                 (*func)();
-            return res;
+                return true;
+            }
+            return false;
         }
 
         // Method returning bool and taking nothing
         template <typename Token, typename Child, typename CP, typename VOut>
         bool make_action(Child & target, Parser<Token> * parser, bool(CP::*meth)(), Storage<VOut> & s_out)
         {
+            typename Parser<Token>::Context sav_pos(parser);
             Storage<VOut> s_action;
-            bool res = target.match(parser, s_action);
-            if (res)
+            if (target.match(parser, s_action))
             {
-                res = (((CP*)parser)->*meth)();
-                if (res)
+                if ((((CP*)parser)->*meth)())
                 {
                     assign(s_out, s_action);
                     return true;
                 }
             }
+            sav_pos.restore(parser);
             return false;
         }
     }

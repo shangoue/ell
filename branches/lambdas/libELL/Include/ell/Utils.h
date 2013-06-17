@@ -35,13 +35,13 @@
 #endif
 
 #ifndef ELL_DUMP_NODES
-# define ELL_DUMP_NODES        0
+# define ELL_DUMP_NODES        1
 #endif
 #ifndef ELL_DUMP_ACTIONS
-# define ELL_DUMP_ACTIONS      0
+# define ELL_DUMP_ACTIONS      1
 #endif
 #ifndef ELL_DUMP_SKIPPER
-# define ELL_DUMP_SKIPPER      0
+# define ELL_DUMP_SKIPPER      1
 #endif
 
 # define ELL_BEGIN_PARSE bool res = false; parser->begin_of_parsing(this);
