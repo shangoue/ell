@@ -23,3 +23,6 @@ test: libELL/test.target XmlParser/xml_test.target
 
 cleanall:
 	rm -rf Build
+
+package:
+	./Script/make_package.sh
