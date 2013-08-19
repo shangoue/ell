@@ -251,6 +251,7 @@ namespace ell
         bool match(Parser<Token> * parser, Storage<V> & s) const
         {
             ELL_BEGIN_PARSE
+            // TODO: specialize this class to separate validator, actions and storage
             if (parser->flags.action)
             {
                 Storage<Value> sa;

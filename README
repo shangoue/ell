@@ -1,0 +1,12 @@
+libELL: library to Embed LL grammar & parser
+
+http://ell.google.com/svn/trunk
+
+Full documentation can be found at: http://code.google.com/p/ell/wiki/ReferenceManualEn
+
+For GNU make users, you can adjust your build parameters in file Script/prefix.mk.
+Visual studio project files are also provided in Script/MSVCxxxx.
+
+Thanks for using libELL!
+
+Samuel Hangouët
