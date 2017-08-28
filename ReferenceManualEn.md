@@ -119,7 +119,7 @@ Now, we can add semantic actions. We do that with the `[]` operator. Such action
                          (ch('-') >> term) [substract]);
 ```
 
-The full working exemple of this calculator is present in the repository at http://code.google.com/p/ell/source/browse/trunk/libELL/Test/Calc.h
+The full working exemple of this calculator is present in the repository at https://github.com/shangoue/ell/blob/master/libELL/Test/Calc.h
 
 
 ### Grammar primitives ###
