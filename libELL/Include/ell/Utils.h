@@ -54,7 +54,8 @@
     ELL_FLAG(debug, Dbg)      \
 
 #if ELL_DEBUG == 1
-#define ELL_DUMP(arg) do { if (flags.debug) std::cerr << arg << std::endl; } while (0)
+#define ELL_LOG(arg) do { std::cerr << arg << std::endl; } while (0)
+#define ELL_DUMP(arg) do { if (flags.debug) ELL_LOG(arg); } while (0)
 #define ELL_ENABLE_DUMP(parser) do { (parser).flags.debug = true; } while (0)
 #define ELL_DISABLE_DUMP(parser) do { (parser).flags.debug = false; } while (0)
 #else

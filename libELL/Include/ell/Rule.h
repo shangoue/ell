@@ -42,8 +42,7 @@ namespace ell
         {
             if (! top)
             {
-                std::string msg = "Rule `" + name + "` not used";
-                throw std::runtime_error(msg.c_str());
+                ELL_LOG("Rule `" << name << "` not used");
             }
             else
             {
