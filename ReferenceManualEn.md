@@ -401,4 +401,4 @@ terminate called after throwing an instance of 'std::runtime_error'
 Error has been catched earlier and the user is told he should drink beer instead of eating kouign amann, which appears a lot more natural, no ?
 
 
-You can look at the full exemple: http://code.google.com/p/ell/source/browse/trunk/libELL/Test/MealParser.cpp
+You can look at the full exemple: https://github.com/shangoue/ell/blob/master/libELL/Test/MealParser.cpp
