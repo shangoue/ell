@@ -1,5 +1,5 @@
 libEll: library to Embed LL grammar & parser as C++ code.
 
-Here stands the old vresion of the ELL library, which is no longer maintained.
+Here stands the old version of the ELL library, which is no longer maintained.
 
-This project has moved to: https://gitlab.com/samuel.hangouet/ell.
+The project has moved to: https://gitlab.com/samuel.hangouet/ell.
