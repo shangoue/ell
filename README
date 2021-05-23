@@ -1,14 +1,5 @@
-libELL: library to Embed LL grammar & parser
+libEll: library to Embed LL grammar & parser as C++ code.
 
-https://github.com/shangoue/ell
+Here stands the old vresion of the ELL library, which is no longer maintained.
 
-Full documentation can be found at:
-
-https://github.com/shangoue/ell/blob/wiki/ReferenceManualEn.md
-
-For GNU make users, you can adjust your build parameters in file Script/prefix.mk.
-Visual studio project files are also provided in Script/MSVCxxxx.
-
-Thanks for using libELL!
-
-Samuel Hangouët
+This project has moved to: https://gitlab.com/samuel.hangouet/ell.
